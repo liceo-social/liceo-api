@@ -1,0 +1,22 @@
+name: continuous integration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: docker
+    steps:
+      - name: Pre (checkout code)
+        uses: actions/checkout@v4
+      - name: Pre (install uv)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Pre (sync-dependencies)
+        run: uv sync
+      - name: Tests (Unit)
+        run: ./ci.sh unit-tests
+
