@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from liceo.infra.domain.error import OptiakError
+from liceo.infra.domain.error import I18Error
 from liceo.infra.domain.entities import AuditableAggregate
 from liceo.labs.sherlock.core import AggregateEvent, Sensitive
 from liceo.security.users.domain.vo import Role, UserId
@@ -14,14 +14,14 @@ class User(AuditableAggregate[UserId]):
         name: str
         changed_by: UserId
 
-    class NotChangedBySameUserError(OptiakError):
+    class NotChangedBySameUserError(I18Error):
         def __init__(self):
             super().__init__(
                 "security.users.error.not_changed_by_same_user",
                 "property can only be changed by user",
             )
 
-    class RepeatedPasswordNotCorrect(OptiakError):
+    class RepeatedPasswordNotCorrect(I18Error):
         def __init__(self):
             super().__init__(
                 "security.users.error.repeated_password",
@@ -68,7 +68,7 @@ class User(AuditableAggregate[UserId]):
         admin_check_handler: Callable[[UserId], bool]
         role_to_add: Role
 
-    class RoleAddedByNoAdmin(OptiakError):
+    class RoleAddedByNoAdmin(I18Error):
         def __init__(self):
             super().__init__(
                 "security.users.error.role_added_by_no_admin",
@@ -92,7 +92,7 @@ class User(AuditableAggregate[UserId]):
         role_to_delete: Role
         admin_check_handler: Callable[[UserId], bool]
 
-    class RoleRemovedByNoAdmin(OptiakError):
+    class RoleRemovedByNoAdmin(I18Error):
         def __init__(self):
             super().__init__(
                 "security.users.error.role_removed_by_no_admin",

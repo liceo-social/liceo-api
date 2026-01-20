@@ -2,17 +2,17 @@ from dataclasses import dataclass
 
 
 @dataclass
-class OptiakError(Exception):
+class I18Error(Exception):
     code: str
     message: str
 
 
 @dataclass
-class ValidationError(OptiakError):
+class ValidationError(I18Error):
     pass
 
 
-class NotFoundError(OptiakError):
+class NotFoundError(I18Error):
     def __init__(self, entity_name: str, id: str = "unknown"):
         return super().__init__(
             "not_found.{}.{}".format(entity_name, id),
@@ -21,5 +21,5 @@ class NotFoundError(OptiakError):
 
 
 @dataclass
-class NotAuthorizedError(OptiakError):
+class NotAuthorizedError(I18Error):
     pass

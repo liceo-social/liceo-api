@@ -3,10 +3,10 @@ import logging
 from fastapi import Request
 from fastapi.responses import JSONResponse, Response
 
-from liceo.infra.domain.error import OptiakError
+from liceo.infra.domain.error import I18Error
 
 
-def optiak_handler(request: Request, exc: OptiakError) -> Response:
+def optiak_handler(request: Request, exc: I18Error) -> Response:
     """
     handles all OptiakError instances
     """
