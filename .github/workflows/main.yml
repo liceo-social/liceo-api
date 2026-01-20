@@ -17,6 +17,8 @@ jobs:
           enable-cache: true
       - name: Pre (sync-dependencies)
         run: uv sync
-      - name: Tests (Unit)
+      - name: Tests (architecture)
+        run: ./ci.sh arch-tests
+      - name: Tests (unit)
         run: ./ci.sh unit-tests
 
