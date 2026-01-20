@@ -1,4 +1,7 @@
+from datetime import datetime
 from dataclasses import dataclass
+
+from typing import Generic, TypeVar
 
 
 @dataclass(frozen=True)
@@ -14,3 +17,6 @@ class UserId:
 @dataclass
 class RoleId:
     id: str
+
+
+T = TypeVar("T")

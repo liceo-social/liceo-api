@@ -1,11 +1,11 @@
 from typing import Callable
 from dataclasses import dataclass
-from datetime import datetime
-from liceo.labs.sherlock.core import Aggregate, AggregateEvent
+from liceo.labs.sherlock.core import AggregateEvent
+from liceo.infra.domain.entities import AuditableAggregate
 from liceo.security.permissions.domain import vo
 
 
-class Permission(Aggregate):
+class Permission(AuditableAggregate[vo.UserId]):
     @dataclass
     class CreatePermissionCommand:
         name: str
@@ -20,10 +20,7 @@ class Permission(Aggregate):
 
         def handle(self, aggregate: "Permission"):
             aggregate.name = self.name
-            aggregate.created_by = self.created_by
-            aggregate.created_at = datetime.now()
-            aggregate.last_modified_by = self.created_by
-            aggregate.last_modified_at = datetime.now()
+            aggregate.mark_created_by(self.created_by)
 
     @dataclass
     class ChangeNameCommand:
@@ -38,8 +35,7 @@ class Permission(Aggregate):
 
         def handle(self, aggregate: "Permission"):
             aggregate.name = self.new_name
-            aggregate.last_modified_by = self.changed_by
-            aggregate.last_modified_at = datetime.now()
+            aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
     class DeletePermissionCommand:
@@ -51,16 +47,9 @@ class Permission(Aggregate):
         deleted_by: vo.UserId
 
         def handle(self, aggregate: "Permission"):
-            aggregate.deleted_by = self.deleted_by
-            aggregate.deleted_at = datetime.now()
+            aggregate.mark_deleted_by(self.deleted_by)
 
     name: str
-    created_by: vo.UserId
-    created_at: datetime
-    last_modified_by: vo.UserId
-    last_modified_at: datetime
-    deleted_by: vo.UserId | None
-    deleted_at: datetime | None
 
     @staticmethod
     def create(command: CreatePermissionCommand):

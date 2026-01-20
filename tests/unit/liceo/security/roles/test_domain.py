@@ -55,3 +55,23 @@ def test_remove_permissions():
 
     assert role.last_modified_by.id == "modifier2id"
     assert len(role.permissions) == 1
+
+
+def test_delete_role():
+    role = create_role()\
+        .add_permissions(
+            Role.AddPermissionsCommand(
+                added_by=vo.UserId("modifierid"),
+                permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]))
+    )\
+        .remove_permissions(
+            Role.RemovePermissionsCommand(
+                removed_by=vo.UserId("modifier2id"),
+                permissions=set([vo.PermissionId("p2")])
+            )
+    ).delete(command=Role.DeleteRoleCommand(deleted_by=vo.UserId(id="deletedbyid")))
+
+    assert len(role.permissions) == 0
+    assert role.deleted_by is not None
+    assert role.deleted_by.id == "deletedbyid"
+    assert role.deleted_at is not None

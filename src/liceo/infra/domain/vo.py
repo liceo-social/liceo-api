@@ -1,10 +1,11 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Generic, List, TypeVar
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from optiak.labs.utils import singleton
+from liceo.labs.utils import singleton
 
 T = TypeVar("T")
 
@@ -83,3 +84,30 @@ class ConfigurationSingleton:
     @staticmethod
     def instance():
         return OptiakConfiguration()
+
+
+class AuditInfo(Generic[T]):
+    created_by: T
+    created_at: datetime
+    last_modified_by: T
+    last_modified_at: datetime
+    deleted_by: T | None
+    deleted_at: datetime | None
+
+    def __init__(self, created_by: T):
+        creation_time = datetime.now()
+        self.created_by = created_by
+        self.created_at = creation_time
+        self.last_modified_by = created_by
+        self.last_modified_at = creation_time
+
+    def modified(self, user_id: T):
+        self.last_modified_by = user_id
+        self.last_modified_at = datetime.now()
+
+    def deleted(self, user_id: T):
+        deletion_time = datetime.now()
+        self.last_modified_by = user_id
+        self.last_modified_at = deletion_time
+        self.deleted_by = user_id
+        self.deleted_at = deletion_time

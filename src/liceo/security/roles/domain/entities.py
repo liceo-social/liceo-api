@@ -1,11 +1,11 @@
-from typing import Callable, List, Set
-from datetime import datetime
-from dataclasses import dataclass, field
-from liceo.labs.sherlock.core import Aggregate, AggregateEvent
+from typing import Callable, Set
+from dataclasses import dataclass
+from liceo.labs.sherlock.core import AggregateEvent
+from liceo.infra.domain.entities import AuditableAggregate
 from liceo.security.roles.domain import vo
 
 
-class Role(Aggregate):
+class Role(AuditableAggregate[vo.UserId]):
     @dataclass
     class CreateRoleCommand:
         next_id: Callable[[], vo.RoleId]
@@ -20,10 +20,7 @@ class Role(Aggregate):
 
         def handle(self, aggregate: "Role"):
             aggregate.name = self.name
-            aggregate.created_by = self.created_by
-            aggregate.created_at = datetime.now()
-            aggregate.last_modified_by = self.created_by
-            aggregate.last_modified_at = datetime.now()
+            aggregate.mark_created_by(self.created_by)
 
     @dataclass
     class AddPermissionsCommand:
@@ -40,8 +37,7 @@ class Role(Aggregate):
             for permission in self.permissions:
                 aggregate.permissions.add(permission)
 
-            aggregate.last_modified_by = self.added_by
-            aggregate.last_modified_at = datetime.now()
+            aggregate.mark_modified_by(self.added_by)
 
     @dataclass
     class RemovePermissionsCommand:
@@ -58,15 +54,23 @@ class Role(Aggregate):
             for permission in self.permissions:
                 aggregate.permissions.remove(permission)
 
-            aggregate.last_modified_by = self.removed_by
-            aggregate.last_modified_at = datetime.now()
+            aggregate.mark_modified_by(self.removed_by)
+
+    @dataclass
+    class DeleteRoleCommand:
+        deleted_by: vo.UserId
+
+    @dataclass(kw_only=True)
+    class RoleDeleted(AggregateEvent):
+        event_type: str = "ROLE_DELETED"
+        deleted_by: vo.UserId
+
+        def handle(self, aggregate: "Role"):
+            aggregate.permissions = set()
+            aggregate.mark_deleted_by(self.deleted_by)
 
     name: str
     permissions: Set[vo.PermissionId] = set()
-    created_by: vo.UserId
-    created_at: datetime
-    last_modified_by: vo.UserId
-    last_modified_at: datetime
 
     @staticmethod
     def create(command: CreateRoleCommand):
@@ -77,3 +81,6 @@ class Role(Aggregate):
 
     def remove_permissions(self, command: RemovePermissionsCommand):
         return self.append(Role.PermissionsRemoved(permissions=command.permissions, removed_by=command.removed_by))
+
+    def delete(self, command: DeleteRoleCommand):
+        return self.append(Role.RoleDeleted(deleted_by=command.deleted_by))
