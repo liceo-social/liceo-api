@@ -1,0 +1,21 @@
+# python
+dist/
+out/
+*.pyc
+venv/
+.venv
+.ruff_cache
+.pytest_cache
+site/
+__pycache__/
+.coverage
+
+# logs
+*.log
+logs/
+!docs/observability/logs/
+
+# terraform
+.terraform
+.terraform.*
+terraform.tfstate*

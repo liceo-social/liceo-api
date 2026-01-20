@@ -1,0 +1,35 @@
+{
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.debugpy",
+                "ms-python.isort",
+                "ms-python.vscode-python-envs",
+                "ms-python.vscode-pylance",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.defaultInterpreterPath": ".venv/bin/python"
+            }
+        }
+    },
+    "remoteUser": "vscode",
+    "containerUser": "vscode",
+    "containerEnv": {
+        "UV_PROJECT_ENVIRONMENT": "/workspaces/${localWorkspaceFolderBasename}/.venv"
+    },
+    "postCreateCommand": "uv sync",
+    "mounts": [
+        // Re-use local AWS keys (useful if you use AWS keys for AWS infra creation)
+        "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
+        // Re-use local SSH keys (useful if you use SSH keys for Git repo access or other SSH work)
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+        // Re-use local Git configuration
+        "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached"
+    ]
+}

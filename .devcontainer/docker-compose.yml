@@ -1,0 +1,64 @@
+version: "3"
+name: "devcontainer"
+########################
+#####   NETWORKS   #####
+########################
+networks:
+  back-tier:
+
+
+volumes:
+  ########################
+  #####    VOLUMES   #####
+  ########################
+  liceo_local_postgres_data: {}
+
+services:
+  ########################
+  ##### DEVCONTAINER #####
+  ########################
+  devcontainer:
+    build:
+      context: .
+      dockerfile: ./docker-devcontainer/Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+    networks:
+      - back-tier
+    command: sleep infinity
+
+  ########################
+  #####   POSTGRES   #####
+  ########################
+  postgres-svc:
+    image: postgres:16-alpine
+    container_name: postgres-svc
+    ports:
+      - "15432:5432"
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: optiak
+    volumes:
+      - liceo_local_postgres_data:/var/lib/postgresql/data
+    networks:
+      - back-tier
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #############################
+  #####      MAILPIT     ######
+  #############################
+  mailpit-svc:
+    image: axllent/mailpit
+    container_name: mailpit-svc
+    ports:
+      - "30800:8025" # UI
+      - "30900:1025" # SMTP
+    networks:
+      - back-tier
