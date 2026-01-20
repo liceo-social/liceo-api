@@ -3,15 +3,14 @@ from liceo.security.users.domain.vo import UserId
 
 
 def create_user(user_id: UserId = UserId(id="1")):
-    return User(
-        id=user_id,
-        roles=[],
-        name="John",
+    return User.create(User.CreateUserCommand(
+        next_id=lambda: "user-id",
+        created_by=user_id,
+        name="Johnny",
         surname="Doe",
         username="john.doe@optiak.com",
         password="password",
-        active=True,
-    )
+    ))
 
 
 def test_change_name():
@@ -21,7 +20,7 @@ def test_change_name():
     user = user.change_name(change_name_cmd)
 
     assert user.name == "Johnny"
-    assert len(user._events) == 1
+    assert len(user._events) == 2
 
 
 def test_try_to_change_name_by_another_user():
@@ -36,8 +35,8 @@ def test_try_to_change_name_by_another_user():
     except User.NotChangedBySameUserError:
         assert True
 
-    assert user.name == "John"
-    assert len(user._events) == 0
+    assert user.name == "Johnny"
+    assert len(user._events) == 1
 
 
 def test_change_password():
@@ -55,7 +54,7 @@ def test_change_password():
     )
     user = create_user(user_id=user_id).change_password(cmd)
 
-    assert len(user._events) == 1
+    assert len(user._events) == 2
     assert user.password == "hashed"
 
 
@@ -76,7 +75,7 @@ def test_try_to_change_password_with_wrong_repeated_password():
     except User.RepeatedPasswordNotCorrect:
         assert True
 
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert user.password == "password"
 
 
@@ -98,7 +97,7 @@ def test_try_to_change_password_by_another_user():
     except User.NotChangedBySameUserError:
         assert True
 
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert user.password == "password"
 
 
@@ -132,17 +131,17 @@ def test_non_admin_user_adding_a_role_to_user():
     except User.RoleAddedByNoAdmin:
         assert True
 
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert len(user.roles) == 0
 
 
 def test_adding_same_role_more_than_once():
     user = create_user()
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert len(user.roles) == 0
 
     user.add_role(add_role_cmd_by_admin()).add_role(add_role_cmd_by_admin())
-    assert len(user._events) == 1
+    assert len(user._events) == 2
     assert len(user.roles) == 1
 
 
@@ -156,25 +155,25 @@ def remove_cmd_by(is_admin: bool = True):
 
 def test_removing_role():
     user = create_user()
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert len(user.roles) == 0
 
     user.add_role(add_role_cmd_by_admin())
-    assert len(user._events) == 1
+    assert len(user._events) == 2
     assert len(user.roles) == 1
 
     user.remove_role(remove_cmd_by())
-    assert len(user._events) == 2
+    assert len(user._events) == 3
     assert len(user.roles) == 0
 
 
 def test_trying_to_remove_a_role_by_a_non_admin_user():
     user = create_user()
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert len(user.roles) == 0
 
     user.add_role(add_role_cmd_by_admin())
-    assert len(user._events) == 1
+    assert len(user._events) == 2
     assert len(user.roles) == 1
 
     try:
@@ -183,23 +182,23 @@ def test_trying_to_remove_a_role_by_a_non_admin_user():
     except User.RoleRemovedByNoAdmin:
         assert True
 
-    assert len(user._events) == 1
+    assert len(user._events) == 2
     assert len(user.roles) == 1
 
 
 def test_removing_an_already_removed_role():
     user = create_user()
-    assert len(user._events) == 0
+    assert len(user._events) == 1
     assert len(user.roles) == 0
 
     user.add_role(add_role_cmd_by_admin())
-    assert len(user._events) == 1
+    assert len(user._events) == 2
     assert len(user.roles) == 1
 
     user.remove_role(remove_cmd_by())
-    assert len(user._events) == 2
+    assert len(user._events) == 3
     assert len(user.roles) == 0
 
     user.remove_role(remove_cmd_by())
-    assert len(user._events) == 2
+    assert len(user._events) == 3
     assert len(user.roles) == 0

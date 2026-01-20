@@ -2,16 +2,13 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 from liceo.infra.domain.error import OptiakError
-from liceo.labs.sherlock.core import AggregateEvent, AggregateRoot, Sensitive
+from liceo.infra.domain.entities import AuditableAggregate
+from liceo.labs.sherlock.core import AggregateEvent, Sensitive
 from liceo.security.users.domain.vo import Role, UserId
 
 
 @dataclass
-class User(AggregateRoot):
-    """
-    users
-    """
-
+class User(AuditableAggregate[UserId]):
     @dataclass
     class ChangeNameCommand:
         name: str
@@ -40,6 +37,7 @@ class User(AggregateRoot):
 
         def handle(self, aggregate: "User"):
             aggregate.name = self.name
+            aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
     class ChangePasswordCommand:
@@ -62,6 +60,7 @@ class User(AggregateRoot):
 
         def handle(self, aggregate: "User"):
             aggregate.password = self.new_password.value
+            aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
     class AddRoleCommand:
@@ -85,6 +84,7 @@ class User(AggregateRoot):
 
         def handle(self, aggregate: "User"):
             aggregate.roles.append(self.role)
+            aggregate.mark_modified_by(self.added_by)
 
     @dataclass
     class RemoveRoleCommand:
@@ -108,6 +108,32 @@ class User(AggregateRoot):
 
         def handle(self, aggregate: "User"):
             aggregate.roles.remove(self.role)
+            aggregate.mark_modified_by(self.removed_by)
+
+    @dataclass
+    class CreateUserCommand:
+        next_id: Callable[[], str]
+        name: str
+        surname: str
+        username: str
+        password: str
+        created_by: UserId
+
+    @dataclass(kw_only=True)
+    class UserCreated(AggregateEvent):
+        event_type: str = "USER_CREATED"
+        name: str
+        surname: str
+        username: str
+        password: str
+        created_by: UserId
+
+        def handle(self, aggregate: "User"):
+            aggregate.mark_created_by(self.created_by)
+            aggregate.name = self.name
+            aggregate.surname = self.surname
+            aggregate.username = self.username
+            aggregate.password = self.password
 
     id: UserId | None = field(default=None)
     name: str | None = field(default=None)
@@ -115,8 +141,18 @@ class User(AggregateRoot):
     active: bool = field(default=False)
     username: str | None = field(default=None)
     password: str | None = field(default=None)
-    created_by: UserId | None = field(default=None)
     roles: list[Role] = field(default_factory=list)
+
+    @staticmethod
+    def create(command: CreateUserCommand):
+        return User(id=UserId(id=command.next_id()))\
+            .append(User.UserCreated(
+                created_by=command.created_by,
+                name=command.name,
+                surname=command.surname,
+                username=command.username,
+                password=command.password
+            ))
 
     def _is_changed_by_same_user(self, changed_by: UserId):
         return self.id and self.id == changed_by
