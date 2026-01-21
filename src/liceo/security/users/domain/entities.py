@@ -16,8 +16,7 @@ class User(AuditableAggregate[vo.UserId]):
 
     @dataclass(kw_only=True)
     class NameChanged(AggregateEvent):
-        event_type: str = "NAME_CHANGED"
-
+        event_type: str = "USER_NAME_CHANGED"
         name: str
         changed_by: vo.UserId
 
@@ -39,8 +38,7 @@ class User(AuditableAggregate[vo.UserId]):
 
     @dataclass(kw_only=True)
     class PasswordChanged(AggregateEvent):
-        event_type: str = "PASSWORD_CHANGED"
-
+        event_type: str = "USER_PASSWORD_CHANGED"
         changed_by: vo.UserId
         new_password: Sensitive[str]
 
@@ -56,8 +54,7 @@ class User(AuditableAggregate[vo.UserId]):
 
     @dataclass(kw_only=True)
     class RoleAdded(AggregateEvent):
-        event_type: str = "ROLE_ADDED"
-
+        event_type: str = "USER_ROLE_ADDED"
         added_by: vo.UserId
         role: vo.Role
 
@@ -73,8 +70,7 @@ class User(AuditableAggregate[vo.UserId]):
 
     @dataclass(kw_only=True)
     class RoleRemoved(AggregateEvent):
-        event_type: str = "ROLE_REMOVED"
-
+        event_type: str = "USER_ROLE_REMOVED"
         removed_by: vo.UserId
         role: vo.Role
 
