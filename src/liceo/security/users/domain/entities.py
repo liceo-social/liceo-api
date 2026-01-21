@@ -1,39 +1,25 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from liceo.infra.domain.error import I18Error
 from liceo.infra.domain.entities import AuditableAggregate
 from liceo.labs.sherlock.core import AggregateEvent, Sensitive
-from liceo.security.users.domain.vo import Role, UserId
+from liceo.security.users.domain import vo
+from liceo.security.users.domain import errors
 
 
 @dataclass
-class User(AuditableAggregate[UserId]):
+class User(AuditableAggregate[vo.UserId]):
     @dataclass
     class ChangeNameCommand:
         name: str
-        changed_by: UserId
-
-    class NotChangedBySameUserError(I18Error):
-        def __init__(self):
-            super().__init__(
-                "security.users.error.not_changed_by_same_user",
-                "property can only be changed by user",
-            )
-
-    class RepeatedPasswordNotCorrect(I18Error):
-        def __init__(self):
-            super().__init__(
-                "security.users.error.repeated_password",
-                "repeated password is not correct",
-            )
+        changed_by: vo.UserId
 
     @dataclass(kw_only=True)
     class NameChanged(AggregateEvent):
         event_type: str = "NAME_CHANGED"
 
         name: str
-        changed_by: UserId
+        changed_by: vo.UserId
 
         def handle(self, aggregate: "User"):
             aggregate.name = self.name
@@ -44,7 +30,7 @@ class User(AuditableAggregate[UserId]):
         old_password: str
         new_password: str
         new_password_repeated: str
-        changed_by: UserId
+        changed_by: vo.UserId
         old_password_check_handler: Callable[[str], bool]
         new_password_hashing_handler: Callable[[str], str]
 
@@ -55,7 +41,7 @@ class User(AuditableAggregate[UserId]):
     class PasswordChanged(AggregateEvent):
         event_type: str = "PASSWORD_CHANGED"
 
-        changed_by: UserId
+        changed_by: vo.UserId
         new_password: Sensitive[str]
 
         def handle(self, aggregate: "User"):
@@ -64,23 +50,16 @@ class User(AuditableAggregate[UserId]):
 
     @dataclass
     class AddRoleCommand:
-        added_by: UserId
-        admin_check_handler: Callable[[UserId], bool]
-        role_to_add: Role
-
-    class RoleAddedByNoAdmin(I18Error):
-        def __init__(self):
-            super().__init__(
-                "security.users.error.role_added_by_no_admin",
-                "role added by a non admin user",
-            )
+        added_by: vo.UserId
+        admin_check_handler: Callable[[vo.UserId], bool]
+        role_to_add: vo.Role
 
     @dataclass(kw_only=True)
     class RoleAdded(AggregateEvent):
         event_type: str = "ROLE_ADDED"
 
-        added_by: UserId
-        role: Role
+        added_by: vo.UserId
+        role: vo.Role
 
         def handle(self, aggregate: "User"):
             aggregate.roles.append(self.role)
@@ -88,23 +67,16 @@ class User(AuditableAggregate[UserId]):
 
     @dataclass
     class RemoveRoleCommand:
-        removed_by: UserId
-        role_to_delete: Role
-        admin_check_handler: Callable[[UserId], bool]
-
-    class RoleRemovedByNoAdmin(I18Error):
-        def __init__(self):
-            super().__init__(
-                "security.users.error.role_removed_by_no_admin",
-                "role removed by a non admin user",
-            )
+        removed_by: vo.UserId
+        role_to_delete: vo.Role
+        admin_check_handler: Callable[[vo.UserId], bool]
 
     @dataclass(kw_only=True)
     class RoleRemoved(AggregateEvent):
         event_type: str = "ROLE_REMOVED"
 
-        removed_by: UserId
-        role: Role
+        removed_by: vo.UserId
+        role: vo.Role
 
         def handle(self, aggregate: "User"):
             aggregate.roles.remove(self.role)
@@ -117,7 +89,7 @@ class User(AuditableAggregate[UserId]):
         surname: str
         username: str
         password: str
-        created_by: UserId
+        created_by: vo.UserId
 
     @dataclass(kw_only=True)
     class UserCreated(AggregateEvent):
@@ -126,7 +98,7 @@ class User(AuditableAggregate[UserId]):
         surname: str
         username: str
         password: str
-        created_by: UserId
+        created_by: vo.UserId
 
         def handle(self, aggregate: "User"):
             aggregate.mark_created_by(self.created_by)
@@ -135,17 +107,17 @@ class User(AuditableAggregate[UserId]):
             aggregate.username = self.username
             aggregate.password = self.password
 
-    id: UserId | None = field(default=None)
+    id: vo.UserId | None = field(default=None)
     name: str | None = field(default=None)
     surname: str | None = field(default=None)
     active: bool = field(default=False)
     username: str | None = field(default=None)
     password: str | None = field(default=None)
-    roles: list[Role] = field(default_factory=list)
+    roles: list[vo.Role] = field(default_factory=list)
 
     @staticmethod
     def create(command: CreateUserCommand):
-        return User(id=UserId(id=command.next_id()))\
+        return User(id=vo.UserId(id=command.next_id()))\
             .append(User.UserCreated(
                 created_by=command.created_by,
                 name=command.name,
@@ -154,21 +126,21 @@ class User(AuditableAggregate[UserId]):
                 password=command.password
             ))
 
-    def _is_changed_by_same_user(self, changed_by: UserId):
+    def _is_changed_by_same_user(self, changed_by: vo.UserId):
         return self.id and self.id == changed_by
 
     def change_name(self, cmd: ChangeNameCommand):
         if not self._is_changed_by_same_user(cmd.changed_by):
-            raise User.NotChangedBySameUserError()
+            raise errors.NotChangedBySameUserError()
 
         return self.append(User.NameChanged(name=cmd.name, changed_by=cmd.changed_by))
 
     def change_password(self, cmd: ChangePasswordCommand):
         if not self._is_changed_by_same_user(cmd.changed_by):
-            raise User.NotChangedBySameUserError()
+            raise errors.NotChangedBySameUserError()
 
         if not cmd.is_new_password_repeated_correct():
-            raise User.RepeatedPasswordNotCorrect()
+            raise errors.RepeatedPasswordNotCorrect()
 
         return self.append(
             User.PasswordChanged(
@@ -181,7 +153,7 @@ class User(AuditableAggregate[UserId]):
 
     def add_role(self, cmd: AddRoleCommand) -> "User":
         if not cmd.admin_check_handler(cmd.added_by):
-            raise User.RoleAddedByNoAdmin()
+            raise errors.RoleAddedByNoAdmin()
 
         if cmd.role_to_add in self.roles:
             return self
@@ -190,7 +162,7 @@ class User(AuditableAggregate[UserId]):
 
     def remove_role(self, cmd: RemoveRoleCommand) -> "User":
         if not cmd.admin_check_handler(cmd.removed_by):
-            raise User.RoleRemovedByNoAdmin()
+            raise errors.RoleRemovedByNoAdmin()
 
         if cmd.role_to_delete in self.roles:
             return self.append(

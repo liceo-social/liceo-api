@@ -1,5 +1,7 @@
-from liceo.security.users.domain.entities import Role, User
-from liceo.security.users.domain.vo import UserId
+from liceo.security.users.domain.entities import User
+from liceo.security.users.domain.vo import UserId, Role
+from liceo.security.users.domain.errors import (
+    NotChangedBySameUserError, RepeatedPasswordNotCorrect, RoleAddedByNoAdmin, RoleRemovedByNoAdmin)
 
 
 def create_user(user_id: UserId = UserId(id="1")):
@@ -32,7 +34,7 @@ def test_try_to_change_name_by_another_user():
     try:
         user.change_name(change_name_cmd)
         assert False
-    except User.NotChangedBySameUserError:
+    except NotChangedBySameUserError:
         assert True
 
     assert user.name == "Johnny"
@@ -72,7 +74,7 @@ def test_try_to_change_password_with_wrong_repeated_password():
         )
         user.change_password(cmd)
         assert False
-    except User.RepeatedPasswordNotCorrect:
+    except RepeatedPasswordNotCorrect:
         assert True
 
     assert len(user._events) == 1
@@ -94,7 +96,7 @@ def test_try_to_change_password_by_another_user():
         )
         user.change_password(cmd)
         assert False
-    except User.NotChangedBySameUserError:
+    except NotChangedBySameUserError:
         assert True
 
     assert len(user._events) == 1
@@ -128,7 +130,7 @@ def test_non_admin_user_adding_a_role_to_user():
             )
         )
         assert False
-    except User.RoleAddedByNoAdmin:
+    except RoleAddedByNoAdmin:
         assert True
 
     assert len(user._events) == 1
@@ -179,7 +181,7 @@ def test_trying_to_remove_a_role_by_a_non_admin_user():
     try:
         user.remove_role(remove_cmd_by(is_admin=False))
         assert False
-    except User.RoleRemovedByNoAdmin:
+    except RoleRemovedByNoAdmin:
         assert True
 
     assert len(user._events) == 2
