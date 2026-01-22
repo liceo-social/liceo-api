@@ -46,7 +46,7 @@ ID = TypeVar("ID", bound=AggregateId)
 
 @dataclass
 class Aggregate(Generic[ID]):
-    id: ID | None = None
+    id: ID
     _version: int = field(default=0)
     _events: List[AggregateEvent[Self]] = field(default_factory=list)
 

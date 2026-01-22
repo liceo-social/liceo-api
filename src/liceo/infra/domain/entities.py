@@ -1,6 +1,9 @@
-from typing import Generic, TypeVar
+from dataclasses import dataclass
+from typing import Generic, TypeVar, Callable, Any
 from datetime import datetime
 from .vo import AuditInfo
+from abc import abstractmethod
+from liceo.infra.domain import error
 from liceo.labs.sherlock.core import Aggregate, AggregateRoot
 
 T = TypeVar("T")
@@ -84,3 +87,11 @@ class AuditableAggregateRoot(AggregateRoot, Generic[T]):
     @property
     def deleted_at(self):
         return self.audit.deleted_at
+
+
+@dataclass
+class PermissionAwareCommand(Generic[T]):
+    check_user_permissions: Callable[[list[str], T], Any]
+
+    def check_user_permission(self, permission: str, user_id: T):
+        return self.check_user_permissions([permission], user_id)

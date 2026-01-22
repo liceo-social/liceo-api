@@ -1,13 +1,14 @@
 from typing import Callable, Set
 from dataclasses import dataclass
 from liceo.labs.sherlock.core import AggregateEvent
-from liceo.infra.domain.entities import AuditableAggregate
+from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
 from liceo.security.roles.domain import vo
+from liceo.security.roles.domain import permissions
 
 
 class Role(AuditableAggregate[vo.UserId]):
     @dataclass
-    class CreateRoleCommand:
+    class CreateRoleCommand(PermissionAwareCommand[vo.UserId]):
         next_id: Callable[[], vo.RoleId]
         name: str
         created_by: vo.UserId
@@ -23,7 +24,7 @@ class Role(AuditableAggregate[vo.UserId]):
             aggregate.mark_created_by(self.created_by)
 
     @dataclass
-    class AddPermissionsCommand:
+    class AddPermissionsCommand(PermissionAwareCommand[vo.UserId]):
         permissions: Set[vo.PermissionId]
         added_by: vo.UserId
 
@@ -40,7 +41,7 @@ class Role(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.added_by)
 
     @dataclass
-    class RemovePermissionsCommand:
+    class RemovePermissionsCommand(PermissionAwareCommand[vo.UserId]):
         removed_by: vo.UserId
         permissions: Set[vo.PermissionId]
 
@@ -57,7 +58,7 @@ class Role(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.removed_by)
 
     @dataclass
-    class DeleteRoleCommand:
+    class DeleteRoleCommand(PermissionAwareCommand[vo.UserId]):
         deleted_by: vo.UserId
 
     @dataclass(kw_only=True)
@@ -73,14 +74,18 @@ class Role(AuditableAggregate[vo.UserId]):
     permissions: Set[vo.PermissionId] = set()
 
     @staticmethod
-    def create(command: CreateRoleCommand):
-        return Role(id=command.next_id()).append(Role.RoleCreated(name=command.name, created_by=command.created_by))
+    def create(cmd: CreateRoleCommand):
+        cmd.check_user_permission(permissions.ROLES_CREATE, cmd.created_by)
+        return Role(id=cmd.next_id()).append(Role.RoleCreated(name=cmd.name, created_by=cmd.created_by))
 
-    def add_permissions(self, command: AddPermissionsCommand):
-        return self.append(Role.PermissionsAdded(permissions=command.permissions, added_by=command.added_by))
+    def add_permissions(self, cmd: AddPermissionsCommand):
+        cmd.check_user_permission(permissions.ROLES_MODIFY, cmd.added_by)
+        return self.append(Role.PermissionsAdded(permissions=cmd.permissions, added_by=cmd.added_by))
 
-    def remove_permissions(self, command: RemovePermissionsCommand):
-        return self.append(Role.PermissionsRemoved(permissions=command.permissions, removed_by=command.removed_by))
+    def remove_permissions(self, cmd: RemovePermissionsCommand):
+        cmd.check_user_permission(permissions.ROLES_MODIFY, cmd.removed_by)
+        return self.append(Role.PermissionsRemoved(permissions=cmd.permissions, removed_by=cmd.removed_by))
 
-    def delete(self, command: DeleteRoleCommand):
-        return self.append(Role.RoleDeleted(deleted_by=command.deleted_by))
+    def delete(self, cmd: DeleteRoleCommand):
+        cmd.check_user_permission(permissions.ROLES_DELETE, cmd.deleted_by)
+        return self.append(Role.RoleDeleted(deleted_by=cmd.deleted_by))

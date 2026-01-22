@@ -2,13 +2,17 @@ from liceo.security.permissions.domain.entities import Permission
 from liceo.security.permissions.domain import vo
 
 
+def ALLOWED_PERMISSION_FN(permissions, user_id): return True
+
+
 def new_permission():
     command = Permission.CreatePermissionCommand(
         name="USER_CREATE",
         created_by=vo.UserId(id="someuserid"),
-        next_id=lambda: vo.PermissionId(id="id")
+        next_id=lambda: vo.PermissionId(id="id"),
+        check_user_permissions=ALLOWED_PERMISSION_FN
     )
-    return Permission.create(command=command)
+    return Permission.create(cmd=command)
 
 
 def test_create_permission():
@@ -24,9 +28,10 @@ def test_create_permission():
 
 def test_change_name():
     permission = new_permission().change_name(
-        command=Permission.ChangeNameCommand(
+        cmd=Permission.ChangeNameCommand(
             new_name="USER_CREATE_ADDRESS",
-            changed_by=vo.UserId(id="changerid")
+            changed_by=vo.UserId(id="changerid"),
+            check_user_permissions=ALLOWED_PERMISSION_FN
         )
     )
 
@@ -39,8 +44,9 @@ def test_change_name():
 
 def test_delete_permission():
     permission = new_permission().delete(
-        command=Permission.DeletePermissionCommand(
-            deleted_by=vo.UserId("deletedbyid")
+        cmd=Permission.DeletePermissionCommand(
+            deleted_by=vo.UserId("deletedbyid"),
+            check_user_permissions=ALLOWED_PERMISSION_FN
         )
     )
 

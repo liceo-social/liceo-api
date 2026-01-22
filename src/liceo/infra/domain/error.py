@@ -23,3 +23,9 @@ class NotFoundError(I18Error):
 @dataclass
 class NotAuthorizedError(I18Error):
     pass
+
+
+@dataclass
+class NotImplementedError(I18Error):
+    def __init__(self):
+        return super().__init__("not_implemented", "functionality not implemented")

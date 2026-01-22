@@ -2,15 +2,15 @@ from typing import cast
 
 from fastapi import APIRouter, FastAPI
 
-from optiak.infra.adapters.di import MigrationsDependency
-from optiak.infra.adapters.di_scheduler import SchedulerDependency
-from optiak.infra.adapters.error_handlers import optiak_handler
-from optiak.infra.adapters.tracing import init_tracing
-from optiak.infra.domain.error import OptiakError
-from optiak.infra.domain.vo import ConfigurationSingleton
-from optiak.labs.decorators import solve_lifespan
-from optiak.security.auth.adapter.input import enpoints as auth_api
-from optiak.security.registration.adapters import endpoints as registration_api
+from liceo.infra.adapters.di import MigrationsDependency
+from liceo.infra.adapters.di_scheduler import SchedulerDependency
+from liceo.infra.adapters.error_handlers import optiak_handler
+from liceo.infra.adapters.tracing import init_tracing
+from liceo.infra.domain.error import I18Error
+from liceo.infra.domain.vo import ConfigurationSingleton
+from liceo.labs.decorators import solve_lifespan
+from liceo.security.auth.adapter.input import enpoints as auth_api
+from liceo.security.registration.adapters import endpoints as registration_api
 
 OPENAPI = {
     "title": "OPTIAK API",
@@ -72,7 +72,7 @@ def init_app():
     api.include_router(init_v1_endpoints())
     # Exception handlers
     api.add_exception_handler(
-        OptiakError, lambda r, x: optiak_handler(r, cast(OptiakError, x))
+        I18Error, lambda r, x: optiak_handler(r, cast(I18Error, x))
     )
     return api
 

@@ -1,15 +1,17 @@
 from typing import Callable
 from dataclasses import dataclass
+
 from liceo.labs.sherlock.core import AggregateEvent
-from liceo.infra.domain.entities import AuditableAggregate
+from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
 from liceo.security.permissions.domain import vo
+from liceo.security.permissions.domain import permissions
 
 
 class Permission(AuditableAggregate[vo.UserId]):
     @dataclass
-    class CreatePermissionCommand:
+    class CreatePermissionCommand(PermissionAwareCommand[vo.UserId]):
         name: str
-        next_id: Callable[[], vo.PermissionId]
+        next_id: Callable[[], str]
         created_by: vo.UserId
 
     @dataclass(kw_only=True)
@@ -23,7 +25,7 @@ class Permission(AuditableAggregate[vo.UserId]):
             aggregate.mark_created_by(self.created_by)
 
     @dataclass
-    class ChangeNameCommand:
+    class ChangeNameCommand(PermissionAwareCommand[vo.UserId]):
         new_name: str
         changed_by: vo.UserId
 
@@ -38,7 +40,7 @@ class Permission(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
-    class DeletePermissionCommand:
+    class DeletePermissionCommand(PermissionAwareCommand[vo.UserId]):
         deleted_by: vo.UserId
 
     @dataclass(kw_only=True)
@@ -50,13 +52,17 @@ class Permission(AuditableAggregate[vo.UserId]):
             aggregate.mark_deleted_by(self.deleted_by)
 
     name: str
+    description: str
 
     @staticmethod
-    def create(command: CreatePermissionCommand):
-        return Permission(id=command.next_id()).append(Permission.PermissionCreated(created_by=command.created_by, name=command.name))
+    def create(cmd: CreatePermissionCommand):
+        cmd.check_user_permission(permissions.PERMISSION_CREATE, cmd.created_by)
+        return Permission(id=cmd.next_id()).append(Permission.PermissionCreated(created_by=cmd.created_by, name=cmd.name))
 
-    def change_name(self, command: ChangeNameCommand):
-        return self.append(Permission.NameChanged(changed_by=command.changed_by, new_name=command.new_name))
+    def change_name(self, cmd: ChangeNameCommand):
+        cmd.check_user_permission(permissions.PERMISSION_MODIFY, cmd.changed_by)
+        return self.append(Permission.NameChanged(changed_by=cmd.changed_by, new_name=cmd.new_name))
 
-    def delete(self, command: DeletePermissionCommand):
-        return self.append(Permission.PermissionDeleted(deleted_by=command.deleted_by))
+    def delete(self, cmd: DeletePermissionCommand):
+        cmd.check_user_permission(permissions.PERMISSION_DELETE, cmd.deleted_by)
+        return self.append(Permission.PermissionDeleted(deleted_by=cmd.deleted_by))

@@ -1,7 +1,9 @@
 from liceo.security.users.domain.entities import User
 from liceo.security.users.domain.vo import UserId, Role
-from liceo.security.users.domain.errors import (
-    NotChangedBySameUserError, RepeatedPasswordNotCorrect, RoleAddedByNoAdmin, RoleRemovedByNoAdmin)
+from liceo.security.users.domain import errors
+
+
+def ALLOWED_PERMISSION_FN(permissions, user_id): return True
 
 
 def create_user(user_id: UserId = UserId(id="1")):
@@ -12,13 +14,17 @@ def create_user(user_id: UserId = UserId(id="1")):
         surname="Doe",
         username="john.doe@optiak.com",
         password="password",
+        check_user_permissions=ALLOWED_PERMISSION_FN
     ))
 
 
 def test_change_name():
     user_id = UserId("user-id")
     user = create_user(user_id=user_id)
-    change_name_cmd = User.ChangeNameCommand(name="Johnny", changed_by=user_id)
+    change_name_cmd = User.ChangeNameCommand(
+        name="Johnny",
+        changed_by=user_id, check_user_permissions=ALLOWED_PERMISSION_FN
+    )
     user = user.change_name(change_name_cmd)
 
     assert user.name == "Johnny"
@@ -28,13 +34,14 @@ def test_change_name():
 def test_try_to_change_name_by_another_user():
     user = create_user()
     change_name_cmd = User.ChangeNameCommand(
-        name="Johnny", changed_by=UserId(id="another-user-id")
+        name="Johnny", changed_by=UserId(id="another-user-id"),
+        check_user_permissions=ALLOWED_PERMISSION_FN
     )
 
     try:
         user.change_name(change_name_cmd)
         assert False
-    except NotChangedBySameUserError:
+    except errors.NotChangedBySameUserError:
         assert True
 
     assert user.name == "Johnny"
@@ -53,6 +60,7 @@ def test_change_password():
         new_password_repeated=new_password,
         new_password_hashing_handler=lambda pwd: "hashed",
         changed_by=user_id,
+        check_user_permissions=ALLOWED_PERMISSION_FN
     )
     user = create_user(user_id=user_id).change_password(cmd)
 
@@ -71,10 +79,11 @@ def test_try_to_change_password_with_wrong_repeated_password():
             new_password_repeated="wrong-new-password",
             new_password_hashing_handler=lambda pwd: "hashed",
             changed_by=user_id,
+            check_user_permissions=ALLOWED_PERMISSION_FN
         )
         user.change_password(cmd)
         assert False
-    except RepeatedPasswordNotCorrect:
+    except errors.RepeatedPasswordNotCorrect:
         assert True
 
     assert len(user._events) == 1
@@ -93,10 +102,11 @@ def test_try_to_change_password_by_another_user():
             new_password_repeated="new-password",
             new_password_hashing_handler=lambda pwd: "hashed",
             changed_by=UserId("another-user-id"),
+            check_user_permissions=ALLOWED_PERMISSION_FN
         )
         user.change_password(cmd)
         assert False
-    except NotChangedBySameUserError:
+    except errors.NotChangedBySameUserError:
         assert True
 
     assert len(user._events) == 1
@@ -108,6 +118,7 @@ def add_role_cmd_by_admin():
         added_by=UserId(id="admin-id"),
         role_to_add=Role.ROLE_USER,
         admin_check_handler=lambda user: True,
+        check_user_permissions=ALLOWED_PERMISSION_FN
     )
 
 
@@ -127,10 +138,11 @@ def test_non_admin_user_adding_a_role_to_user():
                 added_by=no_admin_id,
                 role_to_add=Role.ROLE_USER,
                 admin_check_handler=lambda user: False,
+                check_user_permissions=ALLOWED_PERMISSION_FN
             )
         )
         assert False
-    except RoleAddedByNoAdmin:
+    except errors.RoleAddedByNoAdmin:
         assert True
 
     assert len(user._events) == 1
@@ -152,6 +164,7 @@ def remove_cmd_by(is_admin: bool = True):
         removed_by=UserId("admin-id"),
         role_to_delete=Role.ROLE_USER,
         admin_check_handler=lambda user: is_admin,
+        check_user_permissions=ALLOWED_PERMISSION_FN
     )
 
 
@@ -181,7 +194,7 @@ def test_trying_to_remove_a_role_by_a_non_admin_user():
     try:
         user.remove_role(remove_cmd_by(is_admin=False))
         assert False
-    except RoleRemovedByNoAdmin:
+    except errors.RoleRemovedByNoAdmin:
         assert True
 
     assert len(user._events) == 2

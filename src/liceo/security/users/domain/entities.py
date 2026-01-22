@@ -1,16 +1,17 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from liceo.infra.domain.entities import AuditableAggregate
+from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
 from liceo.labs.sherlock.core import AggregateEvent, Sensitive
 from liceo.security.users.domain import vo
 from liceo.security.users.domain import errors
+from liceo.security.users.domain import permissions
 
 
 @dataclass
 class User(AuditableAggregate[vo.UserId]):
     @dataclass
-    class ChangeNameCommand:
+    class ChangeNameCommand(PermissionAwareCommand[vo.UserId]):
         name: str
         changed_by: vo.UserId
 
@@ -25,7 +26,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
-    class ChangePasswordCommand:
+    class ChangePasswordCommand(PermissionAwareCommand[vo.UserId]):
         old_password: str
         new_password: str
         new_password_repeated: str
@@ -47,7 +48,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
-    class AddRoleCommand:
+    class AddRoleCommand(PermissionAwareCommand[vo.UserId]):
         added_by: vo.UserId
         admin_check_handler: Callable[[vo.UserId], bool]
         role_to_add: vo.Role
@@ -63,7 +64,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.added_by)
 
     @dataclass
-    class RemoveRoleCommand:
+    class RemoveRoleCommand(PermissionAwareCommand[vo.UserId]):
         removed_by: vo.UserId
         role_to_delete: vo.Role
         admin_check_handler: Callable[[vo.UserId], bool]
@@ -79,7 +80,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.removed_by)
 
     @dataclass
-    class CreateUserCommand:
+    class CreateUserCommand(PermissionAwareCommand[vo.UserId]):
         next_id: Callable[[], str]
         name: str
         surname: str
@@ -112,26 +113,32 @@ class User(AuditableAggregate[vo.UserId]):
     roles: list[vo.Role] = field(default_factory=list)
 
     @staticmethod
-    def create(command: CreateUserCommand):
-        return User(id=vo.UserId(id=command.next_id()))\
+    def create(cmd: CreateUserCommand):
+        cmd.check_user_permission(permissions.USERS_CREATE, cmd.created_by)
+
+        return User(id=vo.UserId(id=cmd.next_id()))\
             .append(User.UserCreated(
-                created_by=command.created_by,
-                name=command.name,
-                surname=command.surname,
-                username=command.username,
-                password=command.password
+                created_by=cmd.created_by,
+                name=cmd.name,
+                surname=cmd.surname,
+                username=cmd.username,
+                password=cmd.password
             ))
 
     def _is_changed_by_same_user(self, changed_by: vo.UserId):
         return self.id and self.id == changed_by
 
     def change_name(self, cmd: ChangeNameCommand):
+        cmd.check_user_permission(permissions.USERS_MODIFY, cmd.changed_by)
+
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
 
         return self.append(User.NameChanged(name=cmd.name, changed_by=cmd.changed_by))
 
     def change_password(self, cmd: ChangePasswordCommand):
+        cmd.check_user_permission(permissions.USERS_CREATE, cmd.changed_by)
+
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
 
@@ -148,6 +155,8 @@ class User(AuditableAggregate[vo.UserId]):
         )
 
     def add_role(self, cmd: AddRoleCommand) -> "User":
+        cmd.check_user_permission(permissions.USERS_MODIFY, cmd.added_by)
+
         if not cmd.admin_check_handler(cmd.added_by):
             raise errors.RoleAddedByNoAdmin()
 
@@ -157,6 +166,8 @@ class User(AuditableAggregate[vo.UserId]):
         return self.append(User.RoleAdded(added_by=cmd.added_by, role=cmd.role_to_add))
 
     def remove_role(self, cmd: RemoveRoleCommand) -> "User":
+        cmd.check_user_permission(permissions.USERS_MODIFY, cmd.removed_by)
+
         if not cmd.admin_check_handler(cmd.removed_by):
             raise errors.RoleRemovedByNoAdmin()
 
