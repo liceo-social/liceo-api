@@ -48,7 +48,7 @@ class CreatePermissionService(CreatePermissionCase):
             name=input.name,
             next_id=self.id_gen_port.next_id,
             created_by=vo.UserId(id=input.created_by),
-            check_user_permissions=lambda ps, id: self.security_port.check_permissions(
+            check_permissions=lambda ps, id: self.security_port.check_permissions(
                 ps, id.id)
         )
 

@@ -56,13 +56,13 @@ class Permission(AuditableAggregate[vo.UserId]):
 
     @staticmethod
     def create(cmd: CreatePermissionCommand):
-        cmd.check_user_permission(permissions.PERMISSION_CREATE, cmd.created_by)
+        cmd.check_permission(permissions.PERMISSION_CREATE, cmd.created_by)
         return Permission(id=cmd.next_id()).append(Permission.PermissionCreated(created_by=cmd.created_by, name=cmd.name))
 
     def change_name(self, cmd: ChangeNameCommand):
-        cmd.check_user_permission(permissions.PERMISSION_MODIFY, cmd.changed_by)
+        cmd.check_permission(permissions.PERMISSION_MODIFY, cmd.changed_by)
         return self.append(Permission.NameChanged(changed_by=cmd.changed_by, new_name=cmd.new_name))
 
     def delete(self, cmd: DeletePermissionCommand):
-        cmd.check_user_permission(permissions.PERMISSION_DELETE, cmd.deleted_by)
+        cmd.check_permission(permissions.PERMISSION_DELETE, cmd.deleted_by)
         return self.append(Permission.PermissionDeleted(deleted_by=cmd.deleted_by))

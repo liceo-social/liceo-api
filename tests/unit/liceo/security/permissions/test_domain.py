@@ -10,7 +10,7 @@ def new_permission():
         name="USER_CREATE",
         created_by=vo.UserId(id="someuserid"),
         next_id=lambda: vo.PermissionId(id="id"),
-        check_user_permissions=ALLOWED_PERMISSION_FN
+        check_permissions=ALLOWED_PERMISSION_FN
     )
     return Permission.create(cmd=command)
 
@@ -31,7 +31,7 @@ def test_change_name():
         cmd=Permission.ChangeNameCommand(
             new_name="USER_CREATE_ADDRESS",
             changed_by=vo.UserId(id="changerid"),
-            check_user_permissions=ALLOWED_PERMISSION_FN
+            check_permissions=ALLOWED_PERMISSION_FN
         )
     )
 
@@ -46,7 +46,7 @@ def test_delete_permission():
     permission = new_permission().delete(
         cmd=Permission.DeletePermissionCommand(
             deleted_by=vo.UserId("deletedbyid"),
-            check_user_permissions=ALLOWED_PERMISSION_FN
+            check_permissions=ALLOWED_PERMISSION_FN
         )
     )
 

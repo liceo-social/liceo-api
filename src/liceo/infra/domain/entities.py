@@ -91,7 +91,7 @@ class AuditableAggregateRoot(AggregateRoot, Generic[T]):
 
 @dataclass
 class PermissionAwareCommand(Generic[T]):
-    check_user_permissions: Callable[[list[str], T], Any]
+    check_permissions: Callable[[list[str], T], Any]
 
-    def check_user_permission(self, permission: str, user_id: T):
-        return self.check_user_permissions([permission], user_id)
+    def check_permission(self, permission: str, user_id: T):
+        return self.check_permissions([permission], user_id)

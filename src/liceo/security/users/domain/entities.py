@@ -114,7 +114,7 @@ class User(AuditableAggregate[vo.UserId]):
 
     @staticmethod
     def create(cmd: CreateUserCommand):
-        cmd.check_user_permission(permissions.USERS_CREATE, cmd.created_by)
+        cmd.check_permission(permissions.USERS_CREATE, cmd.created_by)
 
         return User(id=vo.UserId(id=cmd.next_id()))\
             .append(User.UserCreated(
@@ -129,7 +129,7 @@ class User(AuditableAggregate[vo.UserId]):
         return self.id and self.id == changed_by
 
     def change_name(self, cmd: ChangeNameCommand):
-        cmd.check_user_permission(permissions.USERS_MODIFY, cmd.changed_by)
+        cmd.check_permission(permissions.USERS_MODIFY, cmd.changed_by)
 
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
@@ -137,7 +137,7 @@ class User(AuditableAggregate[vo.UserId]):
         return self.append(User.NameChanged(name=cmd.name, changed_by=cmd.changed_by))
 
     def change_password(self, cmd: ChangePasswordCommand):
-        cmd.check_user_permission(permissions.USERS_CREATE, cmd.changed_by)
+        cmd.check_permission(permissions.USERS_CREATE, cmd.changed_by)
 
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
@@ -155,7 +155,7 @@ class User(AuditableAggregate[vo.UserId]):
         )
 
     def add_role(self, cmd: AddRoleCommand) -> "User":
-        cmd.check_user_permission(permissions.USERS_MODIFY, cmd.added_by)
+        cmd.check_permission(permissions.USERS_MODIFY, cmd.added_by)
 
         if not cmd.admin_check_handler(cmd.added_by):
             raise errors.RoleAddedByNoAdmin()
@@ -166,7 +166,7 @@ class User(AuditableAggregate[vo.UserId]):
         return self.append(User.RoleAdded(added_by=cmd.added_by, role=cmd.role_to_add))
 
     def remove_role(self, cmd: RemoveRoleCommand) -> "User":
-        cmd.check_user_permission(permissions.USERS_MODIFY, cmd.removed_by)
+        cmd.check_permission(permissions.USERS_MODIFY, cmd.removed_by)
 
         if not cmd.admin_check_handler(cmd.removed_by):
             raise errors.RoleRemovedByNoAdmin()

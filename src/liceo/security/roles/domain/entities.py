@@ -75,17 +75,17 @@ class Role(AuditableAggregate[vo.UserId]):
 
     @staticmethod
     def create(cmd: CreateRoleCommand):
-        cmd.check_user_permission(permissions.ROLES_CREATE, cmd.created_by)
+        cmd.check_permission(permissions.ROLES_CREATE, cmd.created_by)
         return Role(id=cmd.next_id()).append(Role.RoleCreated(name=cmd.name, created_by=cmd.created_by))
 
     def add_permissions(self, cmd: AddPermissionsCommand):
-        cmd.check_user_permission(permissions.ROLES_MODIFY, cmd.added_by)
+        cmd.check_permission(permissions.ROLES_MODIFY, cmd.added_by)
         return self.append(Role.PermissionsAdded(permissions=cmd.permissions, added_by=cmd.added_by))
 
     def remove_permissions(self, cmd: RemovePermissionsCommand):
-        cmd.check_user_permission(permissions.ROLES_MODIFY, cmd.removed_by)
+        cmd.check_permission(permissions.ROLES_MODIFY, cmd.removed_by)
         return self.append(Role.PermissionsRemoved(permissions=cmd.permissions, removed_by=cmd.removed_by))
 
     def delete(self, cmd: DeleteRoleCommand):
-        cmd.check_user_permission(permissions.ROLES_DELETE, cmd.deleted_by)
+        cmd.check_permission(permissions.ROLES_DELETE, cmd.deleted_by)
         return self.append(Role.RoleDeleted(deleted_by=cmd.deleted_by))

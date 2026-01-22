@@ -11,7 +11,7 @@ def create_role():
             next_id=lambda: vo.RoleId(id="roleid"),
             name="ADMIN",
             created_by=vo.UserId(id="creatorid"),
-            check_user_permissions=ALLOWED_PERMISSION_FN
+            check_permissions=ALLOWED_PERMISSION_FN
         )
     )
 
@@ -33,7 +33,7 @@ def test_add_permissions():
         Role.AddPermissionsCommand(
             added_by=vo.UserId("modifierid"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-            check_user_permissions=ALLOWED_PERMISSION_FN
+            check_permissions=ALLOWED_PERMISSION_FN
         ),
     )
 
@@ -47,7 +47,7 @@ def test_permissions_are_not_duplicated():
         Role.AddPermissionsCommand(
             added_by=vo.UserId("modifierid"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-            check_user_permissions=ALLOWED_PERMISSION_FN
+            check_permissions=ALLOWED_PERMISSION_FN
         )
     )
 
@@ -55,7 +55,7 @@ def test_permissions_are_not_duplicated():
         Role.AddPermissionsCommand(
             added_by=vo.UserId("modifier2id"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-            check_user_permissions=ALLOWED_PERMISSION_FN
+            check_permissions=ALLOWED_PERMISSION_FN
         )
     )
 
@@ -70,14 +70,14 @@ def test_remove_permissions():
             Role.AddPermissionsCommand(
                 added_by=vo.UserId("modifierid"),
                 permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-                check_user_permissions=ALLOWED_PERMISSION_FN
+                check_permissions=ALLOWED_PERMISSION_FN
             )
     )\
         .remove_permissions(
             Role.RemovePermissionsCommand(
                 removed_by=vo.UserId("modifier2id"),
                 permissions=set([vo.PermissionId("p2")]),
-                check_user_permissions=ALLOWED_PERMISSION_FN
+                check_permissions=ALLOWED_PERMISSION_FN
             )
     )
 
@@ -91,18 +91,18 @@ def test_delete_role():
             Role.AddPermissionsCommand(
                 added_by=vo.UserId("modifierid"),
                 permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-                check_user_permissions=ALLOWED_PERMISSION_FN
+                check_permissions=ALLOWED_PERMISSION_FN
             )
     )\
         .remove_permissions(
             Role.RemovePermissionsCommand(
                 removed_by=vo.UserId("modifier2id"),
                 permissions=set([vo.PermissionId("p2")]),
-                check_user_permissions=ALLOWED_PERMISSION_FN
+                check_permissions=ALLOWED_PERMISSION_FN
             )
     ).delete(cmd=Role.DeleteRoleCommand(
         deleted_by=vo.UserId(id="deletedbyid"),
-        check_user_permissions=ALLOWED_PERMISSION_FN
+        check_permissions=ALLOWED_PERMISSION_FN
     ))
 
     assert len(role.permissions) == 0
