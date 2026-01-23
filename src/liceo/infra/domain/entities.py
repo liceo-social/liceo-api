@@ -4,12 +4,12 @@ from datetime import datetime
 from .vo import AuditInfo
 from abc import abstractmethod
 from liceo.infra.domain import error
-from liceo.labs.sherlock.core import Aggregate, AggregateRoot
+from liceo.labs.sherlock.core import Aggregate, AggregateRoot, AggregateId
 
-T = TypeVar("T")
+T = TypeVar("T", bound=AggregateId)
 
 
-class AuditableAggregate(Aggregate, Generic[T]):
+class AuditableAggregate(Aggregate[T], Generic[T]):
     audit: AuditInfo[T]
 
     def mark_created_by(self, by: T):
@@ -89,9 +89,12 @@ class AuditableAggregateRoot(AggregateRoot, Generic[T]):
         return self.audit.deleted_at
 
 
-@dataclass
-class PermissionAwareCommand(Generic[T]):
-    check_permissions: Callable[[list[str], T], Any]
+U = TypeVar("U")
 
-    def check_permission(self, permission: str, user_id: T):
+
+@dataclass
+class PermissionAwareCommand(Generic[U]):
+    check_permissions: Callable[[list[str], U], Any]
+
+    def check_permission(self, permission: str, user_id: U):
         return self.check_permissions([permission], user_id)

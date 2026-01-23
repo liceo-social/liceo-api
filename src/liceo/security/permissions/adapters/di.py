@@ -1,8 +1,13 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException
+from liceo.security.permissions.application.cases.create_permission import CreatePermissionCase, CreatePermissionService
+from liceo.security.permissions.application import ports
+from .repository import PermissionMemoryRepository
+from .infra import ShortIdGenerator, DummySecurityService
+from .requests import CreatePermissionRequest
+
 
 AdminUserContext = Annotated[str, Depends(lambda: "")]
-
 AnonymousContext = Annotated[str, Depends(lambda: "")]
 
 
@@ -46,11 +51,41 @@ ListPermissionsRequest = Annotated[str, Depends(lambda: "")]
 ListPermissionsServiceDependency = Annotated[str, Depends(lambda: "")]
 
 
-CreatePermissionRequest = Annotated[str, Depends(lambda: "")]
-CreatePermissionServiceDependency = Annotated[str, Depends(lambda: "")]
+def create_repository() -> PermissionMemoryRepository:
+    return PermissionMemoryRepository()
 
-ModifyPermissionRequest = Annotated[str, Depends(lambda: "")]
-ModifyPermissionServiceDependency = Annotated[str, Depends(lambda: "")]
 
-DeletePermissionRequest = Annotated[str, Depends(lambda: "")]
-DeletePermissionServiceDependency = Annotated[str, Depends(lambda: "")]
+PersistenceDependency = Annotated[PermissionMemoryRepository, Depends(
+    create_repository)]
+
+
+def create_id_generator() -> ports.GenerateIdPort:
+    return ShortIdGenerator()
+
+
+IdGeneratorDependency = Annotated[ports.GenerateIdPort, Depends(create_id_generator)]
+
+
+def create_security_service() -> ports.SecurityPort:
+    return DummySecurityService()
+
+
+SecurityDependency = Annotated[ports.SecurityPort, Depends(create_security_service)]
+
+
+def create_permission_service(
+    id_generator_service: IdGeneratorDependency,
+    security_service: SecurityDependency,
+    repository: PersistenceDependency
+) -> CreatePermissionCase:
+    return CreatePermissionService(
+        id_gen_port=id_generator_service,
+        security_port=security_service,
+        save_port=repository,
+    )
+
+
+CreatePermissionRequestDependency = Annotated[CreatePermissionRequest, Depends(
+    CreatePermissionRequest)]
+CreatePermissionServiceDependency = Annotated[CreatePermissionCase, Depends(
+    create_permission_service)]

@@ -1,11 +1,12 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
 from liceo.security.permissions.adapters import di
+from liceo.security.permissions.application.cases.create_permission import CreatePermissionCase
 from liceo.security.permissions.domain.permissions import (
     PERMISSION_LIST,
     PERMISSION_CREATE,
-    PERMISSION_DELETE,
-    PERMISSION_MODIFY
 )
+
+from .responses import CreatePermissionResponse
 
 specs = RestGroupSpec(
     name="PERMISSIONS",
@@ -34,31 +35,14 @@ def list(
 )
 def create(
     userCtx: di.UserContext,
-    request: di.CreatePermissionRequest,
+    request: di.CreatePermissionRequestDependency,
     service: di.CreatePermissionServiceDependency
-):
-    pass
-
-
-@router.put(
-    path="/",
-    dependencies=[di.has_permission(PERMISSION_MODIFY)]
-)
-def modify(
-    userCtx: di.UserContext,
-    request: di.ModifyPermissionRequest,
-    service: di.ModifyPermissionServiceDependency
-):
-    pass
-
-
-@router.delete(
-    path="/",
-    dependencies=[di.has_permission(PERMISSION_DELETE)]
-)
-def delete(
-    userCtx: di.UserContext,
-    request: di.DeletePermissionRequest,
-    service: di.DeletePermissionServiceDependency
-):
-    pass
+) -> CreatePermissionResponse:
+    saved = service.create_permission(
+        CreatePermissionCase.Input(
+            name=request.name,
+            created_by=userCtx.user_id,
+            description=request.description
+        )
+    )
+    return CreatePermissionResponse.model_validate(saved)
