@@ -28,7 +28,7 @@ class DummyTransactional(TransactionalOutputPort):
         print("transaction did rollback")
 
 
-class DummyTransactionalSupport(TransactionManager):
+class DummyTransactionManager(TransactionManager):
     def create(self) -> TransactionalOutputPort:
         return DummyTransactional()
 

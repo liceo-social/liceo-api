@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse, Response
 from liceo.infra.domain.error import I18Error
 
 
-def optiak_handler(request: Request, exc: I18Error) -> Response:
+def liceo_handler(request: Request, exc: I18Error) -> Response:
     """
     handles all OptiakError instances
     """

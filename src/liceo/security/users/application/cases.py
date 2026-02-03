@@ -4,5 +4,5 @@ from ..domain.entities import User
 
 class CreateUserCase(ABC):
     @abstractmethod
-    def create_user(self, cmd: User.CreateUserCommand) -> User | None:
+    def create_user(self, cmd: User.CreateUserCommand) -> User:
         pass
