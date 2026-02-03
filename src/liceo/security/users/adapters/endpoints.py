@@ -22,6 +22,6 @@ def list_users(
 
 @router.post("/")
 def create_user(
-    requester: object, request: CreateUserRequest, service: CreateUserServiceDependency
+    request: CreateUserRequest, service: CreateUserServiceDependency
 ) -> CreateUserResponse:
-    return CreateUserResponse(id="aloha")
+    return CreateUserResponse.from_user(service.create_user(request.to_input()))
