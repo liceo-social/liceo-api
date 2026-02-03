@@ -8,7 +8,7 @@ from liceo.labs.db.core import Connection, Repository
 from liceo.labs.logs import logged
 
 
-class DBM(Repository, logged("optiak.labs.migrations")):
+class DBM(Repository, logged("liceo.labs.migrations")):
     @dataclass
     class FileContent:
         sql: str

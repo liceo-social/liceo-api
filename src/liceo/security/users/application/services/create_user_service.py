@@ -15,7 +15,7 @@ class CreateUserService(CreateUserCase):
         self.tx_manager = tx_manager
         self.ledger = ledger
 
-    def create_user(self, cmd: User.CreateUserCommand) -> User | None:
+    def create_user(self, cmd: User.CreateUserCommand) -> User:
         with self.tx_manager.create() as tx:
             saved_user = self.repository.save_user(User.create(cmd))
             self.ledger.persist(saved_user)

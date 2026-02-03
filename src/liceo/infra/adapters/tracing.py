@@ -7,10 +7,10 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from liceo.infra.domain.vo import OptiakConfiguration
+from liceo.infra.domain.vo import LiceoConfiguration
 
 
-def init_tracing(cfg: OptiakConfiguration):
+def init_tracing(cfg: LiceoConfiguration):
     resource = Resource.create(
         attributes={SERVICE_NAME: cfg.observability.service_name}
     )

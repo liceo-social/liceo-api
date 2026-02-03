@@ -40,7 +40,7 @@ services:
     environment:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: optiak
+      POSTGRES_DB: liceo
     volumes:
       - liceo_local_postgres_data:/var/lib/postgresql/data
     networks:

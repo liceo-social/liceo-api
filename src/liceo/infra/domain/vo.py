@@ -29,12 +29,12 @@ class Pagination:
 class ObservabilityConfig(BaseModel):
     metrics_url: str = Field(default="http://localhost:15200/v1/metrics")
     traces_url: str = Field(default="http://localhost:15200/v1/traces")
-    service_name: str = Field(default="optiak.api")
+    service_name: str = Field(default="liceo.api")
 
 
 class DatabaseConfig(BaseModel):
     type: str = Field(default="postgresql")
-    name: str = Field(default="optiak")
+    name: str = Field(default="liceo")
     username: str = Field(default="username")
     password: str = Field(default="password")
     driver: str = Field(default="pg8000")
@@ -67,12 +67,12 @@ class CryptoConfig(BaseModel):
 class MailConfig(BaseModel):
     host: str = Field(default="mailpit-svc")
     port: int = Field(default=1025)
-    default_sender: str = Field(default="system@optiak.com")
+    default_sender: str = Field(default="system@liceo.com")
 
 
 @singleton
-class OptiakConfiguration(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="OPTIAK_API")
+class LiceoConfiguration(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="LICEO_API")
 
     crypto: CryptoConfig = CryptoConfig()
     db: DatabaseConfig = DatabaseConfig()
@@ -83,7 +83,7 @@ class OptiakConfiguration(BaseSettings):
 class ConfigurationSingleton:
     @staticmethod
     def instance():
-        return OptiakConfiguration()
+        return LiceoConfiguration()
 
 
 class AuditInfo(Generic[T]):

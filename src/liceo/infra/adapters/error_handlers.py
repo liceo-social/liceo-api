@@ -8,7 +8,7 @@ from liceo.infra.domain.error import I18Error
 
 def liceo_handler(request: Request, exc: I18Error) -> Response:
     """
-    handles all OptiakError instances
+    handles all LiceoError instances
     """
     logging.getLogger("exceptions").error(exc, exc_info=exc)
     return JSONResponse(

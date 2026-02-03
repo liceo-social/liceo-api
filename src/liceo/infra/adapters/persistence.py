@@ -7,7 +7,7 @@ from liceo.infra.application.output import (
     TransactionalOutputPort,
     TransactionManager,
 )
-from liceo.labs.db.core import Connection as OptiakConnection
+from liceo.labs.db.core import Connection as LiceoConnection
 from liceo.labs.db.core import (
     ExecutionParams,
 )
@@ -33,8 +33,8 @@ class DummyTransactionManager(TransactionManager):
         return DummyTransactional()
 
 
-class SQLAlchemyConnection(OptiakConnection):
-    class TransactionalConnection(OptiakConnection):
+class SQLAlchemyConnection(LiceoConnection):
+    class TransactionalConnection(LiceoConnection):
         conn: Connection
 
         def __init__(self, conn: Connection):

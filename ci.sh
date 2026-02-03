@@ -51,7 +51,7 @@ function run_local_down {
     docker compose \
         --env-file ./docker/docker-compose/docker-compose-config.txt \
         down && \
-    docker volume rm $(docker volume list | grep "optiak_local" | awk '{ print $2 }')
+    docker volume rm $(docker volume list | grep "liceo_local" | awk '{ print $2 }')
 }
 
 function run_local {

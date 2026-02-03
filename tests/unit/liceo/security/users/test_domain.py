@@ -12,7 +12,7 @@ def create_user(user_id: UserId = UserId(id="1")):
         created_by=user_id,
         name="Johnny",
         surname="Doe",
-        username="john.doe@optiak.com",
+        username="john.doe@liceo.com",
         password="password",
         roles=['ROLE_USER'],
         check_permissions=ALLOWED_PERMISSION_FN
