@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
+from shortuuid import uuid
 from liceo.labs.sherlock.core import AggregateEvent, Aggregate
 
 
-class LedgerPort(ABC):
+class EventStore(ABC):
     @abstractmethod
-    def persist_event(self, event: AggregateEvent) -> None:
+    def append_event(self, event: AggregateEvent) -> None:
         pass
 
     @abstractmethod
-    def persist(self, aggregate: Aggregate) -> None:
+    def append(self, aggregate: Aggregate) -> None:
         pass
 
 
@@ -33,3 +34,8 @@ class TransactionManager(ABC):
     @abstractmethod
     def create(self) -> TransactionalOutputPort:
         pass
+
+
+class AbstractRepository(ABC):
+    def generate_id(self) -> str:
+        return uuid()

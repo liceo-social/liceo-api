@@ -1,38 +1,29 @@
 from typing import Annotated
 from fastapi import Depends
-from liceo.infra.adapters.ledger import LedgerPort, ConsoleLedger
-from liceo.infra.adapters.persistence import TransactionManager, DummyTransactionManager
-from .repositories import MemoryRepository
-from ..application.services.create_user_service import CreateUserService
 
-# ----- COMMON
+from liceo.infra.adapters.di import ConnectionDependency, EventStoreDependency
+from liceo.security.common.adapters.di import SecurityServiceDependency
 
-
-def create_ledger():
-    return ConsoleLedger()
-
-
-LedgerDependency = Annotated[LedgerPort, Depends(create_ledger)]
-
-TransactionManagerDependency = Annotated[TransactionManager, Depends(
-    DummyTransactionManager)]
+from .repositories import PoirotUsersRepository
+from ..application.service import UsersService
+from ..application.repository import UsersRepository
 
 
 # ----- REPOSITORIES
+def repository(connection: ConnectionDependency) -> UsersRepository:
+    return PoirotUsersRepository(connection=connection)
 
 
-def create_repository() -> MemoryRepository:
-    return MemoryRepository()
-
-
-RepositoryDependency = Annotated[MemoryRepository, Depends(create_repository)]
+RepositoryDependency = Annotated[UsersRepository, Depends(repository)]
 
 
 # ---- SERVICES
+def users_service(repository: RepositoryDependency, event_store: EventStoreDependency, security: SecurityServiceDependency) -> UsersService:
+    return UsersService(
+        db=repository,
+        security=security,
+        event_store=event_store
+    )
 
-def create_user_service_dependency(repository: RepositoryDependency, ledger: LedgerDependency, tx_manager: TransactionManagerDependency) -> CreateUserService:
-    return CreateUserService(repository=repository, ledger=ledger, tx_manager=tx_manager)
 
-
-CreateUserServiceDependency = Annotated[CreateUserService, Depends(
-    create_user_service_dependency)]
+UsersServiceDependency = Annotated[UsersService, Depends(users_service)]

@@ -1,14 +1,14 @@
 from liceo.security.users.domain.entities import User
 from liceo.labs.poirot.core import sql, Repository
-from ..application.ports import SaveUserPort
+from ..application.repository import UsersRepository
 
 
-class MemoryRepository(SaveUserPort):
+class MemoryRepository(UsersRepository):
     def save_user(self, user: User) -> User:
         return user
 
 
-class UserRepository(SaveUserPort, Repository):
+class PoirotUsersRepository(UsersRepository, Repository):
     @sql()
     def save_user(self, user: User) -> User:
         sql = self.resolve_sql(self.save_user)

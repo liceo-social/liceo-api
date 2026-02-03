@@ -7,6 +7,8 @@ from liceo.infra.domain.vo import LiceoConfiguration
 from liceo.labs.db.core import Connection
 
 from .migrations import MigrationLoader
+from ..application.output import EventStore
+from .event_store import ConsoleEventStore
 
 
 # --8<-- [start:connection_dependency]
@@ -27,3 +29,10 @@ def load_migration_loader(conn: ConnectionDependency):
 
 MigrationsDependency = Annotated[MigrationLoader, Depends(load_migration_loader)]
 # --8<-- [end:migrations_dependency]
+
+
+def event_store():
+    return ConsoleEventStore()
+
+
+EventStoreDependency = Annotated[EventStore, Depends(event_store)]

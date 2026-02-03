@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from ..application.services.create_user_service import CreateUserCase
+from ..application.dtos import CreateUserCaseDTO
 from ..domain.vo import UserDetails
 
 
@@ -12,8 +12,8 @@ class CreateUserRequest(BaseModel):
     roles: list[str]
     created_by: UserDetails
 
-    def to_input(self) -> CreateUserCase.Input:
-        return CreateUserCase.Input(
+    def to_input(self) -> CreateUserCaseDTO:
+        return CreateUserCaseDTO(
             name=self.name,
             surname=self.surname,
             username=self.username,

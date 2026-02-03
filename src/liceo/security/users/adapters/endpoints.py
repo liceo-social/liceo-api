@@ -1,8 +1,7 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
-from .di import CreateUserServiceDependency
+from .di import UsersServiceDependency
 from .requests import CreateUserRequest, ListUsersRequest
 from .responses import CreateUserResponse, ListUsersResponse
-from ..domain.entities import User
 
 specs = RestGroupSpec(
     name="USERS",
@@ -22,6 +21,6 @@ def list_users(
 
 @router.post("/")
 def create_user(
-    request: CreateUserRequest, service: CreateUserServiceDependency
+    request: CreateUserRequest, service: UsersServiceDependency
 ) -> CreateUserResponse:
     return CreateUserResponse.from_user(service.create_user(request.to_input()))
