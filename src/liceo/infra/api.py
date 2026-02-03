@@ -3,7 +3,7 @@ from typing import cast
 from fastapi import APIRouter, FastAPI
 
 from liceo.infra.adapters.di import MigrationsDependency
-# from liceo.infra.adapters.di_scheduler import SchedulerDependency
+from liceo.infra.adapters.di_scheduler import SchedulerDependency
 from liceo.infra.adapters.error_handlers import liceo_handler
 from liceo.infra.adapters.tracing import init_tracing
 from liceo.infra.domain.error import I18Error
@@ -47,19 +47,19 @@ def init_v1_endpoints():
     return v1
 
 
-# @solve_lifespan
-# async def init_scheduler(
-#     migrations: MigrationsDependency, scheduler: SchedulerDependency
-# ):
-#     """
-#     inits scheduler and uses FastAPI life cycle to shutdown the
-#     scheduler once the application stops
-#     """
-#     # migrations.apply()
-#     # scheduler.start()
+@solve_lifespan
+async def init_scheduler(
+    migrations: MigrationsDependency, scheduler: SchedulerDependency
+):
+    """
+    inits scheduler and uses FastAPI life cycle to shutdown the
+    scheduler once the application stops
+    """
+    migrations.apply()
+    scheduler.start()
 
-#     yield
-#     scheduler.shutdown()
+    yield
+    scheduler.shutdown()
 
 
 def init_app():
@@ -70,8 +70,8 @@ def init_app():
     - error handlers
     """
     # API instance
-    # api = FastAPI(**OPENAPI, lifespan=init_scheduler)
-    api = FastAPI(**OPENAPI)
+    api = FastAPI(**OPENAPI, lifespan=init_scheduler)
+    # api = FastAPI(**OPENAPI)
     # Endpoints
     api.include_router(init_v1_endpoints())
     # Exception handlers

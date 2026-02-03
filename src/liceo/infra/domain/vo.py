@@ -38,7 +38,7 @@ class DatabaseConfig(BaseModel):
     username: str = Field(default="username")
     password: str = Field(default="password")
     driver: str = Field(default="pg8000")
-    host: str = Field(default="postgres-grafana-svc")
+    host: str = Field(default="postgres-svc")
     port: int = Field(default=5432)
 
     def get_url(self):
