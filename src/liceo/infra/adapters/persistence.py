@@ -5,7 +5,7 @@ from sqlalchemy import Connection, Engine, create_engine, text
 
 from liceo.infra.application.output import (
     TransactionalOutputPort,
-    TransactionalSupportOutputPort,
+    TransactionManager,
 )
 from liceo.labs.db.core import Connection as OptiakConnection
 from liceo.labs.db.core import (
@@ -28,7 +28,7 @@ class DummyTransactional(TransactionalOutputPort):
         print("transaction did rollback")
 
 
-class DummyTransactionalSupport(TransactionalSupportOutputPort):
+class DummyTransactionalSupport(TransactionManager):
     def create(self) -> TransactionalOutputPort:
         return DummyTransactional()
 

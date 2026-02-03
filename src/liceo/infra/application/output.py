@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
-
-from optiak.infra.domain.events import Event
+from liceo.labs.sherlock.core import AggregateEvent, Aggregate
 
 
 class LedgerPort(ABC):
-    # Aggregate
     @abstractmethod
-    def persist(self, event: Event) -> None:
+    def persist_event(self, event: AggregateEvent) -> None:
+        pass
+
+    @abstractmethod
+    def persist(self, aggregate: Aggregate) -> None:
         pass
 
 
@@ -27,7 +29,7 @@ class TransactionalOutputPort(ABC):
         pass
 
 
-class TransactionalSupportOutputPort(ABC):
+class TransactionManager(ABC):
     @abstractmethod
     def create(self) -> TransactionalOutputPort:
         pass

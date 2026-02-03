@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
+from liceo.labs.sherlock.core import AggregateId
 
 
 @dataclass
-class UserId:
+class UserId(AggregateId):
     id: str
 
 

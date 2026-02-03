@@ -8,7 +8,7 @@ from liceo.security.users.domain import errors
 from liceo.security.users.domain import permissions
 
 
-@dataclass
+@dataclass(init=False)
 class User(AuditableAggregate[vo.UserId]):
     @dataclass
     class ChangeNameCommand(PermissionAwareCommand[vo.UserId]):
@@ -86,6 +86,7 @@ class User(AuditableAggregate[vo.UserId]):
         surname: str
         username: str
         password: str
+        roles: list[str]
         created_by: vo.UserId
 
     @dataclass(kw_only=True)
@@ -94,6 +95,7 @@ class User(AuditableAggregate[vo.UserId]):
         name: str
         surname: str
         username: str
+        roles: list[str]
         password: str
         created_by: vo.UserId
 
@@ -103,13 +105,13 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.surname = self.surname
             aggregate.username = self.username
             aggregate.password = self.password
+            aggregate.roles = [vo.Role.ROLE_USER for role in self.roles]
 
-    id: vo.UserId | None = field(default=None)
-    name: str | None = field(default=None)
-    surname: str | None = field(default=None)
+    name: str = field()
+    surname: str = field()
+    username: str = field()
+    password: str = field()
     active: bool = field(default=False)
-    username: str | None = field(default=None)
-    password: str | None = field(default=None)
     roles: list[vo.Role] = field(default_factory=list)
 
     @staticmethod
@@ -122,7 +124,8 @@ class User(AuditableAggregate[vo.UserId]):
                 name=cmd.name,
                 surname=cmd.surname,
                 username=cmd.username,
-                password=cmd.password
+                password=cmd.password,
+                roles=cmd.roles,
             ))
 
     def _is_changed_by_same_user(self, changed_by: vo.UserId):
