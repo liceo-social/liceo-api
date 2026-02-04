@@ -1,1 +1,4 @@
-INSERT INTO liceo_users_roles (user_id, role_id);
+INSERT INTO liceo_roles_users 
+(user_id, role_id) 
+VALUES 
+(:user_id, :role_id) RETURNING user_id;

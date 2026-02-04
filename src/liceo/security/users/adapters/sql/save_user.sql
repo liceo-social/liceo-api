@@ -1,2 +1,4 @@
-INSERT INTO liceo_users (`name`, surname, username, `password`) 
-VALUES (:name, :surname, :username, :password);
+INSERT INTO liceo_users 
+(id, name, surname, username, password) 
+VALUES 
+(:id, :name, :surname, :username, :password) RETURNING id;

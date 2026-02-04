@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Depends, Query
+from fastapi import Depends, Query, Body
 
 from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
@@ -37,7 +37,7 @@ FilteringUsersRequestDependency = Annotated[FilteringUsersRequest, Query()]
 
 def get_create_user_request(
     user: UserInfo,
-    fields: CreateUserFields = Depends()
+    fields: CreateUserFields = Body()
 ):
     return CreateUserRequest(fields=fields, created_by=user)
 

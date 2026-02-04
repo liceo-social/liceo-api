@@ -39,7 +39,7 @@ class PoirotUsersRepository(UsersRepository, Repository):
     def save_user(self, user: User) -> User:
         sql = self.resolve_sql(self.save_user)
         self._get_connection().insert(sql, params={
-            "id": user.id,
+            "id": user.id.id,
             "name": user.name,
             "surname": user.surname,
             "username": user.username,
@@ -55,7 +55,7 @@ class PoirotUsersRepository(UsersRepository, Repository):
             role_id = self._find_role_id_by_name(role.value)
             if (role_id):
                 self._get_connection().insert(user_sql, params={
-                    "user_id": user.id,
+                    "user_id": user.id.id,
                     "role_id": role_id
                 })
 
