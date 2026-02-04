@@ -52,7 +52,8 @@ class PoirotUsersRepository(UsersRepository, Repository):
         user_sql = self.resolve_sql(self._save_user_roles)
 
         for role in user.roles:
-            role_id = self._find_role_id_by_name(role.value)
+            role_id = self.find_role_id_by_name(role.name)
+            print(f"role: {role_id}")
             if (role_id):
                 self._get_connection().insert(user_sql, params={
                     "user_id": user.id.id,
@@ -61,6 +62,6 @@ class PoirotUsersRepository(UsersRepository, Repository):
 
         return user
 
-    @sql()
-    def _find_role_id_by_name(self, name: str) -> str | None:
+    @sql(lambda row: row["id"] if row else None)
+    def find_role_id_by_name(self, name: str) -> str | None:
         pass

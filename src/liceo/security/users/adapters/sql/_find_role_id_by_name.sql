@@ -1,1 +1,0 @@
-SELECT id FROM liceo_roles r WHERE r.name = :name;
