@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from liceo.security.common.application.cases import GenerateToken
+from liceo.security.common.application.service import SecurityService
 from liceo.infra.application.output import EventStore
 from ..domain.entities import User
 from .repository import AuthenticationRepository
@@ -9,7 +9,7 @@ from .dtos import CredentialsDTO
 @dataclass
 class AuthenticationService:
     repository: AuthenticationRepository
-    security: GenerateToken
+    security: SecurityService
     event_store: EventStore
 
     def authenticate(self, dto: CredentialsDTO) -> str | None:
