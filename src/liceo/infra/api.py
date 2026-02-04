@@ -12,6 +12,7 @@ from liceo.labs.decorators import solve_lifespan
 # from liceo.security.auth.adapter.input import enpoints as auth_api
 # from liceo.security.registration.adapters import endpoints as registration_api
 from liceo.security.users.adapters import endpoints as admin_users_api
+from liceo.security.authentication.adapters import endpoints as auth_api
 
 OPENAPI = {
     "title": "LICEO API",
@@ -31,6 +32,7 @@ TODO
     "openapi_tags": [
         # auth_api.specs.metadata(),
         # registration_api.specs.metadata(),
+        auth_api.specs.metadata(),
         admin_users_api.specs.metadata()
     ],
 }
@@ -41,8 +43,7 @@ def init_v1_endpoints():
     collects all API V1 endpoints
     """
     v1 = APIRouter(prefix="/v1")
-    # v1.include_router(auth_api.router)
-    # v1.include_router(registration_api.router)
+    v1.include_router(auth_api.router)
     v1.include_router(admin_users_api.router)
     return v1
 

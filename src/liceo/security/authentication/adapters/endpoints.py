@@ -1,7 +1,6 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
 from .di import AuthRequestDependency, AuthenticationServiceDependency
 from .responses import TokenResponse
-from .errors import AuthenticationException
 from ..application.dtos import CredentialsDTO
 
 specs = RestGroupSpec(
