@@ -5,9 +5,3 @@ from liceo.labs.sherlock.core import AggregateId
 @dataclass
 class UserId(AggregateId):
     id: str
-
-
-@dataclass
-class Authentication:
-    username: str
-    user_id: UserId

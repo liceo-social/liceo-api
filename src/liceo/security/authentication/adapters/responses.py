@@ -7,5 +7,7 @@ class TokenResponse(BaseModel):
     token_type: str
 
     @staticmethod
-    def from_token(token: str):
+    def from_token(token: str | None):
+        if token is None:
+            return None
         return TokenResponse(access_token=token, token_type="Bearer")

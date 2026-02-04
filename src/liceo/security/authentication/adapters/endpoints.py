@@ -3,6 +3,7 @@ from .di import AuthRequestDependency, AuthenticationServiceDependency
 from .responses import TokenResponse
 from .errors import AuthenticationException
 from ..application.dtos import CredentialsDTO
+
 specs = RestGroupSpec(
     name="SECURITY",
     path="/auth",
@@ -17,13 +18,11 @@ async def authenticate(
     request: AuthRequestDependency,
     service: AuthenticationServiceDependency,
 ) -> TokenResponse | None:
-    token = service.authenticate(CredentialsDTO(
-        username=request.username,
-        password=request.password
+    token = service.authenticate(
+        CredentialsDTO(
+            username=request.username,
+            password=request.password
+        )
     )
-    )
-
-    if not token:
-        raise AuthenticationException()
 
     return TokenResponse.from_token(token)

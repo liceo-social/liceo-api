@@ -1,9 +1,9 @@
 from datetime import datetime
 from dataclasses import dataclass
 from liceo.labs.sherlock.core import Aggregate, AggregateEvent
+from liceo.security.common.domain.errors import AuthenticationException
 from typing import Callable
-from .vo import UserId, Authentication
-from .errors import NotValidCredentials, NotFoundUser
+from .vo import UserId
 
 PASSWORD_MIN_LENGTH = 8
 USERNAME_MIN_LENGTH = 6  # a@a.uk
@@ -36,15 +36,15 @@ class User(Aggregate[UserId]):
     @staticmethod
     def authenticate(cmd: AuthenticationCommand):
         if not cmd.username or len(cmd.username.strip()) < USERNAME_MIN_LENGTH:
-            raise NotValidCredentials()
+            raise AuthenticationException()
 
         if not cmd.password or len(cmd.password.strip()) < PASSWORD_MIN_LENGTH:
-            raise NotValidCredentials()
+            raise AuthenticationException()
 
         user_id = cmd.authentication(cmd.username, cmd.password)
 
         if (user_id is None):
-            raise NotFoundUser()
+            raise AuthenticationException()
 
         token = cmd.token_generator(cmd.username)
 

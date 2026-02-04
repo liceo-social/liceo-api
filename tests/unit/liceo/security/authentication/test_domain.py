@@ -1,7 +1,7 @@
 import pytest
 from liceo.security.authentication.domain.entities import User
-from liceo.security.authentication.domain.vo import Authentication, UserId
-from liceo.security.authentication.domain.errors import NotValidCredentials
+from liceo.security.authentication.domain.vo import UserId
+from liceo.security.common.domain.errors import AuthenticationException
 
 TOKEN = "token"
 
@@ -39,7 +39,7 @@ def test_should_fail_when_missing_credentials():
         token_generator=TOKEN_GENERATOR
     )
 
-    with pytest.raises(NotValidCredentials):
+    with pytest.raises(AuthenticationException):
         User.authenticate(command)
 
 
@@ -51,7 +51,7 @@ def test_should_fail_when_credentials_are_empty():
         token_generator=TOKEN_GENERATOR
     )
 
-    with pytest.raises(NotValidCredentials):
+    with pytest.raises(AuthenticationException):
         User.authenticate(command)
 
 
@@ -63,7 +63,7 @@ def test_should_fail_when_username_is_not_long_enough():
         token_generator=TOKEN_GENERATOR
     )
 
-    with pytest.raises(NotValidCredentials):
+    with pytest.raises(AuthenticationException):
         User.authenticate(command)
 
 
@@ -75,5 +75,5 @@ def test_should_fail_when_password_is_not_long_enough():
         token_generator=TOKEN_GENERATOR
     )
 
-    with pytest.raises(NotValidCredentials):
+    with pytest.raises(AuthenticationException):
         User.authenticate(command)
