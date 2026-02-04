@@ -10,12 +10,15 @@ from .migrations import MigrationLoader
 from ..application.output import EventStore
 from .event_store import ConsoleEventStore
 
+# ------------ CONFIGURATION
+
+ConfigurationDependency = Annotated[LiceoConfiguration,
+                                    Depends(lambda: LiceoConfiguration())]
+
 # ------------ DATABASE
 
 
-def load_connection_factory(
-        cfg: LiceoConfiguration = Depends(lambda: LiceoConfiguration())
-) -> ConnectionFactory:
+def load_connection_factory(cfg: ConfigurationDependency) -> ConnectionFactory:
     return SQLAlchemyConnectionFactory(url=cfg.db.get_url())
 
 

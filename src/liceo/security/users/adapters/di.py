@@ -1,10 +1,11 @@
 from typing import Annotated
-from fastapi import Depends
+from fastapi import Depends, Query
 
 from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency
-from liceo.security.common.adapters.di import SecurityServiceDependency
+from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 
 from .repositories import PoirotUsersRepository
+from .requests import CreateUserRequest, FilteringUsersRequest, CreateUserFields
 from ..application.service import UsersService
 from ..application.repository import UsersRepository
 
@@ -28,3 +29,18 @@ def users_service(repository: RepositoryDependency, factory: ConnectionFactoryDe
 
 
 UsersServiceDependency = Annotated[UsersService, Depends(users_service)]
+
+# ------ REQUESTS
+
+FilteringUsersRequestDependency = Annotated[FilteringUsersRequest, Query()]
+
+
+def get_create_user_request(
+    user: UserInfo,
+    fields: CreateUserFields = Depends()
+):
+    return CreateUserRequest(fields=fields, created_by=user)
+
+
+CreateUserRequestDependency = Annotated[CreateUserRequest, Depends(
+    get_create_user_request)]

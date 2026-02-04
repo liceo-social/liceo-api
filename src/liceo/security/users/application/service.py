@@ -30,7 +30,7 @@ class UsersService:
                 username=input.username,
                 password=self.security.hash_passw(input.password),
                 roles=input.roles,
-                created_by=UserId(id=input.created_by.id)
+                created_by=input.created_by
             )
             saved_user = self.repository.save_user(User.create(command))
             self.event_store.append(saved_user)

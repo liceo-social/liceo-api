@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from liceo.infra.domain.vo import Pagination
-from ..domain.vo import UserDetails
+from ..domain.vo import UserId
 
 
 @dataclass
@@ -10,7 +10,7 @@ class CreateUserCaseDTO:
     username: str
     password: str
     roles: list[str]
-    created_by: UserDetails
+    created_by: UserId
 
 
 @dataclass

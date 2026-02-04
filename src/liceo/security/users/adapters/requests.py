@@ -1,32 +1,35 @@
 from pydantic import BaseModel, Field
-from fastapi import Query
-from typing import Annotated
 from liceo.infra.domain.vo import Pagination
+from liceo.security.common.adapters.di import UserInfo
 from ..application.dtos import CreateUserCaseDTO
-from ..domain.vo import UserDetails
+from ..domain.vo import UserId
 from ..application.dtos import FilterUsersDTO
 
 
-class CreateUserRequest(BaseModel):
+class CreateUserFields(BaseModel):
     name: str
     surname: str
     username: str
     password: str
     roles: list[str]
-    created_by: UserDetails
+
+
+class CreateUserRequest(BaseModel):
+    fields: CreateUserFields
+    created_by: UserInfo
 
     def to_input(self) -> CreateUserCaseDTO:
         return CreateUserCaseDTO(
-            name=self.name,
-            surname=self.surname,
-            username=self.username,
-            password=self.password,
-            roles=self.roles,
-            created_by=self.created_by
+            name=self.fields.name,
+            surname=self.fields.surname,
+            username=self.fields.username,
+            password=self.fields.password,
+            roles=self.fields.roles,
+            created_by=UserId(id=self.created_by.id)
         )
 
 
-class FilteringUsersRequestModel(BaseModel):
+class FilteringUsersRequest(BaseModel):
     max: int = Field(100, gt=0, le=100)
     offset: int = Field(0, ge=0)
     name: str | None = None
@@ -43,6 +46,3 @@ class FilteringUsersRequestModel(BaseModel):
             username=self.username,
             pagination=self.to_pagination()
         )
-
-
-FilteringUsersRequest = Annotated[FilteringUsersRequestModel, Query()]
