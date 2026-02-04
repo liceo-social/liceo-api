@@ -39,21 +39,21 @@ def sql(mapper: Callable[..., A] = lambda row: row):
 
             if func.__name__.startswith("find_all_"):
                 logger.debug("executing find_all___ query")
-                all = self.connection.all(sql=sql_content, params=kwargs)
+                all = self._get_connection().all(sql=sql_content, params=kwargs)
                 return mapper([next for next in all])
 
             if func.__name__.startswith("find_") or func.__name__.startswith("insert_"):
                 logger.debug("executing find___ query")
-                one = self.connection.one(sql=sql_content, params=kwargs)
+                one = self._get_connection().one(sql=sql_content, params=kwargs)
                 return mapper(one)
 
             if func.__name__.startswith("is_"):
                 logger.debug("executing is___ query")
-                one = self.connection.one(sql=sql_content, params=kwargs)
+                one = self._get_connection().one(sql=sql_content, params=kwargs)
                 return mapper(one)
 
             logger.debug("executing execute___ query")
-            return self.connection.execute(sql=sql_content, params=kwargs)
+            return self._get_connection().execute(sql=sql_content, params=kwargs)
 
         return wrapper
 

@@ -1,3 +1,4 @@
+from .repositories import FilterUsersDTO
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
 from .di import UsersServiceDependency
 from .requests import CreateUserRequest, ListUsersRequest
@@ -14,9 +15,9 @@ router = specs.create_router()
 
 @router.get("/")
 def list_users(
-        requester: object, request: ListUsersRequest, service: object
+        service: UsersServiceDependency
 ) -> ListUsersResponse:
-    return ListUsersResponse(data=[])
+    return ListUsersResponse.fromDTO(dto=service.list(FilterUsersDTO()))
 
 
 @router.post("/")

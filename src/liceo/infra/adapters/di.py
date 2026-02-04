@@ -2,33 +2,34 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from liceo.infra.adapters.persistence import SQLAlchemyConnection
+from liceo.infra.adapters.persistence import SQLAlchemyConnectionFactory
 from liceo.infra.domain.vo import LiceoConfiguration
-from liceo.labs.db.core import Connection
+from liceo.labs.db.core import ConnectionFactory
 
 from .migrations import MigrationLoader
 from ..application.output import EventStore
 from .event_store import ConsoleEventStore
 
-
-# --8<-- [start:connection_dependency]
-def load_connection(
-    cfg: LiceoConfiguration = Depends(lambda: LiceoConfiguration()),
-) -> Connection:
-    return SQLAlchemyConnection(url=LiceoConfiguration().db.get_url())
+# ------------ DATABASE
 
 
-ConnectionDependency = Annotated[Connection, Depends(load_connection)]
-# --8<-- [end:connection_dependency]
+def load_connection_factory(
+        cfg: LiceoConfiguration = Depends(lambda: LiceoConfiguration())
+) -> ConnectionFactory:
+    return SQLAlchemyConnectionFactory(url=cfg.db.get_url())
 
 
-# --8<-- [start:migrations_dependency]
-def load_migration_loader(conn: ConnectionDependency):
-    return MigrationLoader(conn)
+ConnectionFactoryDependency = Annotated[ConnectionFactory, Depends(
+    load_connection_factory)]
+
+
+def load_migration_loader(connection_factory: ConnectionFactoryDependency):
+    return MigrationLoader(connection_factory)
 
 
 MigrationsDependency = Annotated[MigrationLoader, Depends(load_migration_loader)]
-# --8<-- [end:migrations_dependency]
+
+# -------------- EVENT STORE
 
 
 def event_store():

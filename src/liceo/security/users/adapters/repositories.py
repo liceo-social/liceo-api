@@ -1,3 +1,5 @@
+from liceo.infra.domain.vo import Paged
+from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.poirot.core import sql, Repository
 from ..application.repository import UsersRepository
@@ -9,10 +11,34 @@ class MemoryRepository(UsersRepository):
 
 
 class PoirotUsersRepository(UsersRepository, Repository):
-    @sql()
+    def _map_to_user_dto(self, row: dict) -> UserDTO:
+        return UserDTO(
+            id=row["id"],
+            name=row["name"],
+            username=row["username"],
+            total_count=row["total_count"]
+        )
+
+    def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
+        sql = self.resolve_sql(self.filter_users)
+
+        sql_params: dict = {
+            "offset": filter.pagination.offset,
+            "max": filter.pagination.max
+        }
+
+        if (filter.name is not None):
+            sql_params.update({"name": f"%{filter.name}%"})
+
+        result = self._get_connection().all(
+            sql, params=sql_params, order_by={"name": False})
+        data = list(map(self._map_to_user_dto, result))
+
+        return Paged(total=0 if len(result) == 0 else data[0].total_count, data=data)
+
     def save_user(self, user: User) -> User:
         sql = self.resolve_sql(self.save_user)
-        self.connection.insert(sql, params={
+        self._get_connection().insert(sql, params={
             "id": user.id,
             "name": user.name,
             "surname": user.surname,
@@ -22,14 +48,13 @@ class PoirotUsersRepository(UsersRepository, Repository):
         self._save_user_roles(user)
         return user
 
-    @sql()
     def _save_user_roles(self, user: User) -> User:
         user_sql = self.resolve_sql(self._save_user_roles)
 
         for role in user.roles:
             role_id = self._find_role_id_by_name(role.value)
             if (role_id):
-                self.connection.insert(user_sql, params={
+                self._get_connection().insert(user_sql, params={
                     "user_id": user.id,
                     "role_id": role_id
                 })
