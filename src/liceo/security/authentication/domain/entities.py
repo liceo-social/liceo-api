@@ -15,14 +15,8 @@ class User(Aggregate[UserId]):
     class AuthenticationCommand:
         username: str
         password: str
-        authentication: Callable[[str, str], Authentication | None]
-
-        def check_credentials(self):
-            if not self.username or len(self.username.strip()) < USERNAME_MIN_LENGTH:
-                raise NotValidCredentials()
-
-            if not self.password or len(self.password.strip()) < PASSWORD_MIN_LENGTH:
-                raise NotValidCredentials()
+        authentication: Callable[[str, str], UserId | None]
+        token_generator: Callable[[str], str]
 
     @dataclass(kw_only=True)
     class UserAuthenticated(AggregateEvent):
@@ -41,11 +35,18 @@ class User(Aggregate[UserId]):
 
     @staticmethod
     def authenticate(cmd: AuthenticationCommand):
-        cmd.check_credentials()
-        authentication = cmd.authentication(cmd.username, cmd.password)
+        if not cmd.username or len(cmd.username.strip()) < USERNAME_MIN_LENGTH:
+            raise NotValidCredentials()
 
-        if (authentication is None):
+        if not cmd.password or len(cmd.password.strip()) < PASSWORD_MIN_LENGTH:
+            raise NotValidCredentials()
+
+        user_id = cmd.authentication(cmd.username, cmd.password)
+
+        if (user_id is None):
             raise NotFoundUser()
 
-        return User(id=authentication.user_id)\
-            .append(User.UserAuthenticated(username=cmd.username, token=authentication.token))
+        token = cmd.token_generator(cmd.username)
+
+        return User(id=user_id)\
+            .append(User.UserAuthenticated(username=cmd.username, token=token))

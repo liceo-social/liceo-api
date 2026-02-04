@@ -6,16 +6,25 @@ from liceo.security.authentication.domain.errors import NotValidCredentials
 TOKEN = "token"
 
 
-def AUTHENTICATION_SUCCESS(username, password): return Authentication(
-    user_id=UserId(id="1"), token=TOKEN)
+def AUTHENTICATION_SUCCESS(username, password):
+    return UserId(id="1")
 
 
-def AUTHENTICATION_FAILS(username, password): return None
+def AUTHENTICATION_FAILS(username, password):
+    return None
+
+
+def TOKEN_GENERATOR(username: str):
+    return TOKEN
 
 
 def test_should_authenticate_successfully_with_proper_credentials():
     command = User.AuthenticationCommand(
-        username="username", password="password", authentication=AUTHENTICATION_SUCCESS)
+        username="username@domain.com",
+        password="password",
+        authentication=AUTHENTICATION_SUCCESS,
+        token_generator=TOKEN_GENERATOR
+    )
 
     authenticated_user = User.authenticate(command)
     assert authenticated_user.token == TOKEN
@@ -24,7 +33,11 @@ def test_should_authenticate_successfully_with_proper_credentials():
 
 def test_should_fail_when_missing_credentials():
     command = User.AuthenticationCommand(
-        username=None, password=None, authentication=AUTHENTICATION_SUCCESS)
+        username="",
+        password="",
+        authentication=AUTHENTICATION_SUCCESS,
+        token_generator=TOKEN_GENERATOR
+    )
 
     with pytest.raises(NotValidCredentials):
         User.authenticate(command)
@@ -32,7 +45,11 @@ def test_should_fail_when_missing_credentials():
 
 def test_should_fail_when_credentials_are_empty():
     command = User.AuthenticationCommand(
-        username="", password="", authentication=AUTHENTICATION_SUCCESS)
+        username="",
+        password="",
+        authentication=AUTHENTICATION_SUCCESS,
+        token_generator=TOKEN_GENERATOR
+    )
 
     with pytest.raises(NotValidCredentials):
         User.authenticate(command)
@@ -40,7 +57,11 @@ def test_should_fail_when_credentials_are_empty():
 
 def test_should_fail_when_username_is_not_long_enough():
     command = User.AuthenticationCommand(
-        username="some", password="password", authentication=AUTHENTICATION_SUCCESS)
+        username="some",
+        password="password",
+        authentication=AUTHENTICATION_SUCCESS,
+        token_generator=TOKEN_GENERATOR
+    )
 
     with pytest.raises(NotValidCredentials):
         User.authenticate(command)
@@ -48,7 +69,11 @@ def test_should_fail_when_username_is_not_long_enough():
 
 def test_should_fail_when_password_is_not_long_enough():
     command = User.AuthenticationCommand(
-        username="some", password="pass", authentication=AUTHENTICATION_SUCCESS)
+        username="some",
+        password="pass",
+        authentication=AUTHENTICATION_SUCCESS,
+        token_generator=TOKEN_GENERATOR
+    )
 
     with pytest.raises(NotValidCredentials):
         User.authenticate(command)

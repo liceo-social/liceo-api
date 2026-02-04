@@ -9,5 +9,5 @@ class UserId(AggregateId):
 
 @dataclass
 class Authentication:
+    username: str
     user_id: UserId
-    token: str
