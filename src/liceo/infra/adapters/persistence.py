@@ -25,8 +25,6 @@ class SQLAlchemyConnection(LiceoConnection):
     def all(self, sql: str, params: ExecutionParams | None = None, order_by: Mapping[str, bool] | None = None) -> List[dict]:
         sql = self._filter_parameters(sql, params=params)
         sql = self._filter_order_by(sql, orders=order_by)
-        print("==================>")
-        print(sql)
         result = self._conn.execute(statement=text(sql), parameters=params)
         return [dict(one._mapping) for one in result.fetchall() if one]
 

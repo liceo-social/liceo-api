@@ -16,6 +16,8 @@ class CreateUserCaseDTO:
 @dataclass
 class FilterUsersDTO:
     name: str | None = field(default=None)
+    surname: str | None = field(default=None)
+    username: str | None = field(default=None)
     order: tuple[str, bool] | None = field(default=None)
     pagination: Pagination = field(default_factory=lambda: Pagination())
 
