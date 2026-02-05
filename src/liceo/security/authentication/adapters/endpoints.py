@@ -1,6 +1,7 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
-from .di import AuthRequestDependency, AuthenticationServiceDependency
+from .di import AuthenticationServiceDependency
 from .responses import TokenResponse
+from .requests import OAuth2PasswordJSON
 from ..application.dtos import CredentialsDTO
 
 specs = RestGroupSpec(
@@ -14,7 +15,7 @@ router = specs.create_router()
 
 @router.post("/")
 async def authenticate(
-    request: AuthRequestDependency,
+    request: OAuth2PasswordJSON,
     service: AuthenticationServiceDependency,
 ) -> TokenResponse | None:
     token = service.authenticate(
