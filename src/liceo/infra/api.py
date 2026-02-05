@@ -28,8 +28,6 @@ TODO
 TODO
     """,
     "openapi_tags": [
-        # auth_api.specs.metadata(),
-        # registration_api.specs.metadata(),
         auth_api.specs.metadata(),
         admin_users_api.specs.metadata()
     ],
@@ -70,7 +68,6 @@ def init_app():
     """
     # API instance
     api = FastAPI(**OPENAPI, lifespan=init_scheduler)
-    # api = FastAPI(**OPENAPI)
     # Endpoints
     api.include_router(init_v1_endpoints())
     # Exception handlers

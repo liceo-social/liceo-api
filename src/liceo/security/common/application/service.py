@@ -43,6 +43,6 @@ class SecurityService(HashPassword, CheckPermissions, GenerateToken):
         )
 
         return {
-            "id": payload.get("sub"),
+            "sub": payload.get("sub"),
             "roles": payload.get("roles")
         }
