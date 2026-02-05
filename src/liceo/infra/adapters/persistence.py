@@ -15,7 +15,6 @@ class SQLAlchemyConnection(LiceoConnection):
         sql = self._filter_order_by(sql, orders=order_by)
         result = self._conn.execute(statement=text(sql), parameters=params)
         first_row = result.first()
-
         return dict(first_row._mapping) if first_row else None
 
     def insert(self, sql: str, params: ExecutionParams | None = None) -> dict | None:

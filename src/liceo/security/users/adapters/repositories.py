@@ -15,8 +15,7 @@ class PoirotUsersRepository(UsersRepository, Repository):
         return UserDTO(
             id=row["id"],
             name=row["name"],
-            username=row["username"],
-            total_count=row["total_count"]
+            username=row["username"]
         )
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
@@ -33,8 +32,9 @@ class PoirotUsersRepository(UsersRepository, Repository):
         result = self._get_connection().all(
             sql, params=sql_params, order_by={"name": False})
         data = list(map(self._map_to_user_dto, result))
+        total_count = result[0]["total_count"]
 
-        return Paged(total=0 if len(result) == 0 else data[0].total_count, data=data)
+        return Paged(total=0 if len(result) == 0 else total_count, data=data)
 
     def save_user(self, user: User) -> User:
         sql = self.resolve_sql(self.save_user)
@@ -53,7 +53,6 @@ class PoirotUsersRepository(UsersRepository, Repository):
 
         for role in user.roles:
             role_id = self.find_role_id_by_name(role.name)
-            print(f"role: {role_id}")
             if (role_id):
                 self._get_connection().insert(user_sql, params={
                     "user_id": user.id.id,

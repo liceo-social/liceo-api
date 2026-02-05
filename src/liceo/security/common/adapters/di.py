@@ -45,14 +45,12 @@ def has_permission(permission: str):
         user: UserInfo
     ):
         if not user or len(user.roles) == 0:
-            print("============> NO ROLES")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions"
             )
 
         if not service.check_permission_in_roles(permission, user.roles):
-            print("============> USER BUT NOT REQUIRED PERMISSIONS")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions"

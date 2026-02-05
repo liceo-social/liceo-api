@@ -18,4 +18,4 @@ def row_to_user_authentication(row: dict) -> UserAuthentication | None:
 class PoirotAuthenticationRepository(AuthenticationRepository, Repository):
     @sql(row_to_user_authentication)
     def find_user_by_username(self, username: str) -> UserAuthentication | None:
-        pass
+        return None

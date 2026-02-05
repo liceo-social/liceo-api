@@ -27,4 +27,3 @@ class UserDTO:
     id: str
     name: str
     username: str
-    total_count: int

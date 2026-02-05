@@ -28,6 +28,7 @@ class SecurityService(HashPassword, CheckPermissions, GenerateToken):
             "sub": username,
             "roles": roles
         }
+
         return jwt.encode(
             payload,
             self.config.crypto.secret_key,

@@ -13,9 +13,9 @@ class CreateUserResponse(BaseModel):
 
 
 class ListUsersResponse(BaseModel):
-    data: list[str]
+    data: list[UserDTO]
+    total_count: int
 
     @staticmethod
     def fromDTO(dto: Paged[UserDTO]):
-        user_ids = list(map(lambda u: u.id, dto.data))
-        return ListUsersResponse(data=user_ids)
+        return ListUsersResponse(data=dto.data, total_count=dto.total)
