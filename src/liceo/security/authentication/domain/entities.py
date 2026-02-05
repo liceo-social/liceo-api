@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from liceo.labs.sherlock.core import Aggregate, AggregateEvent
 from liceo.security.common.domain.errors import AuthenticationException
 from typing import Callable
-from .vo import UserId
+from .vo import UserId, UserAuthentication
 
 PASSWORD_MIN_LENGTH = 8
 USERNAME_MIN_LENGTH = 6  # a@a.uk
@@ -15,8 +15,8 @@ class User(Aggregate[UserId]):
     class AuthenticationCommand:
         username: str
         password: str
-        authentication: Callable[[str, str], UserId | None]
-        token_generator: Callable[[str], str]
+        authentication: Callable[[str, str], UserAuthentication | None]
+        token_generator: Callable[[str, list[str]], str]
 
     @dataclass(kw_only=True)
     class UserAuthenticated(AggregateEvent):
@@ -41,12 +41,12 @@ class User(Aggregate[UserId]):
         if not cmd.password or len(cmd.password.strip()) < PASSWORD_MIN_LENGTH:
             raise AuthenticationException()
 
-        user_id = cmd.authentication(cmd.username, cmd.password)
+        auth = cmd.authentication(cmd.username, cmd.password)
 
-        if (user_id is None):
+        if (auth is None):
             raise AuthenticationException()
 
-        token = cmd.token_generator(cmd.username)
+        token = cmd.token_generator(auth.username, auth.roles)
 
-        return User(id=user_id)\
+        return User(id=auth.id)\
             .append(User.UserAuthenticated(username=cmd.username, token=token))

@@ -6,14 +6,22 @@ class HashPassword(ABC):
     def hash_passw(self, pwd) -> str:
         pass
 
-
-class CheckUserPermissions(ABC):
     @abstractmethod
-    def check_permissions(self, permissions: list[str], user_id: str) -> bool:
+    def verify(self, password: str, hashed: str) -> bool:
+        pass
+
+
+class CheckPermissions(ABC):
+    @abstractmethod
+    def check_permission_in_roles(self, permission: str, roles: list[str]) -> bool:
         pass
 
 
 class GenerateToken(ABC):
     @abstractmethod
-    def generate_token(self, username: str) -> str:
+    def generate_token(self, username: str, roles: list[str]) -> str:
+        pass
+
+    @abstractmethod
+    def decode_token(self, token: str) -> dict:
         pass

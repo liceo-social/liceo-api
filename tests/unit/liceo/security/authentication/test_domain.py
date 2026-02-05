@@ -1,20 +1,20 @@
 import pytest
 from liceo.security.authentication.domain.entities import User
-from liceo.security.authentication.domain.vo import UserId
+from liceo.security.authentication.domain.vo import UserId, UserAuthentication
 from liceo.security.common.domain.errors import AuthenticationException
 
 TOKEN = "token"
 
 
 def AUTHENTICATION_SUCCESS(username, password):
-    return UserId(id="1")
+    return UserAuthentication(id=UserId(id="1"), username="username", roles=["ROLE_ADMIN"], hashed="hashed")
 
 
 def AUTHENTICATION_FAILS(username, password):
     return None
 
 
-def TOKEN_GENERATOR(username: str):
+def TOKEN_GENERATOR(username: str, roles: list[str]):
     return TOKEN
 
 

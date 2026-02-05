@@ -9,8 +9,6 @@ from liceo.infra.adapters.tracing import init_tracing
 from liceo.infra.domain.error import I18Error
 from liceo.infra.domain.vo import ConfigurationSingleton
 from liceo.labs.decorators import solve_lifespan
-# from liceo.security.auth.adapter.input import enpoints as auth_api
-# from liceo.security.registration.adapters import endpoints as registration_api
 from liceo.security.users.adapters import endpoints as admin_users_api
 from liceo.security.authentication.adapters import endpoints as auth_api
 

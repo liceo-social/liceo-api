@@ -23,7 +23,7 @@ class UsersService:
         with Transaction(self.tx_factory):
             command = User.CreateUserCommand(
                 next_id=self.repository.generate_id,
-                check_permissions=lambda ps, uid: self.security.check_permissions(
+                check_permissions=lambda ps, uid: self.security.check_permission_in_roles(
                     ps, uid.id),
                 name=input.name,
                 surname=input.surname,
