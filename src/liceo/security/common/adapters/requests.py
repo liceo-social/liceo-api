@@ -3,8 +3,9 @@ from pydantic import BaseModel, Field
 
 
 class UserContextModel(BaseModel):
-    username: str = Field(default="")
+    id: str = Field(default="")
     roles: List[str] = Field(default=[])
+    is_admin: bool = Field(default=False)
 
     @staticmethod
     def empty():

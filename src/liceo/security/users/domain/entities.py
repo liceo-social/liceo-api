@@ -5,13 +5,12 @@ from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareComma
 from liceo.labs.sherlock.core import AggregateEvent, Sensitive
 from liceo.security.users.domain import vo
 from liceo.security.users.domain import errors
-from liceo.security.users.domain import permissions
 
 
 @dataclass(init=False)
 class User(AuditableAggregate[vo.UserId]):
     @dataclass
-    class ChangeNameCommand(PermissionAwareCommand[vo.UserId]):
+    class ChangeNameCommand:
         name: str
         changed_by: vo.UserId
 
@@ -26,7 +25,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
-    class ChangePasswordCommand(PermissionAwareCommand[vo.UserId]):
+    class ChangePasswordCommand:
         old_password: str
         new_password: str
         new_password_repeated: str
@@ -80,7 +79,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_modified_by(self.removed_by)
 
     @dataclass
-    class CreateUserCommand(PermissionAwareCommand[vo.UserId]):
+    class CreateUserCommand:
         next_id: Callable[[], str]
         name: str
         surname: str
@@ -88,6 +87,7 @@ class User(AuditableAggregate[vo.UserId]):
         password: str
         roles: list[str]
         created_by: vo.UserId
+        created_by_admin: bool
 
     @dataclass(kw_only=True)
     class UserCreated(AggregateEvent):
@@ -116,7 +116,8 @@ class User(AuditableAggregate[vo.UserId]):
 
     @staticmethod
     def create(cmd: CreateUserCommand):
-        cmd.check_permission(permissions.USERS_CREATE, cmd.created_by)
+        if (not cmd.created_by_admin):
+            raise errors.AttemptedByNoAdmin()
 
         return User(id=vo.UserId(id=cmd.next_id()))\
             .append(User.UserCreated(
@@ -132,16 +133,12 @@ class User(AuditableAggregate[vo.UserId]):
         return self.id and self.id == changed_by
 
     def change_name(self, cmd: ChangeNameCommand):
-        cmd.check_permission(permissions.USERS_MODIFY, cmd.changed_by)
-
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
 
         return self.append(User.NameChanged(name=cmd.name, changed_by=cmd.changed_by))
 
     def change_password(self, cmd: ChangePasswordCommand):
-        cmd.check_permission(permissions.USERS_CREATE, cmd.changed_by)
-
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
 
@@ -158,10 +155,8 @@ class User(AuditableAggregate[vo.UserId]):
         )
 
     def add_role(self, cmd: AddRoleCommand) -> "User":
-        cmd.check_permission(permissions.USERS_MODIFY, cmd.added_by)
-
         if not cmd.admin_check_handler(cmd.added_by):
-            raise errors.RoleAddedByNoAdmin()
+            raise errors.AttemptedByNoAdmin()
 
         if cmd.role_to_add in self.roles:
             return self
@@ -169,10 +164,8 @@ class User(AuditableAggregate[vo.UserId]):
         return self.append(User.RoleAdded(added_by=cmd.added_by, role=cmd.role_to_add))
 
     def remove_role(self, cmd: RemoveRoleCommand) -> "User":
-        cmd.check_permission(permissions.USERS_MODIFY, cmd.removed_by)
-
         if not cmd.admin_check_handler(cmd.removed_by):
-            raise errors.RoleRemovedByNoAdmin()
+            raise errors.AttemptedByNoAdmin()
 
         if cmd.role_to_delete in self.roles:
             return self.append(

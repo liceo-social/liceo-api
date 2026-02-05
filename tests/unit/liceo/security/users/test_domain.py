@@ -15,7 +15,7 @@ def create_user(user_id: UserId = UserId(id="1")):
         username="john.doe@liceo.com",
         password="password",
         roles=['ROLE_USER'],
-        check_permissions=ALLOWED_PERMISSION_FN
+        created_by_admin=True
     ))
 
 
@@ -24,7 +24,7 @@ def test_change_name():
     user = create_user(user_id=user_id)
     change_name_cmd = User.ChangeNameCommand(
         name="Johnny",
-        changed_by=user_id, check_permissions=ALLOWED_PERMISSION_FN
+        changed_by=user_id,
     )
     user = user.change_name(change_name_cmd)
 
@@ -35,8 +35,7 @@ def test_change_name():
 def test_try_to_change_name_by_another_user():
     user = create_user()
     change_name_cmd = User.ChangeNameCommand(
-        name="Johnny", changed_by=UserId(id="another-user-id"),
-        check_permissions=ALLOWED_PERMISSION_FN
+        name="Johnny", changed_by=UserId(id="another-user-id")
     )
 
     try:
@@ -61,7 +60,6 @@ def test_change_password():
         new_password_repeated=new_password,
         new_password_hashing_handler=lambda pwd: "hashed",
         changed_by=user_id,
-        check_permissions=ALLOWED_PERMISSION_FN
     )
     user = create_user(user_id=user_id).change_password(cmd)
 
@@ -80,7 +78,6 @@ def test_try_to_change_password_with_wrong_repeated_password():
             new_password_repeated="wrong-new-password",
             new_password_hashing_handler=lambda pwd: "hashed",
             changed_by=user_id,
-            check_permissions=ALLOWED_PERMISSION_FN
         )
         user.change_password(cmd)
         assert False
@@ -103,7 +100,6 @@ def test_try_to_change_password_by_another_user():
             new_password_repeated="new-password",
             new_password_hashing_handler=lambda pwd: "hashed",
             changed_by=UserId("another-user-id"),
-            check_permissions=ALLOWED_PERMISSION_FN
         )
         user.change_password(cmd)
         assert False
@@ -143,7 +139,7 @@ def test_non_admin_user_adding_a_role_to_user():
             )
         )
         assert False
-    except errors.RoleAddedByNoAdmin:
+    except errors.AttemptedByNoAdmin:
         assert True
 
     assert len(user._events) == 1
@@ -191,7 +187,7 @@ def test_trying_to_remove_a_role_by_a_non_admin_user():
     try:
         user.remove_role(remove_cmd_by(is_admin=False))
         assert False
-    except errors.RoleRemovedByNoAdmin:
+    except errors.AttemptedByNoAdmin:
         assert True
 
     assert len(user._events) == 1

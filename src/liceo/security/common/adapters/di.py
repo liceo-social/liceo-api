@@ -5,6 +5,7 @@ from liceo.infra.adapters.di import ConfigurationDependency, ConnectionFactoryDe
 from liceo.security.common.application.service import SecurityService
 from .requests import UserContextModel
 from .repositories import PoirotPermissionsRepository
+from .roles import ROLE_ADMIN
 from ..application.repositories import PermissionsRepository
 
 
@@ -33,7 +34,12 @@ TokenRequest = Annotated[str, Depends(oauth2_scheme)]
 
 def get_user_details(token: TokenRequest, security: SecurityServiceDependency):
     decoded = security.decode_token(token)
-    return UserContextModel(username=decoded["username"], roles=decoded["roles"])
+
+    return UserContextModel(
+        id=decoded["sub"],
+        roles=decoded["roles"],
+        is_admin=ROLE_ADMIN in decoded["roles"]
+    )
 
 
 UserInfo = Annotated[UserContextModel, Depends(get_user_details)]

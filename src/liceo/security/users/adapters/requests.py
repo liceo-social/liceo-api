@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.adapters.di import UserInfo
+from liceo.security.common.application.dto import CurrentUserDTO
 from ..application.dtos import CreateUserCaseDTO
 from ..domain.vo import UserId
 from ..application.dtos import FilterUsersDTO
@@ -25,7 +26,11 @@ class CreateUserRequest(BaseModel):
             username=self.fields.username,
             password=self.fields.password,
             roles=self.fields.roles,
-            created_by=UserId(id=self.created_by.id)
+            created_by=CurrentUserDTO(
+                id=self.created_by.id,
+                roles=self.created_by.roles,
+                is_admin=self.created_by.is_admin
+            )
         )
 
 

@@ -46,7 +46,7 @@ class User(Aggregate[UserId]):
         if (auth is None):
             raise AuthenticationException()
 
-        token = cmd.token_generator(auth.username, auth.roles)
+        token = cmd.token_generator(auth.id.id, auth.roles)
 
         return User(id=auth.id)\
             .append(User.UserAuthenticated(username=cmd.username, token=token))

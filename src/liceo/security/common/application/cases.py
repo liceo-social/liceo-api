@@ -19,7 +19,7 @@ class CheckPermissions(ABC):
 
 class GenerateToken(ABC):
     @abstractmethod
-    def generate_token(self, username: str, roles: list[str]) -> str:
+    def generate_token(self, id: str, roles: list[str]) -> str:
         pass
 
     @abstractmethod

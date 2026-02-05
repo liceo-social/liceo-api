@@ -23,9 +23,9 @@ class SecurityService(HashPassword, CheckPermissions, GenerateToken):
         found_roles = self.repository.find_all_roles_by_permission_name(permission)
         return any(x in roles for x in found_roles)
 
-    def generate_token(self, username: str, roles: list[str]) -> str:
+    def generate_token(self, id: str, roles: list[str]) -> str:
         payload = {
-            "sub": username,
+            "sub": id,
             "roles": roles
         }
 
@@ -43,6 +43,6 @@ class SecurityService(HashPassword, CheckPermissions, GenerateToken):
         )
 
         return {
-            "username": payload.get("sub"),
+            "id": payload.get("sub"),
             "roles": payload.get("roles")
         }

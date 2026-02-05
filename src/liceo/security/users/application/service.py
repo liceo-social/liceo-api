@@ -23,14 +23,13 @@ class UsersService:
         with Transaction(self.tx_factory):
             command = User.CreateUserCommand(
                 next_id=self.repository.generate_id,
-                check_permissions=lambda ps, uid: self.security.check_permission_in_roles(
-                    ps, uid.id),
+                created_by_admin=input.created_by.is_admin,
                 name=input.name,
                 surname=input.surname,
                 username=input.username,
                 password=self.security.hash_passw(input.password),
                 roles=input.roles,
-                created_by=input.created_by
+                created_by=UserId(id=input.created_by.id)
             )
             saved_user = self.repository.save_user(User.create(command))
             self.event_store.append(saved_user)
