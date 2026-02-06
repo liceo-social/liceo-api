@@ -36,13 +36,13 @@ class CreateUserRequest(BaseModel):
 
 class FilteringUsersRequest(BaseModel):
     max: int = Field(100, gt=0, le=100)
-    offset: int = Field(0, ge=0)
+    page: int = Field(0, ge=0)
     name: str | None = None
     surname: str | None = None
     username: str | None = None
 
     def to_pagination(self):
-        return Pagination(self.max, self.offset)
+        return Pagination(self.max, self.page)
 
     def toDTO(self):
         return FilterUsersDTO(

@@ -20,9 +20,8 @@ class PoirotUsersRepository(UsersRepository, Repository):
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
         sql = self.resolve_sql(self.filter_users)
-
         sql_params: dict = {
-            "offset": filter.pagination.offset,
+            "offset": filter.pagination.get_offset(),
             "max": filter.pagination.max
         }
 

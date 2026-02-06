@@ -12,8 +12,8 @@ class PermissionMemoryRepository(ports.SavePermissionPort, ports.ListPermissions
         return permission
 
     def list_permissions(self, pagination: Pagination) -> Paged[Permission]:
-        from_offset = pagination.offset
-        to_offset = (pagination.offset + pagination.max) - 1
+        from_offset = pagination.page
+        to_offset = (pagination.page + pagination.max) - 1
         permissions = list(PERMISSIONS.values())
 
         return Paged(

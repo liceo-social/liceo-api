@@ -23,7 +23,10 @@ class Paged(Generic[T]):
 @dataclass
 class Pagination:
     max: int = 10
-    offset: int = 0
+    page: int = 1
+
+    def get_offset(self):
+        return (max(self.page, 1) * self.max) - self.max
 
 
 class ObservabilityConfig(BaseModel):

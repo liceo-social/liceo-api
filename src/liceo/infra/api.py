@@ -1,6 +1,7 @@
 from typing import cast
 
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from liceo.infra.adapters.di import MigrationsDependency
 from liceo.infra.adapters.di_scheduler import SchedulerDependency
@@ -73,6 +74,19 @@ def init_app():
     # Exception handlers
     api.add_exception_handler(
         I18Error, lambda r, x: liceo_handler(r, cast(I18Error, x))
+    )
+    api.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost.tiangolo.com",
+            "https://localhost.tiangolo.com",
+            "http://localhost",
+            "http://localhost:8080",
+            "http://localhost:5173"
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
     return api
 
