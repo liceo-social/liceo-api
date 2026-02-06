@@ -3,7 +3,9 @@ CREATE TABLE IF NOT EXISTS liceo_users (
     name TEXT,
     surname TEXT,
     username TEXT,
-    password TEXT
+    password TEXT,
+    created_at TIMESTAMP,
+    created_by TEXT
 );
 
 CREATE TABLE IF NOT EXISTS liceo_permissions (

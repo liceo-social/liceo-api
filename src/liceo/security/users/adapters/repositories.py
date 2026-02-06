@@ -14,7 +14,7 @@ class PoirotUsersRepository(UsersRepository, Repository):
     def _map_to_user_dto(self, row: dict) -> UserDTO:
         return UserDTO(
             id=row["id"],
-            name=row["name"],
+            full_name=row["full_name"],
             username=row["username"]
         )
 
@@ -42,7 +42,9 @@ class PoirotUsersRepository(UsersRepository, Repository):
             "name": user.name,
             "surname": user.surname,
             "username": user.username,
-            "password": user.password
+            "password": user.password,
+            "created_at": user.created_at,
+            "created_by": user.created_by.id
         })
         self._save_user_roles(user)
         return user

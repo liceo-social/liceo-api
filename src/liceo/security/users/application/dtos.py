@@ -25,5 +25,5 @@ class FilterUsersDTO:
 @dataclass
 class UserDTO:
     id: str
-    name: str
+    full_name: str
     username: str

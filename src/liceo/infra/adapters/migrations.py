@@ -13,5 +13,5 @@ class MigrationLoader:
         with Transaction(self.connection_factory):
             migrations_path = Path(__file__).parent / "migrations"
             db_migrations = DBM(
-                connection=self.connection_factory.create(), path=migrations_path)
-            # db_migrations.create_db().apply_migrations()
+                connection_factory=self.connection_factory, path=migrations_path)
+            db_migrations.create_db().apply_migrations()
