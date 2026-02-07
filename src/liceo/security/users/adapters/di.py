@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import Depends, Query, Body
 
-from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency
+from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency, ConnectionManagerDependency, TransactionManagerDependency
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 
 from .repositories import SQLUsersRepository
@@ -19,12 +19,19 @@ RepositoryDependency = Annotated[UsersRepository, Depends(repository)]
 
 
 # ---- SERVICES
-def users_service(repository: RepositoryDependency, factory: ConnectionFactoryDependency, event_store: EventStoreDependency, security: SecurityServiceDependency) -> UsersService:
+def users_service(
+    repository: RepositoryDependency,
+    event_store: EventStoreDependency,
+    security: SecurityServiceDependency,
+    transaction_manager: TransactionManagerDependency,
+    connection_manager: ConnectionManagerDependency
+) -> UsersService:
     return UsersService(
-        tx_factory=factory,
         repository=repository,
         security=security,
-        event_store=event_store
+        event_store=event_store,
+        connection_manager=connection_manager,
+        transaction_manager=transaction_manager
     )
 
 

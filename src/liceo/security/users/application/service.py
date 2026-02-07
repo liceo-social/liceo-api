@@ -9,6 +9,7 @@ from .dtos import CreateUserCaseDTO, FilterUsersDTO, UserDTO
 from .repository import UsersRepository
 
 
+@dataclass
 @ManagedService
 class UsersService(AbstractService):
     repository: UsersRepository

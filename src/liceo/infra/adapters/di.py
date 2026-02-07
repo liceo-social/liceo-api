@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from liceo.infra.adapters.persistence import SQLAlchemyConnectionFactory
 from liceo.infra.domain.vo import LiceoConfiguration
-from liceo.labs.db.core import ConnectionFactory
+from liceo.labs.db.core import ConnectionFactory, ConnectionManager, TransactionManager
 
 from .migrations import MigrationLoader
 from ..application.output import EventStore
@@ -24,6 +24,22 @@ def load_connection_factory(cfg: ConfigurationDependency) -> ConnectionFactory:
 
 ConnectionFactoryDependency = Annotated[ConnectionFactory, Depends(
     load_connection_factory)]
+
+
+def create_connection_manager(connection_factory: ConnectionFactoryDependency):
+    return ConnectionManager(connection_factory)
+
+
+ConnectionManagerDependency = Annotated[ConnectionManager, Depends(
+    create_connection_manager)]
+
+
+def create_transaction_factory(connection_factory: ConnectionFactoryDependency):
+    return TransactionManager(connection_factory)
+
+
+TransactionManagerDependency = Annotated[TransactionManager, Depends(
+    create_transaction_factory)]
 
 
 def load_migration_loader(connection_factory: ConnectionFactoryDependency):
