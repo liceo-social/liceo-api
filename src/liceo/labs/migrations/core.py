@@ -4,7 +4,7 @@ from io import BufferedReader
 from pathlib import Path
 from typing import List, Self
 
-from liceo.labs.db.core import Connection, Repository, ConnectionFactory
+from liceo.labs.db.core import Repository, ConnectionFactory
 from liceo.labs.logs import logged
 
 

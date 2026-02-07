@@ -1,7 +1,7 @@
 from liceo.infra.domain.vo import Paged
 from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO
 from liceo.security.users.domain.entities import User
-from liceo.labs.poirot.core import sql, Repository
+from liceo.labs.db.sql import SQLRepository, sql
 from ..application.repository import UsersRepository
 
 
@@ -10,7 +10,7 @@ class MemoryRepository(UsersRepository):
         return user
 
 
-class PoirotUsersRepository(UsersRepository, Repository):
+class SQLUsersRepository(UsersRepository, SQLRepository):
     def _map_to_user_dto(self, row: dict) -> UserDTO:
         return UserDTO(
             id=row["id"],
@@ -20,16 +20,19 @@ class PoirotUsersRepository(UsersRepository, Repository):
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
         sql = self.resolve_sql(self.filter_users)
-        sql_params: dict = {
+        params: dict = {
             "offset": filter.pagination.get_offset(),
             "max": filter.pagination.max
         }
 
         if (filter.name is not None):
-            sql_params.update({"name": f"%{filter.name}%"})
+            params.update({"name": f"%{filter.name}%"})
 
+        sql = self.sql_optimize(sql, params, {"name": False})
         result = self._get_connection().all(
-            sql, params=sql_params, order_by={"name": False})
+            sql,
+            params=params
+        )
         data = list(map(self._map_to_user_dto, result))
         total_count = result[0]["total_count"]
 

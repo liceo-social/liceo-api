@@ -1,4 +1,4 @@
-from liceo.labs.poirot.core import Repository, sql
+from liceo.labs.db.sql import SQLRepository, sql
 from liceo.security.authentication.domain.vo import UserAuthentication, UserId
 from ..application.repository import AuthenticationRepository
 
@@ -15,7 +15,7 @@ def row_to_user_authentication(row: dict) -> UserAuthentication | None:
     )
 
 
-class PoirotAuthenticationRepository(AuthenticationRepository, Repository):
+class PoirotAuthenticationRepository(AuthenticationRepository, SQLRepository):
     @sql(row_to_user_authentication)
     def find_user_by_username(self, username: str) -> UserAuthentication | None:
         return None

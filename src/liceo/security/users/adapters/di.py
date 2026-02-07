@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Body
 from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 
-from .repositories import PoirotUsersRepository
+from .repositories import SQLUsersRepository
 from .requests import CreateUserRequest, FilteringUsersRequest, CreateUserFields
 from ..application.service import UsersService
 from ..application.repository import UsersRepository
@@ -12,7 +12,7 @@ from ..application.repository import UsersRepository
 
 # ----- REPOSITORIES
 def repository(connection_factory: ConnectionFactoryDependency) -> UsersRepository:
-    return PoirotUsersRepository(factory=connection_factory)
+    return SQLUsersRepository(factory=connection_factory)
 
 
 RepositoryDependency = Annotated[UsersRepository, Depends(repository)]

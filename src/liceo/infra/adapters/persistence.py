@@ -8,40 +8,44 @@ from liceo.labs.db.core import ExecutionParams
 class SQLAlchemyConnection(LiceoConnection):
     def __init__(self, conn: SAConnection):
         self._conn = conn
-        self._tx = conn.begin()
 
-    def one(self, sql: str, params: ExecutionParams | None = None, order_by: Mapping[str, bool] | None = None) -> dict | None:
-        sql = self._filter_parameters(sql, params=params)
-        sql = self._filter_order_by(sql, orders=order_by)
+    def one(self, sql: str, params: ExecutionParams | None = None) -> dict | None:
         result = self._conn.execute(statement=text(sql), parameters=params)
         first_row = result.first()
         return dict(first_row._mapping) if first_row else None
 
     def insert(self, sql: str, params: ExecutionParams | None = None) -> dict | None:
-        sql = self._filter_parameters(sql, params=params)
-        return self.one(sql, params, order_by=None)
+        return self.one(sql, params)
 
-    def all(self, sql: str, params: ExecutionParams | None = None, order_by: Mapping[str, bool] | None = None) -> List[dict]:
-        sql = self._filter_parameters(sql, params=params)
-        sql = self._filter_order_by(sql, orders=order_by)
+    def all(self, sql: str, params: ExecutionParams | None = None) -> List[dict]:
         result = self._conn.execute(statement=text(sql), parameters=params)
         return [dict(one._mapping) for one in result.fetchall() if one]
 
-    def execute(self, sql: str, params: ExecutionParams | None = None, order_by: Mapping[str, bool] | None = None) -> Any:
-        sql = self._filter_parameters(sql, params=params)
-        sql = self._filter_order_by(sql, orders=order_by)
+    def execute(self, sql: str, params: ExecutionParams | None = None) -> Any:
         return self._conn.execute(statement=text(sql), parameters=params)
 
+    def begin(self) -> None:
+        self._conn.begin()
+
     def commit(self) -> None:
-        if self._tx.is_active:
-            self._tx.commit()
+        self._conn.commit()
 
     def rollback(self) -> None:
-        if self._tx.is_active:
-            self._tx.rollback()
+        self._conn.rollback()
 
     def close(self) -> None:
         self._conn.close()
+
+    def create_savepoint(self, name: str) -> None:
+        self._conn.begin_nested()
+
+    def rollback_to_savepoint(self, name: str) -> None:
+        if self._conn.in_nested_transaction() and self._conn._nested_transaction:
+            self._conn._nested_transaction.rollback()
+
+    def release_savepoint(self, name: str) -> None:
+        if self._conn.in_nested_transaction() and self._conn._nested_transaction:
+            self._conn._nested_transaction.commit()
 
 
 class SQLAlchemyConnectionFactory(LiceoConnectionFactory):
@@ -49,5 +53,4 @@ class SQLAlchemyConnectionFactory(LiceoConnectionFactory):
         self._engine = create_engine(url)
 
     def create(self) -> LiceoConnection:
-        sa_conn = self._engine.connect()
-        return SQLAlchemyConnection(sa_conn)
+        return SQLAlchemyConnection(self._engine.connect())
