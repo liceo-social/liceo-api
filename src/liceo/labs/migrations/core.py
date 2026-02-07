@@ -38,18 +38,20 @@ class DBM(Repository, logged("liceo.labs.migrations")):
             UNIQUE(name)
         );
         """
-        self._get_connection().execute(MIGRATIONS_TABLE_SQL, {})
-        self._logger.info("migrations table created")
+        with self._connection_scope() as conn:
+            conn.execute(MIGRATIONS_TABLE_SQL, {})
+            self._logger.info("migrations table created")
         return self
 
     def drop_db(self):
         MIGRATIONS_TABLE_DROP_SQL = """
         DROP TABLE migrations;
         """
-        self._get_connection().execute(MIGRATIONS_TABLE_DROP_SQL, {})
-        self._logger.info("migrations table deleted")
+        with self._connection_scope() as conn:
+            conn.execute(MIGRATIONS_TABLE_DROP_SQL, {})
+            self._logger.info("migrations table deleted")
 
-    def hash_file(self, content: bytes):
+    def _hash_file(self, content: bytes):
         """
         https://gist.github.com/jakekara/078899caaf8d5e6c74ef58d16ce7e703
         """
@@ -64,7 +66,7 @@ class DBM(Repository, logged("liceo.labs.migrations")):
 
     def _extract_file_content(self, file: BufferedReader) -> FileContent:
         file_bytes = file.read()
-        file_hash = self.hash_file(file_bytes)
+        file_hash = self._hash_file(file_bytes)
         return DBM.FileContent(sql=file_bytes.decode("utf-8"), hash=file_hash)
 
     def apply_migrations(self):
@@ -75,17 +77,19 @@ class DBM(Repository, logged("liceo.labs.migrations")):
         """
         for filename in self._read_sql_files_from_path(self.path):
             with open(filename, "rb") as file:
-                file_content = self._extract_file_content(file)
-                # running migration
-                self._get_connection().execute(
-                    ADD_MIGRATION_ENTRY,
-                    {"filename": filename.name, "hash": file_content.hash},
-                )
-                self._get_connection().execute(file_content.sql, {})
-                self._logger.info("migration %s applied", filename.name)
+                with self._connection_scope() as conn:
+                    file_content = self._extract_file_content(file)
+                    # running migration
+                    conn.execute(
+                        ADD_MIGRATION_ENTRY,
+                        {"filename": filename.name, "hash": file_content.hash},
+                    )
+                    conn.execute(file_content.sql, {})
+                    self._logger.info("migration %s applied", filename.name)
 
     def truncate_all(self):
         for filename in self._read_sql_files_from_path(self.destroy_path):
             with open(filename, "rb") as file:
-                self._get_connection().execute(self._extract_file_content(file).sql, {})
-                self._logger.info("truncate all file '%s' applied", filename.name)
+                with self._connection_scope() as conn:
+                    conn.execute(self._extract_file_content(file).sql, {})
+                    self._logger.info("truncate all file '%s' applied", filename.name)
