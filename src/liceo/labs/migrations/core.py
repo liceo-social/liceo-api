@@ -73,19 +73,23 @@ class DBM(Repository, logged("liceo.labs.migrations")):
         ADD_MIGRATION_ENTRY = """
         INSERT INTO migrations (name, applied_at, hash)
         VALUES (:filename, now(), :hash)
-        ON CONFLICT DO NOTHING;
+        ON CONFLICT DO NOTHING
+        RETURNING NAME;
         """
         for filename in self._read_sql_files_from_path(self.path):
             with open(filename, "rb") as file:
                 with self._connection_scope() as conn:
                     file_content = self._extract_file_content(file)
                     # running migration
-                    conn.execute(
+                    succeeded_row = conn.execute(
                         ADD_MIGRATION_ENTRY,
                         {"filename": filename.name, "hash": file_content.hash},
                     )
-                    conn.execute(file_content.sql, {})
-                    self._logger.info("migration %s applied", filename.name)
+                    if (succeeded_row.rowcount > 0):
+                        conn.execute(file_content.sql, {})
+                        self._logger.info("migration %s applied", filename.name)
+                    else:
+                        self._logger.info("migration %s skipped", filename.name)
 
     def truncate_all(self):
         for filename in self._read_sql_files_from_path(self.destroy_path):
