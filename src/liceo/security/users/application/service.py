@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from liceo.security.common.application.service import SecurityService
 from liceo.infra.application.output import EventStore
-from liceo.labs.db.core import AbstractService, ManagedService, transactional
+from liceo.labs.db.core import AbstractService, managed_service, transactional
 from liceo.infra.domain.vo import Paged
 from ..domain.entities import User
 from ..domain.vo import UserId
@@ -10,7 +10,7 @@ from .repository import UsersRepository
 
 
 @dataclass
-@ManagedService
+@managed_service
 class UsersService(AbstractService):
     repository: UsersRepository
     security: SecurityService

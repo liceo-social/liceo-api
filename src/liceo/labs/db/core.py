@@ -207,20 +207,6 @@ class Repository:
         finally:
             conn.close()
 
-    def resolve_sql_file(self, func: Callable[..., Any]) -> Path:
-        sql_dir = Path(inspect.getfile(func)).parent / "sql"
-
-        module = inspect.getmodule(func)
-        if module:
-            sql_dir = Path(inspect.getfile(module)).parent / "sql"
-
-        sql_filename = "{}.sql".format(func.__name__)
-        return sql_dir / sql_filename
-
-    def resolve_sql(self, func: Callable[..., Any]) -> str:
-        with open(self.resolve_sql_file(func), "r") as file:
-            return file.read()
-
 
 @dataclass
 class AbstractService:
@@ -242,7 +228,7 @@ class AbstractService:
         return self.connection_manager
 
 
-def ManagedService(cls):
+def managed_service(cls):
     """
     Wrap all public methods of the class to execute inside
     `self.connection_manager` by default.
