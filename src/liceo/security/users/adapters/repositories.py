@@ -15,7 +15,12 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         return UserDTO(
             id=row["id"],
             full_name=row["full_name"],
-            username=row["username"]
+            username=row["username"],
+            roles=row["roles"],
+            password_expired=row["password_expired"],
+            account_active=row["account_active"],
+            account_blocked=row["account_blocked"],
+            account_expired=row["account_expired"]
         )
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:

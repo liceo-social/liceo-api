@@ -23,7 +23,19 @@ INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeG
 
 
 -- DEFAULT ADMIN USER (john.doe@liceo.social/superpassword)
-INSERT INTO liceo_users (id, name, surname, username, password, created_at, created_by) 
+INSERT INTO liceo_users (
+    id,
+    name,
+    surname,
+    username,
+    password,
+    password_expired,
+    account_active,
+    account_blocked,
+    account_expired,
+    created_at,
+    created_by
+)
 VALUES 
 (
     'ZLP35KRt4jm8EkaebeWjJP', 
@@ -31,12 +43,28 @@ VALUES
     'Doe', 
     'john.doe@liceo.social', 
     '$2b$10$Yxoh.mrE75jD1U.U7dBYV.pPLkgh1pwpUKPXavugoFLuujp98Radu', 
+    FALSE,
+    TRUE,
+    FALSE,
+    FALSE,
     '2026-02-06T16:59:35.444164', 
     'ZLP35KRt4jm8EkaebeWjJP'
 );
 
 INSERT INTO liceo_users 
-(id, name, surname, username, password, created_at, created_by) 
+(
+    id,
+    name,
+    surname,
+    username,
+    password,
+    password_expired,
+    account_active,
+    account_blocked,
+    account_expired,
+    created_at,
+    created_by
+)
 VALUES 
 (
     'UAF65EbeDYf7X8CfjZfoqM', 
@@ -44,6 +72,10 @@ VALUES
     'Gutierrez', 
     'pedro.gutierrez@liceo.social', 
     '$2b$10$Yxoh.mrE75jD1U.U7dBYV.pPLkgh1pwpUKPXavugoFLuujp98Radu', 
+    FALSE,
+    TRUE,
+    FALSE,
+    FALSE,
     '2026-02-06T16:59:35.444164', 
     'ZLP35KRt4jm8EkaebeWjJP'
 );

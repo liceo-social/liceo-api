@@ -27,3 +27,8 @@ class UserDTO:
     id: str
     full_name: str
     username: str
+    roles: list[str]
+    password_expired: bool
+    account_active: bool
+    account_blocked: bool
+    account_expired: bool

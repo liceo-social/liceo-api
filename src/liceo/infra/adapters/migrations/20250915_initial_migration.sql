@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS liceo_users (
     surname TEXT,
     username TEXT,
     password TEXT,
+    password_expired BOOLEAN DEFAULT FALSE,
+    account_active BOOLEAN DEFAULT FALSE,
+    account_blocked BOOLEAN DEFAULT FALSE,
+    account_expired BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP,
     created_by TEXT
 );

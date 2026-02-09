@@ -50,7 +50,11 @@ class SQLRepository(Repository):
 
         for line in sql.splitlines():
             if line.__contains__(':'):
+                # if there's any parameter present
                 if any([line.__contains__(k) for k in sql_keys]):
+                    lines.append(line)
+                # if not only if there're expressions like ::text[]
+                elif line.__contains__('::'):
                     lines.append(line)
             else:
                 lines.append(line)

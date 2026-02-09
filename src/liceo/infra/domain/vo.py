@@ -73,6 +73,10 @@ class MailConfig(BaseModel):
     default_sender: str = Field(default="system@liceo.com")
 
 
+class FileConfig(BaseModel):
+    root_path: str = Field(default="/tmp/liceo")
+
+
 @singleton
 class LiceoConfiguration(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LICEO_API")
@@ -80,6 +84,7 @@ class LiceoConfiguration(BaseSettings):
     crypto: CryptoConfig = CryptoConfig()
     db: DatabaseConfig = DatabaseConfig()
     observability: ObservabilityConfig = ObservabilityConfig()
+    file: FileConfig = FileConfig()
     mail: MailConfig = MailConfig()
 
 
