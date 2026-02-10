@@ -1,8 +1,8 @@
 import os
 from typing import Iterator
 from dataclasses import dataclass
-from ..domain.vo import FileConfig
-from ..application.output import Storage
+from ...domain.vo import FileConfig
+from ..application.storage import Storage
 
 
 @dataclass
@@ -12,13 +12,15 @@ class LocalStorage(Storage):
     def _path(self, key: str) -> str:
         return os.path.join(self.configuration.root_path, key)
 
-    def write(self, key: str, data: Iterator[bytes]) -> None:
+    def write(self, key: str, data: Iterator[bytes]) -> str:
         path = self._path(key)
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
         with open(path, "wb") as f:
             for chunk in data:
                 f.write(chunk)
+
+        return path
 
     def read(
         self,

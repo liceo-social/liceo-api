@@ -1,3 +1,7 @@
+-- ########################
+-- ###        ADMIN     ###
+-- ########################
+
 CREATE TABLE IF NOT EXISTS liceo_users (
     id TEXT PRIMARY KEY,
     name TEXT,
@@ -44,4 +48,17 @@ CREATE TABLE IF NOT EXISTS liceo_events (
     "when" TIMESTAMP,
     data JSONB
     -- UNIQUE("aggregate_id", "version")
+);
+
+
+-- ########################
+-- ###      FILES       ###
+-- ########################
+
+CREATE TABLE IF NOT EXISTS liceo_files (
+    id TEXT PRIMARY KEY,
+    filename TEXT,
+    path TEXT,
+    created_at TIMESTAMP,
+    created_by TEXT
 );

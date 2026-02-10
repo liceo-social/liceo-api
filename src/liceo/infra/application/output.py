@@ -18,21 +18,3 @@ class EventStore(ABC):
 class AbstractRepository(ABC):
     def generate_id(self) -> str:
         return uuid()
-
-
-class Storage(ABC):
-    @abstractmethod
-    def write(self, key: str, data: Iterator[bytes]) -> None:
-        pass
-
-    @abstractmethod
-    def read(
-        self,
-        key: str,
-        chunk_size: int = 1024 * 1024,
-    ) -> Iterator[bytes]:
-        pass
-
-    @abstractmethod
-    def delete(self, key: str) -> None:
-        pass

@@ -12,6 +12,7 @@ from liceo.infra.domain.vo import ConfigurationSingleton
 from liceo.labs.decorators import solve_lifespan
 from liceo.security.users.adapters import endpoints as admin_users_api
 from liceo.security.authentication.adapters import endpoints as auth_api
+from liceo.infra.storage.adapters import endpoints as storage_api
 
 OPENAPI = {
     "title": "LICEO API",
@@ -19,18 +20,11 @@ OPENAPI = {
     "description": """
 This is a collection of REST endpoints to be used by developers and Liceo's
 UI to access the Liceo platform.
-
-## Get your API key
-
-TODO
-
-## Terms of use
-
-TODO
     """,
     "openapi_tags": [
         auth_api.specs.metadata(),
-        admin_users_api.specs.metadata()
+        admin_users_api.specs.metadata(),
+        storage_api.specs.metadata()
     ],
 }
 
@@ -42,6 +36,7 @@ def init_v1_endpoints():
     v1 = APIRouter(prefix="/v1")
     v1.include_router(auth_api.router)
     v1.include_router(admin_users_api.router)
+    v1.include_router(storage_api.router)
     return v1
 
 

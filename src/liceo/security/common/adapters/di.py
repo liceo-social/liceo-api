@@ -26,14 +26,14 @@ def security_service(
 
 SecurityServiceDependency = Annotated[SecurityService, Depends(security_service)]
 
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/security/auth")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/auth/oauth2")
 
 TokenRequest = Annotated[str, Depends(oauth2_scheme)]
 
 
 def get_user_details(token: TokenRequest, security: SecurityServiceDependency):
     decoded = security.decode_token(token)
+    print(decoded)
     return UserContextModel(
         id=decoded["sub"],
         roles=decoded["roles"],

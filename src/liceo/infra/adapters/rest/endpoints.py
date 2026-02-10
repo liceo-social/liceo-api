@@ -30,3 +30,7 @@ class RestGroupSpec:
             name="{}.metrics".format(root_name),
             attributes={"service_name": root_name},
         )
+
+
+def open_api_permissions(permissions: list[str]) -> dict:
+    return {"x-permissions-required": permissions}

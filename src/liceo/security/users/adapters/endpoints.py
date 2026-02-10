@@ -1,4 +1,4 @@
-from liceo.infra.adapters.rest.endpoints import RestGroupSpec
+from liceo.infra.adapters.rest.endpoints import RestGroupSpec, open_api_permissions
 from liceo.security.common.adapters.di import has_permission
 from .di import UsersServiceDependency, CreateUserRequestDependency, FilteringUsersRequestDependency
 from .responses import CreateUserResponse, ListUsersResponse
@@ -15,7 +15,9 @@ router = specs.create_router()
 
 @router.get(
     path="/",
-    dependencies=[has_permission(USERS_LIST)]
+    summary="Allows admins to list and filters users",
+    dependencies=[has_permission(USERS_LIST)],
+    openapi_extra={**open_api_permissions([USERS_LIST])}
 )
 def list_users(
     request: FilteringUsersRequestDependency,
@@ -26,7 +28,9 @@ def list_users(
 
 @router.post(
     path="/",
-    dependencies=[has_permission(USERS_CREATE)]
+    summary="Allows admins to create a new user",
+    dependencies=[has_permission(USERS_CREATE)],
+    openapi_extra={**open_api_permissions([USERS_CREATE])}
 )
 def create_user(
     request: CreateUserRequestDependency,
