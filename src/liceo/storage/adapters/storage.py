@@ -1,7 +1,7 @@
 import os
 from typing import Iterator
 from dataclasses import dataclass
-from ...domain.vo import FileConfig
+from liceo.infra.domain.vo import FileConfig
 from ..application.storage import Storage
 
 

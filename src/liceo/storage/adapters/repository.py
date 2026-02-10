@@ -1,7 +1,7 @@
 from shortuuid import random
-from liceo.infra.storage.domain.entities import FileMetadata
 from liceo.labs.db.sql import SQLRepository
 from ..application.repository import FileMetadataRepository
+from ..domain.entities import FileMetadata
 
 
 class SQLFileMetadataRepository(FileMetadataRepository, SQLRepository):

@@ -12,7 +12,7 @@ from liceo.infra.domain.vo import ConfigurationSingleton
 from liceo.labs.decorators import solve_lifespan
 from liceo.security.users.adapters import endpoints as admin_users_api
 from liceo.security.authentication.adapters import endpoints as auth_api
-from liceo.infra.storage.adapters import endpoints as storage_api
+from liceo.storage.adapters import endpoints as storage_api
 
 OPENAPI = {
     "title": "LICEO API",
