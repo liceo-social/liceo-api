@@ -82,6 +82,7 @@ class User(AuditableAggregate[vo.UserId]):
     class CreateUserCommand:
         next_id: Callable[[], str]
         name: str
+        photo: str | None
         surname: str
         username: str
         password: str
@@ -94,6 +95,7 @@ class User(AuditableAggregate[vo.UserId]):
         event_type: str = "USER_CREATED"
         name: str
         surname: str
+        photo: str | None
         username: str
         roles: list[str]
         password: str
@@ -111,6 +113,7 @@ class User(AuditableAggregate[vo.UserId]):
     surname: str = field()
     username: str = field()
     password: str = field()
+    photo: str | None = field(default=None)
     active: bool = field(default=False)
     roles: list[vo.Role] = field(default_factory=list)
 
@@ -123,6 +126,7 @@ class User(AuditableAggregate[vo.UserId]):
             .append(User.UserCreated(
                 created_by=cmd.created_by,
                 name=cmd.name,
+                photo=cmd.photo,
                 surname=cmd.surname,
                 username=cmd.username,
                 password=cmd.password,

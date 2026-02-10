@@ -1,7 +1,8 @@
-INSERT INTO liceo_files
+INSERT INTO liceo_storage
 (
     id,
     filename,
+    type,
     path,
     created_at,
     created_by
@@ -10,6 +11,7 @@ VALUES
 (
     :id,
     :filename,
+    :type,
     :path,
     :created_at,
     :created_by

@@ -55,10 +55,19 @@ CREATE TABLE IF NOT EXISTS liceo_events (
 -- ###      FILES       ###
 -- ########################
 
-CREATE TABLE IF NOT EXISTS liceo_files (
+CREATE TABLE IF NOT EXISTS liceo_storage (
     id TEXT PRIMARY KEY,
     filename TEXT,
+    type TEXT,
     path TEXT,
+    created_at TIMESTAMP,
+    created_by TEXT
+);
+
+CREATE TABLE IF NOT EXISTS liceo_users_images (
+    user_id TEXT,
+    storage_id TEXT,
+    dimension TEXT DEFAULT 'original', -- small, medium, large, original
     created_at TIMESTAMP,
     created_by TEXT
 );

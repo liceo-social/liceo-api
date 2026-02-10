@@ -11,6 +11,7 @@ class SQLFileMetadataRepository(FileMetadataRepository, SQLRepository):
             params={
                 "id": file.id.id,
                 "filename": file.filename,
+                "type": file.type,
                 "path": file.path,
                 "created_by": file.created_by,
                 "created_at": file.created_at

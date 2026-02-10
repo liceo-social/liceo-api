@@ -32,6 +32,7 @@ class LocalStorageService(StorageService, AbstractService):
             next_id=file_id,
             filename=file_name,
             path=file_path,
+            type=file_type.mime,
             created_by=dto.created_by
         ))
 

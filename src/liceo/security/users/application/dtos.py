@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass, field
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.application.dto import CurrentUserDTO
@@ -9,6 +10,7 @@ class CreateUserCaseDTO:
     surname: str
     username: str
     password: str
+    photo: str | None
     roles: list[str]
     created_by: CurrentUserDTO
 
@@ -32,3 +34,12 @@ class UserDTO:
     account_active: bool
     account_blocked: bool
     account_expired: bool
+
+
+@dataclass
+class SaveUserImageDTO:
+    user_id: str
+    photo_id: str
+    dimension: str
+    created_by: str
+    created_at: datetime

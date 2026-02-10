@@ -11,6 +11,7 @@ class FileMetadata(Aggregate[FileMetadataId]):
         next_id: str
         filename: str
         path: str
+        type: str
         created_by: str
 
     @dataclass(kw_only=True)
@@ -18,6 +19,7 @@ class FileMetadata(Aggregate[FileMetadataId]):
         event_type: str = "STORED_FILE_CREATED"
         filename: str
         created_by: str
+        type: str
         path: str
 
         def handle(self, aggregate: "FileMetadata"):
@@ -25,10 +27,12 @@ class FileMetadata(Aggregate[FileMetadataId]):
             aggregate.created_by = self.created_by
             aggregate.created_at = datetime.now()
             aggregate.path = self.path
+            aggregate.type = self.type
 
     created_by: str
     created_at: datetime
     filename: str
+    type: str
     path: str
 
     @staticmethod
@@ -38,6 +42,7 @@ class FileMetadata(Aggregate[FileMetadataId]):
                 FileMetadata.FileMetadataCreated(
                     filename=cmd.filename,
                     created_by=cmd.created_by,
-                    path=cmd.path
+                    path=cmd.path,
+                    type=cmd.type
                 )
         )

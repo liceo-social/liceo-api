@@ -14,6 +14,6 @@ VALUES
     :surname,
     :username,
     :password,
-    :created_by,
-    :created_at
+    :created_at,
+    :created_by
 ) RETURNING id;

@@ -1,13 +1,8 @@
 from liceo.infra.domain.vo import Paged
-from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO
+from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, SaveUserImageDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
-from ..application.repository import UsersRepository
-
-
-class MemoryRepository(UsersRepository):
-    def save_user(self, user: User) -> User:
-        return user
+from ..application.repository import UsersRepository, UsersImagesRepository
 
 
 class SQLUsersRepository(UsersRepository, SQLRepository):
@@ -73,3 +68,15 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
     @sql(lambda row: row["id"] if row else None)
     def find_role_id_by_name(self, name: str) -> str | None:
         pass
+
+
+class SQLUsersImagesRepository(UsersImagesRepository, SQLRepository):
+    def save_user_image(self, dto: SaveUserImageDTO) -> None:
+        sql = self.resolve_sql(self.save_user_image)
+        self._get_connection().execute(sql, params={
+            "user_id": dto.user_id,
+            "storage_id": dto.photo_id,
+            "dimension": dto.dimension,
+            "created_at": dto.created_at,
+            "created_by": dto.created_by
+        })
