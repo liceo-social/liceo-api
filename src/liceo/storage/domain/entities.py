@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from liceo.labs.sherlock.core import Aggregate, AggregateEvent
 from .vo import FileMetadataId
@@ -29,11 +29,11 @@ class FileMetadata(Aggregate[FileMetadataId]):
             aggregate.path = self.path
             aggregate.type = self.type
 
-    created_by: str
-    created_at: datetime
-    filename: str
-    type: str
-    path: str
+    created_by: str = field()
+    created_at: datetime = field()
+    filename: str = field()
+    type: str = field()
+    path: str = field()
 
     @staticmethod
     def create(cmd: CreateFileMetadataCommand):

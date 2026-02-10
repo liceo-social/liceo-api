@@ -6,7 +6,7 @@ from liceo.labs.db.core import managed_service, AbstractService, transactional
 from ..application.service import StorageService
 from ..application.repository import FileMetadataRepository
 from ..application.storage import Storage
-from ..application.dtos import FileDTO, DeleteFileDTO, LoadFileDTO, SaveFileDTO
+from ..application.dtos import FileDTO, DeleteFileDTO, LoadFileDTO, LoadedFileDTO, SaveFileDTO
 from ..domain.entities import FileMetadata
 
 
@@ -45,8 +45,16 @@ class LocalStorageService(StorageService, AbstractService):
             file_type=file_type.mime
         )
 
-    def load_file_content(self, dto: LoadFileDTO) -> Iterator[bytes]:
-        return super().load_file_content(dto)
+    def load_file_content(self, dto: LoadFileDTO) -> LoadedFileDTO | None:
+        file_metadata = self.repository.find_by_id(dto.id)
+
+        if not file_metadata:
+            return None
+
+        return LoadedFileDTO(
+            data=self.storage.read(file_metadata.path),
+            content_type="image/png"
+        )
 
     def load_file_info(self, dto: LoadFileDTO) -> FileDTO:
         raise Exception("Not implemented yet")

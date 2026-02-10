@@ -18,7 +18,7 @@ class UploadRequest(BaseModel):
         )
 
 
-class DownloadRequest(BaseModel):
+class GetImageRequest(BaseModel):
     id: str
     downloaded_by: UserInfo
 

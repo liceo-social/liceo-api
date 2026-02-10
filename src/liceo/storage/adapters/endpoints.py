@@ -1,10 +1,10 @@
-from fastapi import UploadFile
+from fastapi import UploadFile, Path
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec, open_api_permissions
 from liceo.security.common.adapters.di import has_permission, UserInfo
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from .di import StorageServiceDependency
 from .permissions import STORAGE_UPLOAD, STORAGE_DOWNLOAD
-from .requests import UploadRequest, DownloadRequest
+from .requests import UploadRequest, GetImageRequest
 from .responses import UploadResponse, from_dto_to_streaming_response
 
 specs = RestGroupSpec(
@@ -24,20 +24,28 @@ router = specs.create_router()
 )
 def upload(
     file: UploadFile,
-    userInfo: UserInfo,
+    user_info: UserInfo,
     service: StorageServiceDependency
 ) -> UploadResponse:
-    return UploadResponse.from_dto(service.save_file(UploadRequest(file=file, uploaded_by=userInfo).to_dto()))
+    return UploadResponse.from_dto(service.save_file(UploadRequest(file=file, uploaded_by=user_info).to_dto()))
 
 
 @router.get(
-    path="/download/{id}",
-    summary="Allows users to download files by id",
+    path="/images/{id}",
+    summary="Allows users to download images by id",
     dependencies=[has_permission(STORAGE_DOWNLOAD)],
     openapi_extra={**open_api_permissions([STORAGE_DOWNLOAD])}
 )
 def download(
-    request: DownloadRequest,
-    service: StorageServiceDependency
-) -> StreamingResponse:
-    return from_dto_to_streaming_response(service.load_file_content(request.to_dto()))
+    downloaded_by: UserInfo,
+    service: StorageServiceDependency,
+    id: str = Path(),
+) -> Response:
+    return from_dto_to_streaming_response(
+        service.load_file_content(
+            GetImageRequest(
+                id=id,
+                downloaded_by=downloaded_by
+            ).to_dto()
+        )
+    )

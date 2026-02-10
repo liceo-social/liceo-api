@@ -1,7 +1,19 @@
 from shortuuid import random
-from liceo.labs.db.sql import SQLRepository
+from liceo.labs.db.sql import SQLRepository, sql
 from ..application.repository import FileMetadataRepository
 from ..domain.entities import FileMetadata
+
+
+def _to_file_metadata(row: dict) -> FileMetadata | None:
+    if not row:
+        return None
+    metadata = FileMetadata(id=row["id"])
+    metadata.filename = row["filename"]
+    metadata.type = row["type"]
+    metadata.path = row["path"]
+    metadata.created_at = row["created_at"]
+    metadata.created_by = row["created_by"]
+    return metadata
 
 
 class SQLFileMetadataRepository(FileMetadataRepository, SQLRepository):
@@ -20,3 +32,7 @@ class SQLFileMetadataRepository(FileMetadataRepository, SQLRepository):
 
     def generate_id(self) -> str:
         return random()
+
+    @sql(_to_file_metadata)
+    def find_by_id(self, id: str) -> FileMetadata | None:
+        pass

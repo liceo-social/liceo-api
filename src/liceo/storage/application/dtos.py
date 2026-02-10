@@ -24,6 +24,12 @@ class LoadFileDTO:
 
 
 @dataclass
+class LoadedFileDTO:
+    data: Iterator[bytes]
+    content_type: str
+
+
+@dataclass
 class DeleteFileDTO:
     id: str
     deleted_by: str

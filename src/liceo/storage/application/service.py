@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Iterator
-from .dtos import SaveFileDTO, LoadFileDTO, DeleteFileDTO, FileDTO
+from .dtos import SaveFileDTO, LoadFileDTO, LoadedFileDTO, DeleteFileDTO, FileDTO
 
 
 @dataclass
@@ -15,7 +15,7 @@ class StorageService(ABC):
         pass
 
     @abstractmethod
-    def load_file_content(self, dto: LoadFileDTO) -> Iterator[bytes]:
+    def load_file_content(self, dto: LoadFileDTO) -> LoadedFileDTO | None:
         pass
 
     @abstractmethod
