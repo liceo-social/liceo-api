@@ -50,13 +50,13 @@ class User(AuditableAggregate[vo.UserId]):
     class AddRoleCommand(PermissionAwareCommand[vo.UserId]):
         added_by: vo.UserId
         admin_check_handler: Callable[[vo.UserId], bool]
-        role_to_add: vo.Role
+        role_to_add: str
 
     @dataclass(kw_only=True)
     class RoleAdded(AggregateEvent):
         event_type: str = "USER_ROLE_ADDED"
         added_by: vo.UserId
-        role: vo.Role
+        role: str
 
         def handle(self, aggregate: "User"):
             aggregate.roles.append(self.role)
@@ -65,14 +65,14 @@ class User(AuditableAggregate[vo.UserId]):
     @dataclass
     class RemoveRoleCommand(PermissionAwareCommand[vo.UserId]):
         removed_by: vo.UserId
-        role_to_delete: vo.Role
+        role_to_delete: str
         admin_check_handler: Callable[[vo.UserId], bool]
 
     @dataclass(kw_only=True)
     class RoleRemoved(AggregateEvent):
         event_type: str = "USER_ROLE_REMOVED"
         removed_by: vo.UserId
-        role: vo.Role
+        role: str
 
         def handle(self, aggregate: "User"):
             aggregate.roles.remove(self.role)
@@ -85,8 +85,7 @@ class User(AuditableAggregate[vo.UserId]):
         photo: str | None
         surname: str
         username: str
-        password: str
-        roles: list[str]
+        role: str
         created_by: vo.UserId
         created_by_admin: bool
 
@@ -97,8 +96,7 @@ class User(AuditableAggregate[vo.UserId]):
         surname: str
         photo: str | None
         username: str
-        roles: list[str]
-        password: str
+        role: str
         created_by: vo.UserId
 
         def handle(self, aggregate: "User"):
@@ -106,8 +104,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.name = self.name
             aggregate.surname = self.surname
             aggregate.username = self.username
-            aggregate.password = self.password
-            aggregate.roles = [vo.Role.ROLE_USER for role in self.roles]
+            aggregate.roles = [self.role]
 
     name: str = field()
     surname: str = field()
@@ -115,7 +112,7 @@ class User(AuditableAggregate[vo.UserId]):
     password: str = field()
     photo: str | None = field(default=None)
     active: bool = field(default=False)
-    roles: list[vo.Role] = field(default_factory=list)
+    roles: list[str] = field(default_factory=list)
 
     @staticmethod
     def create(cmd: CreateUserCommand):
@@ -129,8 +126,7 @@ class User(AuditableAggregate[vo.UserId]):
                 photo=cmd.photo,
                 surname=cmd.surname,
                 username=cmd.username,
-                password=cmd.password,
-                roles=cmd.roles,
+                role=cmd.role,
             ))
 
     def _is_changed_by_same_user(self, changed_by: vo.UserId):

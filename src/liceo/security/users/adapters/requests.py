@@ -10,10 +10,9 @@ from ..application.dtos import FilterUsersDTO
 class CreateUserFields(BaseModel):
     name: str
     surname: str
-    photo: str | None
+    photo: str | None = None
     username: str
-    password: str
-    roles: list[str]
+    role: str
 
 
 class CreateUserRequest(BaseModel):
@@ -26,8 +25,7 @@ class CreateUserRequest(BaseModel):
             surname=self.fields.surname,
             username=self.fields.username,
             photo=self.fields.photo,
-            password=self.fields.password,
-            roles=self.fields.roles,
+            role=self.fields.role,
             created_by=CurrentUserDTO(
                 id=self.created_by.id,
                 roles=self.created_by.roles,

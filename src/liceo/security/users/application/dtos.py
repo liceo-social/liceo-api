@@ -9,9 +9,8 @@ class CreateUserCaseDTO:
     name: str
     surname: str
     username: str
-    password: str
     photo: str | None
-    roles: list[str]
+    role: str
     created_by: CurrentUserDTO
 
 
@@ -29,6 +28,7 @@ class UserDTO:
     id: str
     full_name: str
     username: str
+    photo: str
     roles: list[str]
     password_expired: bool
     account_active: bool

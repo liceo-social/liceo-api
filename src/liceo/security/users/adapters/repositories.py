@@ -10,6 +10,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         return UserDTO(
             id=row["id"],
             full_name=row["full_name"],
+            photo=row["photo"],
             username=row["username"],
             roles=row["roles"],
             password_expired=row["password_expired"],
@@ -28,7 +29,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         if (filter.name is not None):
             params.update({"name": f"%{filter.name}%"})
 
-        sql = self.sql_optimize(sql, params, {"name": False})
+        sql = self.sql_optimize(sql, params, {"created_at": False})
         result = self._get_connection().all(
             sql,
             params=params
@@ -45,7 +46,6 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
             "name": user.name,
             "surname": user.surname,
             "username": user.username,
-            "password": user.password,
             "created_at": user.created_at,
             "created_by": user.created_by.id
         })
@@ -56,7 +56,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         user_sql = self.resolve_sql(self._save_user_roles)
 
         for role in user.roles:
-            role_id = self.find_role_id_by_name(role.name)
+            role_id = self.find_role_id_by_name(role)
             if (role_id):
                 self._get_connection().insert(user_sql, params={
                     "user_id": user.id.id,

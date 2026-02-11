@@ -29,12 +29,12 @@ class UsersService(AbstractService):
             photo=input.photo,
             surname=input.surname,
             username=input.username,
-            password=self.security.hash_passw(input.password),
-            roles=input.roles,
+            role=input.role,
             created_by=UserId(id=input.created_by.id)
         )
         # saving user
         saved_user = self.repository.save_user(User.create(command))
+        print(f"photo: {input.photo}")
         # saving user photo
         if (input.photo):
             self.images_repository.save_user_image(
