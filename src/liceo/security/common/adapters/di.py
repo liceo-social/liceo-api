@@ -33,7 +33,6 @@ TokenRequest = Annotated[str, Depends(oauth2_scheme)]
 
 def get_user_details(token: TokenRequest, security: SecurityServiceDependency):
     decoded = security.decode_token(token)
-    print(decoded)
     return UserContextModel(
         id=decoded["sub"],
         roles=decoded["roles"],

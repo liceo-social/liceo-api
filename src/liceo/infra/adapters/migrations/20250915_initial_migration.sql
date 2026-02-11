@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS liceo_users (
     account_blocked BOOLEAN DEFAULT FALSE,
     account_expired BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP,
-    created_by TEXT
+    created_by TEXT,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT
 );
 
 CREATE TABLE IF NOT EXISTS liceo_permissions (

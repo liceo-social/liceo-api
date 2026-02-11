@@ -37,7 +37,7 @@ class Permission(AuditableAggregate[vo.UserId]):
 
         def handle(self, aggregate: "Permission"):
             aggregate.name = self.new_name
-            aggregate.mark_modified_by(self.changed_by)
+            aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
     class DeletePermissionCommand(PermissionAwareCommand[vo.UserId]):

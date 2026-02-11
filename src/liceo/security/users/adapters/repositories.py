@@ -1,8 +1,9 @@
-from liceo.infra.domain.vo import Paged
+from liceo.infra.domain.vo import Paged, AuditInfo
 from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, SaveUserImageDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
 from ..application.repository import UsersRepository, UsersImagesRepository
+from ..domain.vo import UserId
 
 
 class SQLUsersRepository(UsersRepository, SQLRepository):
@@ -19,10 +20,12 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
             account_expired=row["account_expired"]
         )
 
-    def _map_to_user(self, row: dict) -> User:
+    @staticmethod
+    def _map_to_user(row: dict) -> User:
         user = User(
-            id=row["id"]
+            id=UserId(id=row["id"])
         )
+        user.audit = AuditInfo(created_by=UserId(id=row["created_by"]))
         user.name = row["name"]
         user.photo = row["photo"]
         user.username = row["username"]
@@ -36,16 +39,6 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
     @sql(_map_to_user)
     def find_user_by_id(self, id: str) -> User | None:
         return None
-
-    def update_user(self, user: User) -> User:
-        sql = self.resolve_sql(self.update_user)
-        self._get_connection().execute(sql, params={
-            "name": user.name,
-            "surname": user.surname,
-            "username": user.username,
-        })
-        self._save_user_roles(user)
-        return user
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
         sql = self.resolve_sql(self.filter_users)
@@ -75,10 +68,16 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
             "surname": user.surname,
             "username": user.username,
             "created_at": user.created_at,
-            "created_by": user.created_by.id
+            "created_by": user.created_by.id,
+            "last_updated_at": user.last_updated_at,
+            "last_updated_by": user.last_updated_by
         })
         self._save_user_roles(user)
         return user
+
+    @sql(lambda row: row["id"] if row else None)
+    def find_role_id_by_name(self, name: str) -> str | None:
+        pass
 
     def _save_user_roles(self, user: User) -> User:
         user_sql = self.resolve_sql(self._save_user_roles)
@@ -93,9 +92,30 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
 
         return user
 
-    @sql(lambda row: row["id"] if row else None)
-    def find_role_id_by_name(self, name: str) -> str | None:
+    @sql()
+    def _delete_all_roles_by_user_id(self, id: str) -> None:
         pass
+
+    def _update_user_roles(self, user: User) -> User:
+        # deleting previous roles
+        self._get_connection().execute(
+            self.resolve_sql(self._delete_all_roles_by_user_id),
+            params={"id": user.id.id}
+        )
+        # adding new
+        return self._save_user_roles(user)
+
+    def update_user(self, user: User) -> User:
+        sql = self.resolve_sql(self.update_user)
+        result = self._get_connection().execute(sql, params={
+            "id": user.id.id,
+            "name": user.name,
+            "surname": user.surname,
+            "username": user.username,
+            "last_updated_at": user.last_updated_at,
+            "last_updated_by": user.last_updated_by
+        })
+        return self._update_user_roles(user)
 
 
 class SQLUsersImagesRepository(UsersImagesRepository, SQLRepository):

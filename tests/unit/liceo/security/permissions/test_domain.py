@@ -21,8 +21,8 @@ def test_create_permission():
     assert permission.id is not None
     assert permission.created_by.id == "someuserid"
     assert permission.created_at is not None
-    assert permission.last_modified_by.id == "someuserid"
-    assert permission.last_modified_at is not None
+    assert permission.last_updated_by.id == "someuserid"
+    assert permission.last_updated_at is not None
     assert permission.name == "USER_CREATE"
 
 
@@ -37,8 +37,8 @@ def test_change_name():
 
     assert permission.id is not None
     assert permission.created_by.id == "someuserid"
-    assert permission.last_modified_by.id == "changerid"
-    assert permission.last_modified_at > permission.created_at
+    assert permission.last_updated_by.id == "changerid"
+    assert permission.last_updated_at > permission.created_at
     assert permission.name == "USER_CREATE_ADDRESS"
 
 
@@ -52,7 +52,7 @@ def test_delete_permission():
 
     assert permission.id is not None
     assert permission.created_by.id == "someuserid"
-    assert permission.last_modified_by.id == "someuserid"
+    assert permission.last_updated_by.id == "someuserid"
     assert permission.deleted_by is not None
     assert permission.deleted_by.id == "deletedbyid"
     assert permission.deleted_at is not None

@@ -34,7 +34,7 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.surname = self.surname
             aggregate.username = self.username
             aggregate.roles = [self.role]
-            aggregate.mark_modified_by(self.changed_by)
+            aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
     class ChangePasswordCommand:
@@ -56,7 +56,7 @@ class User(AuditableAggregate[vo.UserId]):
 
         def handle(self, aggregate: "User"):
             aggregate.password = self.new_password.value
-            aggregate.mark_modified_by(self.changed_by)
+            aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
     class AddRoleCommand(PermissionAwareCommand[vo.UserId]):
@@ -72,7 +72,7 @@ class User(AuditableAggregate[vo.UserId]):
 
         def handle(self, aggregate: "User"):
             aggregate.roles.append(self.role)
-            aggregate.mark_modified_by(self.added_by)
+            aggregate.mark_updated_by(self.added_by)
 
     @dataclass
     class RemoveRoleCommand(PermissionAwareCommand[vo.UserId]):
@@ -88,7 +88,7 @@ class User(AuditableAggregate[vo.UserId]):
 
         def handle(self, aggregate: "User"):
             aggregate.roles.remove(self.role)
-            aggregate.mark_modified_by(self.removed_by)
+            aggregate.mark_updated_by(self.removed_by)
 
     @dataclass
     class CreateUserCommand:
@@ -154,14 +154,15 @@ class User(AuditableAggregate[vo.UserId]):
         if not (self._is_changed_by_same_user(cmd.changed_by) or cmd.changed_by_admin):
             raise errors.NotChangedBySameUserError()
 
-        return self.append(User.DetailsChanged(
-            name=cmd.name,
-            surname=cmd.surname,
-            username=cmd.username,
-            photo=cmd.photo,
-            role=cmd.role,
-            changed_by=cmd.changed_by
-        )
+        return self.append(
+            User.DetailsChanged(
+                name=cmd.name,
+                surname=cmd.surname,
+                username=cmd.username,
+                photo=cmd.photo,
+                role=cmd.role,
+                changed_by=cmd.changed_by
+            )
         )
 
     def change_password(self, cmd: ChangePasswordCommand):

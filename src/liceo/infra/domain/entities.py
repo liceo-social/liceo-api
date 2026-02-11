@@ -16,9 +16,9 @@ class AuditableAggregate(Aggregate[T], Generic[T]):
         self.audit = AuditInfo(by)
         self.audit.created_at = datetime.now()
 
-    def mark_modified_by(self, by: T):
-        self.audit.last_modified_by = by
-        self.audit.last_modified_at = datetime.now()
+    def mark_updated_by(self, by: T):
+        self.audit.last_updated_by = by
+        self.audit.last_updated_at = datetime.now()
 
     def mark_deleted_by(self, by: T):
         self.audit.deleted_by = by
@@ -33,12 +33,12 @@ class AuditableAggregate(Aggregate[T], Generic[T]):
         return self.audit.created_at
 
     @property
-    def last_modified_by(self):
-        return self.audit.last_modified_by
+    def last_updated_by(self):
+        return self.audit.last_updated_by
 
     @property
-    def last_modified_at(self):
-        return self.audit.last_modified_at
+    def last_updated_at(self):
+        return self.audit.last_updated_at
 
     @property
     def deleted_by(self):
@@ -56,9 +56,9 @@ class AuditableAggregateRoot(AggregateRoot, Generic[T]):
         self.audit = AuditInfo(by)
         self.audit.created_at = datetime.now()
 
-    def mark_modified_by(self, by: T):
-        self.audit.last_modified_by = by
-        self.audit.last_modified_at = datetime.now()
+    def mark_updated_by(self, by: T):
+        self.audit.last_updated_by = by
+        self.audit.last_updated_at = datetime.now()
 
     def mark_deleted_by(self, by: T):
         self.audit.deleted_by = by
@@ -73,12 +73,12 @@ class AuditableAggregateRoot(AggregateRoot, Generic[T]):
         return self.audit.created_at
 
     @property
-    def last_modified_by(self):
-        return self.audit.last_modified_by
+    def last_updated_by(self):
+        return self.audit.last_updated_by
 
     @property
-    def last_modified_at(self):
-        return self.audit.last_modified_at
+    def last_updated_at(self):
+        return self.audit.last_updated_at
 
     @property
     def deleted_by(self):

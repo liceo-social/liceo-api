@@ -10,8 +10,9 @@ SELECT
     lu.password_expired,
     lu.account_active,
     lu.account_blocked,
-    lu.account_expired,    
-    lu.created_at
+    lu.account_expired,
+    lu.created_at,
+    lu.created_by
 FROM liceo_users lu
 LEFT JOIN liceo_roles_users lru
     ON lru.user_id = lu.id
@@ -26,4 +27,5 @@ GROUP BY
     lu.password_expired,
     lu.account_active,
     lu.created_at,
+    lu.created_by,
     lui.storage_id

@@ -38,7 +38,7 @@ class Role(AuditableAggregate[vo.UserId]):
             for permission in self.permissions:
                 aggregate.permissions.add(permission)
 
-            aggregate.mark_modified_by(self.added_by)
+            aggregate.mark_updated_by(self.added_by)
 
     @dataclass
     class RemovePermissionsCommand(PermissionAwareCommand[vo.UserId]):
@@ -55,7 +55,7 @@ class Role(AuditableAggregate[vo.UserId]):
             for permission in self.permissions:
                 aggregate.permissions.remove(permission)
 
-            aggregate.mark_modified_by(self.removed_by)
+            aggregate.mark_updated_by(self.removed_by)
 
     @dataclass
     class DeleteRoleCommand(PermissionAwareCommand[vo.UserId]):

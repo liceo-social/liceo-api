@@ -23,8 +23,8 @@ def test_create_role():
     assert role.id.id == "roleid"
     assert role.created_by
     assert role.created_at
-    assert role.last_modified_by
-    assert role.last_modified_at
+    assert role.last_updated_by
+    assert role.last_updated_at
     assert role.name == "ADMIN"
 
 
@@ -37,8 +37,8 @@ def test_add_permissions():
         ),
     )
 
-    assert role.last_modified_by is not None
-    assert role.last_modified_by.id == "modifierid"
+    assert role.last_updated_by is not None
+    assert role.last_updated_by.id == "modifierid"
     assert len(role.permissions) == 2
 
 
@@ -59,8 +59,8 @@ def test_permissions_are_not_duplicated():
         )
     )
 
-    assert role.last_modified_by is not None
-    assert role.last_modified_by.id == "modifier2id"
+    assert role.last_updated_by is not None
+    assert role.last_updated_by.id == "modifier2id"
     assert len(role.permissions) == 2
 
 
@@ -81,7 +81,7 @@ def test_remove_permissions():
             )
     )
 
-    assert role.last_modified_by.id == "modifier2id"
+    assert role.last_updated_by.id == "modifier2id"
     assert len(role.permissions) == 1
 
 

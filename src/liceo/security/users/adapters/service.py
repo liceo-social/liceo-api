@@ -73,14 +73,19 @@ class UsersService(AbstractUsersService):
             changed_by_admin=input.updated_by.is_admin
         ))
         # saving user
-        saved_user = self.repository.save_user(updated)
+        saved_user = self.repository.update_user(updated)
         # saving user photo
-        if (saved_user.photo):
-            self._save_user_photo(saved_user)
+        # if (saved_user.photo):
+        #    self._save_user_photo(saved_user)
         # saving event trail
         self.event_store.append(saved_user)
         # return saved_user
         return saved_user
+
+    def _check_old_passwd(self, old_passwd_plain: str, old_passwd_hashed: str | None) -> bool:
+        if not old_passwd_hashed:
+            return False
+        return self.security.verify(old_passwd_plain, old_passwd_hashed)
 
     @transactional()
     def update_password(self, input: UpdatePasswordDTO) -> User | None:
@@ -92,10 +97,11 @@ class UsersService(AbstractUsersService):
         # updating password
         updated = loaded.change_password(User.ChangePasswordCommand(
             old_password=input.old_password,
-            old_password_check_handler=lambda x: True,
+            old_password_check_handler=lambda old_plain: self._check_old_passwd(
+                old_plain, loaded.password),
             new_password=input.new_password,
             new_password_repeated=input.new_password,
-            new_password_hashing_handler=lambda x: x,
+            new_password_hashing_handler=self.security.hash_passw,
             changed_by=UserId(id=input.updated_by.id)
         ))
         # persisting changes

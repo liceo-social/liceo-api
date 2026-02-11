@@ -1,13 +1,12 @@
-import inspect
 from functools import wraps
 from dataclasses import dataclass
 from itertools import count
 from contextlib import AbstractContextManager, contextmanager
 from contextvars import ContextVar
-from typing import Optional, Any, Callable
-from pathlib import Path
+from typing import Optional, Any
 from abc import ABC, abstractmethod
-from typing import Any, List, Mapping, Sequence, TypeVar, Union
+from typing import Any, List, Mapping, Sequence, Union
+from liceo.labs.logs import logged
 
 SingleParams = Mapping[str, Any]
 MultiParams = Sequence[Mapping[str, Any]]
@@ -77,7 +76,7 @@ _transaction_depth: ContextVar[int] = ContextVar(
 )
 
 
-class ConnectionManager(AbstractContextManager):
+class ConnectionManager(AbstractContextManager, logged("liceo.db.core.ConnectionManager")):
     """
     Ambient connection scope without transaction semantics.
     """
@@ -90,8 +89,9 @@ class ConnectionManager(AbstractContextManager):
 
     def __enter__(self):
         self._conn = _current_connection.get()
-
+        self._logger.debug("CM-getting-connection")
         if self._conn is None:
+            self._logger.debug("CM-created-connection")
             self._conn = self._factory.create()
             self._owns_connection = True
             self._token = _current_connection.set(self._conn)
@@ -103,13 +103,14 @@ class ConnectionManager(AbstractContextManager):
             if self._token:
                 _current_connection.reset(self._token)
             if self._conn is not None:
+                self._logger.debug("CM-closing-connection")
                 self._conn.close()
 
 
 _savepoint_counter = count()
 
 
-class TransactionManager(AbstractContextManager):
+class TransactionManager(AbstractContextManager, logged("liceo.db.core.TransactionManager")):
     """
     Ambient transaction manager with:
     - connection ownership
@@ -126,9 +127,10 @@ class TransactionManager(AbstractContextManager):
 
     def __enter__(self):
         self._conn = _current_connection.get()
-
+        self._logger.debug("TM-getting-connection")
         # ---- Connection ownership ---------------------------------
         if self._conn is None:
+            self._logger.debug("TM-creating-connection")
             self._conn = self._factory.create()
             self._owns_connection = True
             self._token = _current_connection.set(self._conn)
@@ -138,9 +140,11 @@ class TransactionManager(AbstractContextManager):
 
         if depth == 0:
             # first transaction on this connection
+            self._logger.debug("TM-creating-transaction")
             self._conn.begin()
         else:
             # nested transaction -> savepoint
+            self._logger.debug("TM-creating-nested-transaction")
             self._savepoint_name = f"sp_{next(_savepoint_counter)}"
             self._conn.create_savepoint(self._savepoint_name)
 
@@ -159,12 +163,14 @@ class TransactionManager(AbstractContextManager):
 
             if exc_type is not None:
                 # ---- rollback path --------------------------------
+                self._logger.debug("TM-rollback")
                 if depth == 0:
                     self._conn.rollback()
                 elif self._savepoint_name:
                     self._conn.rollback_to_savepoint(self._savepoint_name)
             else:
                 # ---- commit path ----------------------------------
+                self._logger.debug("TM-commit")
                 if depth == 0:
                     self._conn.commit()
                 elif self._savepoint_name:
@@ -174,6 +180,7 @@ class TransactionManager(AbstractContextManager):
             if self._owns_connection:
                 if self._token:
                     _current_connection.reset(self._token)
+                self._logger.debug("TM-closing-connection")
                 self._conn.close()
 
 
