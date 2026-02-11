@@ -7,11 +7,19 @@ from .dtos import FilterUsersDTO, UserDTO, SaveUserImageDTO
 
 class UsersRepository(AbstractRepository):
     @abstractmethod
+    def find_user_by_id(self, id: str) -> User | None:
+        pass
+
+    @abstractmethod
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
         pass
 
     @abstractmethod
     def save_user(self, user: User) -> User:
+        pass
+
+    @abstractmethod
+    def update_user(self, user: User) -> User:
         pass
 
 

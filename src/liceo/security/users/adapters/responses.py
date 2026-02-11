@@ -12,6 +12,24 @@ class CreateUserResponse(BaseModel):
         return CreateUserResponse(id=user.id.id)
 
 
+class UpdateUserResponse(BaseModel):
+    id: str
+
+    @staticmethod
+    def from_user(user: User | None):
+        if (user):
+            return UpdateUserResponse(id=user.id.id)
+
+
+class UpdatePasswordResponse(BaseModel):
+    id: str
+
+    @staticmethod
+    def from_user(user: User | None):
+        if (user):
+            return UpdatePasswordResponse(id=user.id.id)
+
+
 class ListUsersResponse(BaseModel):
     data: list[UserDTO]
     total_count: int

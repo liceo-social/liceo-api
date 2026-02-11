@@ -19,14 +19,19 @@ def create_user(user_id: UserId = UserId(id="1")):
     ))
 
 
-def test_change_name():
+def test_change_details():
     user_id = UserId("user-id")
     user = create_user(user_id=user_id)
-    change_name_cmd = User.ChangeNameCommand(
+    change_name_cmd = User.UpdateDetailsCommand(
         name="Johnny",
+        surname="Doe",
+        username="johnny.be@bad.com",
+        role="ROLE_USER",
+        photo=None,
+        changed_by_admin=False,
         changed_by=user_id,
     )
-    user = user.change_name(change_name_cmd)
+    user = user.update_details(change_name_cmd)
 
     assert user.name == "Johnny"
     assert len(user._events) == 2
@@ -34,12 +39,18 @@ def test_change_name():
 
 def test_try_to_change_name_by_another_user():
     user = create_user()
-    change_name_cmd = User.ChangeNameCommand(
-        name="Johnny", changed_by=UserId(id="another-user-id")
+    change_name_cmd = User.UpdateDetailsCommand(
+        name="Johnny",
+        surname="Doe",
+        username="johnny.be@bad.com",
+        role="ROLE_USER",
+        photo=None,
+        changed_by_admin=False,
+        changed_by=UserId(id="another-user-id")
     )
 
     try:
-        user.change_name(change_name_cmd)
+        user.update_details(change_name_cmd)
         assert False
     except errors.NotChangedBySameUserError:
         assert True

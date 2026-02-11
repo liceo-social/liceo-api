@@ -1,11 +1,11 @@
 from typing import Annotated
-from fastapi import Depends, Query, Body
+from fastapi import Depends, Query, Body, Path
 
 from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency, ConnectionManagerDependency, TransactionManagerDependency
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
-from .requests import CreateUserRequest, FilteringUsersRequest, CreateUserFields
+from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields
 from .service import UsersService
 from ..application.repository import UsersRepository, UsersImagesRepository
 
@@ -54,10 +54,34 @@ FilteringUsersRequestDependency = Annotated[FilteringUsersRequest, Query()]
 
 def get_create_user_request(
     user: UserInfo,
-    fields: CreateUserFields = Body()
+    fields: UserDetails = Body()
 ):
     return CreateUserRequest(fields=fields, created_by=user)
 
 
 CreateUserRequestDependency = Annotated[CreateUserRequest, Depends(
     get_create_user_request)]
+
+
+def get_update_user_request(
+        user: UserInfo,
+        id: str = Path(),
+        fields: UserDetails = Body()
+):
+    return UpdateUserRequest(id=id, fields=fields, updated_by=user)
+
+
+UpdateUserRequestDependency = Annotated[UpdateUserRequest, Depends(
+    get_update_user_request)]
+
+
+def get_update_password_request(
+        user: UserInfo,
+        id: str = Path(),
+        fields: UpdatePasswordFields = Body()
+):
+    return UpdatePasswordRequest(id=id, fields=fields, updated_by=user)
+
+
+UpdatePasswordRequestDependency = Annotated[UpdatePasswordRequest, Depends(
+    get_update_password_request)]

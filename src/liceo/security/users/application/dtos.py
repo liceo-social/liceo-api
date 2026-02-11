@@ -5,7 +5,7 @@ from liceo.security.common.application.dto import CurrentUserDTO
 
 
 @dataclass
-class CreateUserCaseDTO:
+class CreateUserDTO:
     name: str
     surname: str
     username: str
@@ -43,3 +43,22 @@ class SaveUserImageDTO:
     dimension: str
     created_by: str
     created_at: datetime
+
+
+@dataclass
+class UpdateUserDetailsDTO:
+    id: str
+    name: str
+    surname: str
+    username: str
+    photo: str | None
+    role: str
+    updated_by: CurrentUserDTO
+
+
+@dataclass
+class UpdatePasswordDTO:
+    id: str
+    old_password: str
+    new_password: str
+    updated_by: CurrentUserDTO

@@ -5,6 +5,9 @@
 -- USERS
 INSERT INTO liceo_permissions (id, name, description) VALUES ('kKCRCZrgu6f7LmQeKeBpn4', 'USERS_LIST', 'allows listing users');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('BFtJeZG2AprxV4EQThYjzD', 'USERS_CREATE', 'allows creating a new user');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('NPFxsWHzDUdsYqsJReC9k8', 'USERS_UPDATE_DETAILS', 'allows updating user details');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('tKEqg6EMhAFb6og8VJuz7B', 'USERS_UPDATE_PASSWORD', 'allows updating user password');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('zrijiR9osDidEX6dQFp5hV', 'USERS_UPDATE_SECURITY', 'allows updating user security properties');
 
 -- ROLES
 INSERT INTO liceo_permissions (id, name, description) VALUES ('J9fYxw932HbnRs5RzaYbbs', 'ROLES_LIST', 'allows listing roles');
@@ -32,6 +35,13 @@ INSERT INTO liceo_roles (id, name, description) VALUES ('rDCJKyPVeGLfmboVS7PkXC'
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'kKCRCZrgu6f7LmQeKeBpn4');
 -- ADMIN/USERS_CREATE
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'BFtJeZG2AprxV4EQThYjzD');
+-- ADMIN/USERS_UPDATE_DETAILS
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'NPFxsWHzDUdsYqsJReC9k8');
+-- ADMIN/USERS_UPDATE_PASSWORD
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'tKEqg6EMhAFb6og8VJuz7B');
+-- ADMIN/USERS_UPDATE_SECURITY
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'zrijiR9osDidEX6dQFp5hV');
+
 -- ADMIN/ROLE_LIST
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'J9fYxw932HbnRs5RzaYbbs');
 -- ADMIN/ROLE_CREATE

@@ -1,12 +1,12 @@
-from abc import abstractmethod
 from dataclasses import dataclass
 from liceo.security.common.application.service import SecurityService
 from liceo.infra.application.output import EventStore
 from liceo.labs.db.core import managed_service, transactional
 from liceo.infra.domain.vo import Paged
+from liceo.security.users.application.dtos import UpdatePasswordDTO, UpdateUserDetailsDTO
 from ..domain.entities import User
 from ..domain.vo import UserId
-from ..application.dtos import CreateUserCaseDTO, FilterUsersDTO, UserDTO, SaveUserImageDTO
+from ..application.dtos import CreateUserDTO, FilterUsersDTO, UserDTO, SaveUserImageDTO
 from ..application.repository import UsersRepository, UsersImagesRepository
 from ..application.service import AbstractUsersService
 
@@ -22,8 +22,20 @@ class UsersService(AbstractUsersService):
     def list(self, input: FilterUsersDTO) -> Paged[UserDTO]:
         return self.repository.filter_users(input)
 
+    def _save_user_photo(self, user: User) -> None:
+        if user.photo:
+            self.images_repository.save_user_image(
+                SaveUserImageDTO(
+                    user_id=user.id.id,
+                    photo_id=user.photo,
+                    dimension="original",
+                    created_by=user.created_by.id,
+                    created_at=user.created_at
+                )
+            )
+
     @transactional()
-    def create_user(self, input: CreateUserCaseDTO) -> User:
+    def create_user(self, input: CreateUserDTO) -> User:
         command = User.CreateUserCommand(
             next_id=self.repository.generate_id,
             created_by_admin=input.created_by.is_admin,
@@ -37,16 +49,58 @@ class UsersService(AbstractUsersService):
         # saving user
         saved_user = self.repository.save_user(User.create(command))
         # saving user photo
-        if (input.photo):
-            self.images_repository.save_user_image(
-                SaveUserImageDTO(
-                    user_id=saved_user.id.id,
-                    photo_id=input.photo,
-                    dimension="original",
-                    created_by=saved_user.created_by.id,
-                    created_at=saved_user.created_at
-                )
-            )
+        if (saved_user.photo):
+            self._save_user_photo(saved_user)
         # saving event trail
         self.event_store.append(saved_user)
+        # return saved_user
         return saved_user
+
+    @transactional()
+    def update_user(self, input: UpdateUserDetailsDTO) -> User | None:
+        loaded = self.repository.find_user_by_id(input.id)
+
+        if not loaded:
+            return
+
+        updated = loaded.update_details(User.UpdateDetailsCommand(
+            name=input.name,
+            surname=input.surname,
+            username=input.username,
+            role=input.role,
+            photo=input.photo,
+            changed_by=UserId(id=input.updated_by.id),
+            changed_by_admin=input.updated_by.is_admin
+        ))
+        # saving user
+        saved_user = self.repository.save_user(updated)
+        # saving user photo
+        if (saved_user.photo):
+            self._save_user_photo(saved_user)
+        # saving event trail
+        self.event_store.append(saved_user)
+        # return saved_user
+        return saved_user
+
+    @transactional()
+    def update_password(self, input: UpdatePasswordDTO) -> User | None:
+        loaded = self.repository.find_user_by_id(input.id)
+
+        if not loaded:
+            return
+
+        # updating password
+        updated = loaded.change_password(User.ChangePasswordCommand(
+            old_password=input.old_password,
+            old_password_check_handler=lambda x: True,
+            new_password=input.new_password,
+            new_password_repeated=input.new_password,
+            new_password_hashing_handler=lambda x: x,
+            changed_by=UserId(id=input.updated_by.id)
+        ))
+        # persisting changes
+        saved_user = self.repository.update_user(updated)
+        # saving audit trail
+        self.event_store.append(saved_user)
+        # return saved user
+        return loaded

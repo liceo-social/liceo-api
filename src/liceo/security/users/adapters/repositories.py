@@ -19,6 +19,34 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
             account_expired=row["account_expired"]
         )
 
+    def _map_to_user(self, row: dict) -> User:
+        user = User(
+            id=row["id"]
+        )
+        user.name = row["name"]
+        user.photo = row["photo"]
+        user.username = row["username"]
+        user.roles = row["roles"]
+        user.password_expired = row["password_expired"]
+        user.account_active = row["account_active"]
+        user.account_blocked = row["account_blocked"]
+        user.account_expired = row["account_expired"]
+        return user
+
+    @sql(_map_to_user)
+    def find_user_by_id(self, id: str) -> User | None:
+        return None
+
+    def update_user(self, user: User) -> User:
+        sql = self.resolve_sql(self.update_user)
+        self._get_connection().execute(sql, params={
+            "name": user.name,
+            "surname": user.surname,
+            "username": user.username,
+        })
+        self._save_user_roles(user)
+        return user
+
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
         sql = self.resolve_sql(self.filter_users)
         params: dict = {

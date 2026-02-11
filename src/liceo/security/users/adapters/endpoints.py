@@ -1,13 +1,19 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec, open_api_permissions
 from liceo.security.common.adapters.di import has_permission
-from .di import UsersServiceDependency, CreateUserRequestDependency, FilteringUsersRequestDependency
-from .responses import CreateUserResponse, ListUsersResponse
-from .permissions import USERS_LIST, USERS_CREATE
+from .responses import CreateUserResponse, ListUsersResponse, UpdateUserResponse, UpdatePasswordResponse
+from .permissions import USERS_LIST, USERS_CREATE, USERS_UPDATE_DETAILS, USERS_UPDATE_PASSWORD
+from .di import (
+    UsersServiceDependency,
+    CreateUserRequestDependency,
+    FilteringUsersRequestDependency,
+    UpdateUserRequestDependency,
+    UpdatePasswordRequestDependency
+)
 
 specs = RestGroupSpec(
     name="USERS",
     path="/admin/users",
-    description="Operations for maging a user in the system",
+    description="Operations for managing users",
 )
 
 router = specs.create_router()
@@ -37,3 +43,29 @@ def create_user(
     service: UsersServiceDependency
 ) -> CreateUserResponse:
     return CreateUserResponse.from_user(service.create_user(request.to_input()))
+
+
+@router.put(
+    path="/{id}",
+    summary="Updates user's basic details",
+    dependencies=[has_permission(USERS_UPDATE_DETAILS)],
+    openapi_extra={**open_api_permissions([USERS_UPDATE_DETAILS])}
+)
+def update_user(
+    request: UpdateUserRequestDependency,
+    service: UsersServiceDependency
+) -> UpdateUserResponse | None:
+    return UpdateUserResponse.from_user(service.update_user(request.to_input()))
+
+
+@router.put(
+    path="/password/{id}",
+    summary="Updates user's password",
+    dependencies=[has_permission(USERS_UPDATE_PASSWORD)],
+    openapi_extra={**open_api_permissions([USERS_UPDATE_PASSWORD])}
+)
+def update_password(
+    request: UpdatePasswordRequestDependency,
+    service: UsersServiceDependency
+) -> UpdatePasswordResponse | None:
+    return UpdatePasswordResponse.from_user(service.update_password(request.to_input()))

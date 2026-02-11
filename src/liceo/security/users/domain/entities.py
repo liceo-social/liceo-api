@@ -10,18 +10,30 @@ from liceo.security.users.domain import errors
 @dataclass(init=False)
 class User(AuditableAggregate[vo.UserId]):
     @dataclass
-    class ChangeNameCommand:
+    class UpdateDetailsCommand:
         name: str
+        photo: str | None
+        surname: str
+        username: str
+        role: str
+        changed_by_admin: bool
         changed_by: vo.UserId
 
     @dataclass(kw_only=True)
-    class NameChanged(AggregateEvent):
+    class DetailsChanged(AggregateEvent):
         event_type: str = "USER_NAME_CHANGED"
         name: str
+        photo: str | None
+        surname: str
+        username: str
+        role: str
         changed_by: vo.UserId
 
         def handle(self, aggregate: "User"):
             aggregate.name = self.name
+            aggregate.surname = self.surname
+            aggregate.username = self.username
+            aggregate.roles = [self.role]
             aggregate.mark_modified_by(self.changed_by)
 
     @dataclass
@@ -106,13 +118,19 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.username = self.username
             aggregate.roles = [self.role]
 
+    # details
     name: str = field()
     surname: str = field()
     username: str = field()
-    password: str | None = field(default=None)
     photo: str | None = field(default=None)
     active: bool = field(default=False)
     roles: list[str] = field(default_factory=list)
+    # changed individually
+    password: str | None = field(default=None)
+    password_expired: bool = field(default=False)
+    account_active: bool = field(default=False)
+    account_blocked: bool = field(default=False)
+    account_expired: bool = field(default=False)
 
     @staticmethod
     def create(cmd: CreateUserCommand):
@@ -132,11 +150,19 @@ class User(AuditableAggregate[vo.UserId]):
     def _is_changed_by_same_user(self, changed_by: vo.UserId):
         return self.id and self.id == changed_by
 
-    def change_name(self, cmd: ChangeNameCommand):
-        if not self._is_changed_by_same_user(cmd.changed_by):
+    def update_details(self, cmd: UpdateDetailsCommand):
+        if not (self._is_changed_by_same_user(cmd.changed_by) or cmd.changed_by_admin):
             raise errors.NotChangedBySameUserError()
 
-        return self.append(User.NameChanged(name=cmd.name, changed_by=cmd.changed_by))
+        return self.append(User.DetailsChanged(
+            name=cmd.name,
+            surname=cmd.surname,
+            username=cmd.username,
+            photo=cmd.photo,
+            role=cmd.role,
+            changed_by=cmd.changed_by
+        )
+        )
 
     def change_password(self, cmd: ChangePasswordCommand):
         if not self._is_changed_by_same_user(cmd.changed_by):

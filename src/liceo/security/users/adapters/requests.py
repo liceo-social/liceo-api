@@ -2,12 +2,10 @@ from pydantic import BaseModel, Field
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.adapters.di import UserInfo
 from liceo.security.common.application.dto import CurrentUserDTO
-from ..application.dtos import CreateUserCaseDTO
-from ..domain.vo import UserId
-from ..application.dtos import FilterUsersDTO
+from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO
 
 
-class CreateUserFields(BaseModel):
+class UserDetails(BaseModel):
     name: str
     surname: str
     photo: str | None = None
@@ -16,11 +14,11 @@ class CreateUserFields(BaseModel):
 
 
 class CreateUserRequest(BaseModel):
-    fields: CreateUserFields
+    fields: UserDetails
     created_by: UserInfo
 
-    def to_input(self) -> CreateUserCaseDTO:
-        return CreateUserCaseDTO(
+    def to_input(self) -> CreateUserDTO:
+        return CreateUserDTO(
             name=self.fields.name,
             surname=self.fields.surname,
             username=self.fields.username,
@@ -30,6 +28,27 @@ class CreateUserRequest(BaseModel):
                 id=self.created_by.id,
                 roles=self.created_by.roles,
                 is_admin=self.created_by.is_admin
+            )
+        )
+
+
+class UpdateUserRequest(BaseModel):
+    id: str
+    fields: UserDetails
+    updated_by: UserInfo
+
+    def to_input(self) -> UpdateUserDetailsDTO:
+        return UpdateUserDetailsDTO(
+            id=self.id,
+            name=self.fields.name,
+            surname=self.fields.surname,
+            username=self.fields.username,
+            photo=self.fields.photo,
+            role=self.fields.role,
+            updated_by=CurrentUserDTO(
+                id=self.updated_by.id,
+                roles=self.updated_by.roles,
+                is_admin=self.updated_by.is_admin
             )
         )
 
@@ -50,4 +69,27 @@ class FilteringUsersRequest(BaseModel):
             surname=self.surname,
             username=self.username,
             pagination=self.to_pagination()
+        )
+
+
+class UpdatePasswordFields(BaseModel):
+    old_password: str
+    new_password: str
+
+
+class UpdatePasswordRequest(BaseModel):
+    id: str
+    fields: UpdatePasswordFields
+    updated_by: UserInfo
+
+    def to_input(self) -> UpdatePasswordDTO:
+        return UpdatePasswordDTO(
+            id=self.id,
+            old_password=self.fields.old_password,
+            new_password=self.fields.new_password,
+            updated_by=CurrentUserDTO(
+                id=self.updated_by.id,
+                roles=self.updated_by.roles,
+                is_admin=self.updated_by.is_admin
+            )
         )
