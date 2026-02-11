@@ -15,7 +15,7 @@ def row_to_user_authentication(row: dict) -> UserAuthentication | None:
     )
 
 
-class PoirotAuthenticationRepository(AuthenticationRepository, SQLRepository):
+class SQLAuthenticationRepository(AuthenticationRepository, SQLRepository):
     @sql(row_to_user_authentication)
     def find_user_by_username(self, username: str) -> UserAuthentication | None:
         return None

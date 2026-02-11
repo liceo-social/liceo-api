@@ -36,7 +36,7 @@ def upload(
     dependencies=[has_permission(STORAGE_DOWNLOAD)],
     openapi_extra={**open_api_permissions([STORAGE_DOWNLOAD])}
 )
-def download(
+def images(
     downloaded_by: UserInfo,
     service: StorageServiceDependency,
     id: str = Path(),

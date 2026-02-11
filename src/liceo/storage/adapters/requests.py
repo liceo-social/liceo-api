@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from fastapi import UploadFile
+from fastapi import UploadFile, Path, Depends
 from pydantic import BaseModel
+from typing import Annotated
 from liceo.security.common.adapters.di import UserInfo
 from ..application.dtos import SaveFileDTO, LoadFileDTO
 
@@ -19,7 +20,7 @@ class UploadRequest(BaseModel):
 
 
 class GetImageRequest(BaseModel):
-    id: str
+    id: Annotated[str, Depends(Path())]
     downloaded_by: UserInfo
 
     def to_dto(self) -> LoadFileDTO:

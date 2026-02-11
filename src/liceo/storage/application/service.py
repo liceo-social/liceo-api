@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from liceo.labs.db.core import AbstractService
 from typing import Iterator
 from .dtos import SaveFileDTO, LoadFileDTO, LoadedFileDTO, DeleteFileDTO, FileDTO
 
 
 @dataclass
-class StorageService(ABC):
+class StorageService(AbstractService):
     @abstractmethod
     def save_file(self, dto: SaveFileDTO) -> FileDTO:
         pass

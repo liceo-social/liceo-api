@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Iterator
 from filetype import filetype
 from liceo.infra.application.output import EventStore
-from liceo.labs.db.core import managed_service, AbstractService, transactional
+from liceo.labs.db.core import managed_service, transactional
 from ..application.service import StorageService
 from ..application.repository import FileMetadataRepository
 from ..application.storage import Storage
@@ -12,7 +12,7 @@ from ..domain.entities import FileMetadata
 
 @dataclass
 @managed_service
-class LocalStorageService(StorageService, AbstractService):
+class LocalStorageService(StorageService):
     storage: Storage
     repository: FileMetadataRepository
     event_store: EventStore

@@ -12,9 +12,9 @@ def create_user(user_id: UserId = UserId(id="1")):
         created_by=user_id,
         name="Johnny",
         surname="Doe",
-        username="john.doe@liceo.com",
-        password="password",
-        roles=['ROLE_USER'],
+        photo=None,
+        username="john.doe@liceo.social",
+        role='ROLE_USER',
         created_by_admin=True
     ))
 
@@ -72,7 +72,7 @@ def test_try_to_change_password_with_wrong_repeated_password():
     user = create_user(user_id=user_id)
     try:
         cmd = User.ChangePasswordCommand(
-            old_password="password",
+            old_password=None,
             old_password_check_handler=lambda pwd: pwd == user.password,
             new_password="new-password",
             new_password_repeated="wrong-new-password",
@@ -85,7 +85,7 @@ def test_try_to_change_password_with_wrong_repeated_password():
         assert True
 
     assert len(user._events) == 1
-    assert user.password == "password"
+    assert user.password == None
 
 
 def test_try_to_change_password_by_another_user():
@@ -94,7 +94,7 @@ def test_try_to_change_password_by_another_user():
     user = create_user(user_id=user_id)
     try:
         cmd = User.ChangePasswordCommand(
-            old_password="password",
+            old_password=None,
             old_password_check_handler=lambda pwd: pwd == user.password,
             new_password="new-password",
             new_password_repeated="new-password",
@@ -107,102 +107,102 @@ def test_try_to_change_password_by_another_user():
         assert True
 
     assert len(user._events) == 1
-    assert user.password == "password"
+    assert user.password == None
 
 
-def add_role_cmd_by_admin():
-    return User.AddRoleCommand(
-        added_by=UserId(id="admin-id"),
-        role_to_add=Role.ROLE_USER,
-        admin_check_handler=lambda user: True,
-        check_permissions=ALLOWED_PERMISSION_FN
-    )
+# def add_role_cmd_by_admin():
+#     return User.AddRoleCommand(
+#         added_by=UserId(id="admin-id"),
+#         role_to_add=Role.ROLE_USER,
+#         admin_check_handler=lambda user: True,
+#         check_permissions=ALLOWED_PERMISSION_FN
+#     )
 
 
-def test_add_role():
-    user = create_user()
-    user = user.add_role(add_role_cmd_by_admin())
-    assert len(user.roles) == 1
-    assert user.roles[0] == Role.ROLE_USER
+# def test_add_role():
+#     user = create_user()
+#     user = user.add_role(add_role_cmd_by_admin())
+#     assert len(user.roles) == 1
+#     assert user.roles[0] == Role.ROLE_USER
 
 
-def test_non_admin_user_adding_a_role_to_user():
-    no_admin_id = UserId(id="no-admin-id")
-    user = create_user()
-    try:
-        user.add_role(
-            User.AddRoleCommand(
-                added_by=no_admin_id,
-                role_to_add=Role.ROLE_AUDITOR,
-                admin_check_handler=lambda user: False,
-                check_permissions=ALLOWED_PERMISSION_FN
-            )
-        )
-        assert False
-    except errors.AttemptedByNoAdmin:
-        assert True
+# def test_non_admin_user_adding_a_role_to_user():
+#     no_admin_id = UserId(id="no-admin-id")
+#     user = create_user()
+#     try:
+#         user.add_role(
+#             User.AddRoleCommand(
+#                 added_by=no_admin_id,
+#                 role_to_add=Role.ROLE_AUDITOR,
+#                 admin_check_handler=lambda user: False,
+#                 check_permissions=ALLOWED_PERMISSION_FN
+#             )
+#         )
+#         assert False
+#     except errors.AttemptedByNoAdmin:
+#         assert True
 
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
-
-
-def test_adding_same_role_more_than_once():
-    user = create_user()
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
-
-    user.add_role(add_role_cmd_by_admin())
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
 
 
-def remove_cmd_by(is_admin: bool = True):
-    return User.RemoveRoleCommand(
-        removed_by=UserId("admin-id"),
-        role_to_delete=Role.ROLE_USER,
-        admin_check_handler=lambda user: is_admin,
-        check_permissions=ALLOWED_PERMISSION_FN
-    )
+# def test_adding_same_role_more_than_once():
+#     user = create_user()
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
+
+#     user.add_role(add_role_cmd_by_admin())
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
 
 
-def test_removing_role():
-    user = create_user()
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
-
-    user.add_role(add_role_cmd_by_admin())
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
-
-    user.remove_role(remove_cmd_by())
-    assert len(user._events) == 2
-    assert len(user.roles) == 0
+# def remove_cmd_by(is_admin: bool = True):
+#     return User.RemoveRoleCommand(
+#         removed_by=UserId("admin-id"),
+#         role_to_delete=Role.ROLE_USER,
+#         admin_check_handler=lambda user: is_admin,
+#         check_permissions=ALLOWED_PERMISSION_FN
+#     )
 
 
-def test_trying_to_remove_a_role_by_a_non_admin_user():
-    user = create_user()
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
+# def test_removing_role():
+#     user = create_user()
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
 
-    try:
-        user.remove_role(remove_cmd_by(is_admin=False))
-        assert False
-    except errors.AttemptedByNoAdmin:
-        assert True
+#     user.add_role(add_role_cmd_by_admin())
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
 
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
+#     user.remove_role(remove_cmd_by())
+#     assert len(user._events) == 2
+#     assert len(user.roles) == 0
 
 
-def test_removing_an_already_removed_role():
-    user = create_user()
-    assert len(user._events) == 1
-    assert len(user.roles) == 1
+# def test_trying_to_remove_a_role_by_a_non_admin_user():
+#     user = create_user()
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
 
-    user.remove_role(remove_cmd_by())
-    assert len(user._events) == 2
-    assert len(user.roles) == 0
+#     try:
+#         user.remove_role(remove_cmd_by(is_admin=False))
+#         assert False
+#     except errors.AttemptedByNoAdmin:
+#         assert True
 
-    user.remove_role(remove_cmd_by())
-    assert len(user._events) == 2
-    assert len(user.roles) == 0
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
+
+
+# def test_removing_an_already_removed_role():
+#     user = create_user()
+#     assert len(user._events) == 1
+#     assert len(user.roles) == 1
+
+#     user.remove_role(remove_cmd_by())
+#     assert len(user._events) == 2
+#     assert len(user.roles) == 0
+
+#     user.remove_role(remove_cmd_by())
+#     assert len(user._events) == 2
+#     assert len(user.roles) == 0

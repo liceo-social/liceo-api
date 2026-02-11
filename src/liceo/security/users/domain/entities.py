@@ -26,7 +26,7 @@ class User(AuditableAggregate[vo.UserId]):
 
     @dataclass
     class ChangePasswordCommand:
-        old_password: str
+        old_password: str | None
         new_password: str
         new_password_repeated: str
         changed_by: vo.UserId
@@ -109,7 +109,7 @@ class User(AuditableAggregate[vo.UserId]):
     name: str = field()
     surname: str = field()
     username: str = field()
-    password: str = field()
+    password: str | None = field(default=None)
     photo: str | None = field(default=None)
     active: bool = field(default=False)
     roles: list[str] = field(default_factory=list)

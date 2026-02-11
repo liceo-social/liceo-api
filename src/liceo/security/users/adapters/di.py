@@ -6,7 +6,7 @@ from liceo.security.common.adapters.di import SecurityServiceDependency, UserInf
 
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
 from .requests import CreateUserRequest, FilteringUsersRequest, CreateUserFields
-from ..application.service import UsersService
+from .service import UsersService
 from ..application.repository import UsersRepository, UsersImagesRepository
 
 

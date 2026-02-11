@@ -1,14 +1,14 @@
 from typing import Annotated
 from fastapi import Depends
 from liceo.security.common.adapters.di import SecurityServiceDependency
-from liceo.infra.adapters.di import EventStoreDependency, ConnectionFactoryDependency
+from liceo.infra.adapters.di import EventStoreDependency, ConnectionFactoryDependency, ConnectionManagerDependency, TransactionManagerDependency
 from ..application.repository import AuthenticationRepository
-from ..application.service import AuthenticationService
-from .repositories import PoirotAuthenticationRepository
+from .service import AuthenticationService
+from .repositories import SQLAuthenticationRepository
 
 
 def create_repository(factory: ConnectionFactoryDependency):
-    return PoirotAuthenticationRepository(factory=factory)
+    return SQLAuthenticationRepository(factory=factory)
 
 
 AuthenticationRepositoryDependency = Annotated[AuthenticationRepository, Depends(
@@ -18,12 +18,16 @@ AuthenticationRepositoryDependency = Annotated[AuthenticationRepository, Depends
 def create_authentication_service(
     repository: AuthenticationRepositoryDependency,
     security: SecurityServiceDependency,
-    event_store: EventStoreDependency
+    event_store: EventStoreDependency,
+    connection_manager: ConnectionManagerDependency,
+    transaction_manager: TransactionManagerDependency
 ):
     return AuthenticationService(
         repository=repository,
         security=security,
-        event_store=event_store
+        event_store=event_store,
+        connection_manager=connection_manager,
+        transaction_manager=transaction_manager
     )
 
 
