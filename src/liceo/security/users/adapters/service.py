@@ -75,8 +75,8 @@ class UsersService(AbstractUsersService):
         # saving user
         saved_user = self.repository.update_user(updated)
         # saving user photo
-        # if (saved_user.photo):
-        #    self._save_user_photo(saved_user)
+        if (saved_user.photo):
+            self._save_user_photo(saved_user)
         # saving event trail
         self.event_store.append(saved_user)
         # return saved_user
