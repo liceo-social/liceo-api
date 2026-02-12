@@ -75,6 +75,7 @@ class FilteringUsersRequest(BaseModel):
 class UpdatePasswordFields(BaseModel):
     old_password: str
     new_password: str
+    new_password_repeated: str
 
 
 class UpdatePasswordRequest(BaseModel):
@@ -87,6 +88,7 @@ class UpdatePasswordRequest(BaseModel):
             id=self.id,
             old_password=self.fields.old_password,
             new_password=self.fields.new_password,
+            new_password_repeated=self.fields.new_password_repeated,
             updated_by=CurrentUserDTO(
                 id=self.updated_by.id,
                 roles=self.updated_by.roles,
