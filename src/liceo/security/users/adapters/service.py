@@ -105,7 +105,7 @@ class UsersService(AbstractUsersService):
             changed_by=UserId(id=input.updated_by.id)
         ))
         # persisting changes
-        saved_user = self.repository.update_user(updated)
+        saved_user = self.repository.update_password(updated)
         # saving audit trail
         self.event_store.append(saved_user)
         # return saved user

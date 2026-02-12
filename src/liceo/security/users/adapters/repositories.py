@@ -27,6 +27,8 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         )
         user.audit = AuditInfo(created_by=UserId(id=row["created_by"]))
         user.name = row["name"]
+        user.surname = row["surname"]
+        user.password = row["password"]
         user.photo = row["photo"]
         user.username = row["username"]
         user.roles = row["roles"]

@@ -9,6 +9,14 @@ class RepeatedPasswordNotCorrect(I18Error):
         )
 
 
+class OldPasswordNotCorrect(I18Error):
+    def __init__(self):
+        super().__init__(
+            "security.users.error.wrong_credentials",
+            "credentials are not correct",
+        )
+
+
 class NotChangedBySameUserError(I18Error):
     def __init__(self):
         super().__init__(

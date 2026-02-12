@@ -197,6 +197,9 @@ class User(AuditableAggregate[vo.UserId]):
         if not cmd.is_new_password_repeated_correct():
             raise errors.RepeatedPasswordNotCorrect()
 
+        if cmd.old_password is None or not cmd.old_password_check_handler(cmd.old_password):
+            raise errors.OldPasswordNotCorrect()
+
         return self.append(
             User.PasswordChanged(
                 changed_by=cmd.changed_by,

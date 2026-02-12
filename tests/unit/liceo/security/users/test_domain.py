@@ -121,6 +121,28 @@ def test_try_to_change_password_by_another_user():
     assert user.password == None
 
 
+def test_try_to_change_password_by_wrong_old_password():
+    user_id = UserId(id="user-id")
+
+    user = create_user(user_id=user_id)
+    try:
+        cmd = User.ChangePasswordCommand(
+            old_password=None,
+            old_password_check_handler=lambda pwd: False,
+            new_password="new-password",
+            new_password_repeated="new-password",
+            new_password_hashing_handler=lambda pwd: "hashed",
+            changed_by=user_id,
+        )
+        user.change_password(cmd)
+        assert False
+    except errors.OldPasswordNotCorrect:
+        assert True
+
+    assert len(user._events) == 1
+    assert user.password == None
+
+
 # def add_role_cmd_by_admin():
 #     return User.AddRoleCommand(
 #         added_by=UserId(id="admin-id"),

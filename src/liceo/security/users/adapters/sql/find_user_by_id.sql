@@ -1,6 +1,8 @@
 SELECT
     lu.id,
     lu.name,
+    lu.surname,
+    lu.password,
     lui.storage_id AS photo,
     lu.username,
     COALESCE(
@@ -23,6 +25,9 @@ LEFT JOIN liceo_users_images lui
 WHERE lu.id = :id
 GROUP BY
     lu.id,
+    lu.name,
+    lu.surname,
+    lu.password,
     lu.username,
     lu.password_expired,
     lu.account_active,
