@@ -100,7 +100,7 @@ class UsersService(AbstractUsersService):
             old_password_check_handler=lambda old_plain: self._check_old_passwd(
                 old_plain, loaded.password),
             new_password=input.new_password,
-            new_password_repeated=input.new_password,
+            new_password_repeated=input.new_password_repeated,
             new_password_hashing_handler=self.security.hash_passw,
             changed_by=UserId(id=input.updated_by.id)
         ))

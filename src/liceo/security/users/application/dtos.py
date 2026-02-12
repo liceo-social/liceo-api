@@ -61,6 +61,7 @@ class UpdatePasswordDTO:
     id: str
     old_password: str
     new_password: str
+    new_password_repeated: str
     updated_by: CurrentUserDTO
 
 
