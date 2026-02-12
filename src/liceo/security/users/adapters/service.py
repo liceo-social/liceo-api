@@ -3,7 +3,7 @@ from liceo.security.common.application.service import SecurityService
 from liceo.infra.application.output import EventStore
 from liceo.labs.db.core import managed_service, transactional
 from liceo.infra.domain.vo import Paged
-from liceo.security.users.application.dtos import UpdatePasswordDTO, UpdateUserDetailsDTO
+from liceo.security.users.application.dtos import UpdatePasswordDTO, UpdateSecurityDTO, UpdateUserDetailsDTO, UpdatedSecurityDTO
 from ..domain.entities import User
 from ..domain.vo import UserId
 from ..application.dtos import CreateUserDTO, FilterUsersDTO, UserDTO, SaveUserImageDTO
@@ -109,4 +109,34 @@ class UsersService(AbstractUsersService):
         # saving audit trail
         self.event_store.append(saved_user)
         # return saved user
-        return loaded
+        return saved_user
+
+    @transactional()
+    def update_security(self, input: UpdateSecurityDTO) -> UpdatedSecurityDTO | None:
+        loaded = self.repository.find_user_by_id(input.id)
+
+        if not loaded:
+            return
+
+        # updating user
+        updated = loaded.update_security(
+            User.UpdateSecurityCommand(
+                password_expired=input.password_expired,
+                account_active=input.account_active,
+                account_blocked=input.account_blocked,
+                account_expired=input.account_expired,
+                updated_by=UserId(id=input.id),
+                updated_by_admin=input.updated_by.is_admin
+            )
+        )
+        # persisting changes
+        saved_user = self.repository.update_security(updated)
+        # saving audit trail
+        self.event_store.append(saved_user)
+        # return saved_user
+        return UpdatedSecurityDTO(
+            password_expired=saved_user.password_expired,
+            account_active=saved_user.account_active,
+            account_blocked=saved_user.account_blocked,
+            account_expired=saved_user.account_expired
+        )

@@ -5,7 +5,7 @@ from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDepen
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
-from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields
+from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields
 from .service import UsersService
 from ..application.repository import UsersRepository, UsersImagesRepository
 
@@ -85,3 +85,15 @@ def get_update_password_request(
 
 UpdatePasswordRequestDependency = Annotated[UpdatePasswordRequest, Depends(
     get_update_password_request)]
+
+
+def get_update_security_request(
+        user: UserInfo,
+        id: str = Path(),
+        fields: UpdateSecurityFields = Body()
+):
+    return UpdateSecurityRequest(id=id, updated_by=user, fields=fields)
+
+
+UpdateSecurityRequestDependency = Annotated[UpdateSecurityRequest, Depends(
+    get_update_security_request)]

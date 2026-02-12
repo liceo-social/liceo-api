@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.adapters.di import UserInfo
 from liceo.security.common.application.dto import CurrentUserDTO
-from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO
+from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO, UpdateSecurityDTO
 
 
 class UserDetails(BaseModel):
@@ -87,6 +87,33 @@ class UpdatePasswordRequest(BaseModel):
             id=self.id,
             old_password=self.fields.old_password,
             new_password=self.fields.new_password,
+            updated_by=CurrentUserDTO(
+                id=self.updated_by.id,
+                roles=self.updated_by.roles,
+                is_admin=self.updated_by.is_admin
+            )
+        )
+
+
+class UpdateSecurityFields(BaseModel):
+    password_expired: bool
+    account_active: bool
+    account_blocked: bool
+    account_expired: bool
+
+
+class UpdateSecurityRequest(BaseModel):
+    id: str
+    fields: UpdateSecurityFields
+    updated_by: UserInfo
+
+    def to_input(self) -> UpdateSecurityDTO:
+        return UpdateSecurityDTO(
+            id=self.id,
+            account_active=self.fields.account_active,
+            account_blocked=self.fields.account_blocked,
+            account_expired=self.fields.account_expired,
+            password_expired=self.fields.password_expired,
             updated_by=CurrentUserDTO(
                 id=self.updated_by.id,
                 roles=self.updated_by.roles,

@@ -59,6 +59,31 @@ class User(AuditableAggregate[vo.UserId]):
             aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
+    class UpdateSecurityCommand:
+        password_expired: bool
+        account_active: bool
+        account_blocked: bool
+        account_expired: bool
+        updated_by: vo.UserId
+        updated_by_admin: bool
+
+    @dataclass(kw_only=True)
+    class SecurityUpdated(AggregateEvent):
+        event_type: str = "USER_SECURITY_UPDATED"
+        password_expired: bool
+        account_active: bool
+        account_blocked: bool
+        account_expired: bool
+        updated_by: vo.UserId
+
+        def handle(self, aggregate: "User"):
+            aggregate.password_expired = self.password_expired
+            aggregate.account_active = self.account_active
+            aggregate.account_blocked = self.account_blocked
+            aggregate.account_expired = self.account_expired
+            aggregate.mark_updated_by(self.updated_by)
+
+    @dataclass
     class AddRoleCommand(PermissionAwareCommand[vo.UserId]):
         added_by: vo.UserId
         admin_check_handler: Callable[[vo.UserId], bool]
@@ -178,6 +203,20 @@ class User(AuditableAggregate[vo.UserId]):
                 new_password=Sensitive(
                     cmd.new_password_hashing_handler(cmd.new_password)
                 ),
+            )
+        )
+
+    def update_security(self, cmd: UpdateSecurityCommand):
+        if not cmd.updated_by_admin:
+            raise errors.AttemptedByNoAdmin()
+
+        return self.append(
+            User.SecurityUpdated(
+                updated_by=cmd.updated_by,
+                account_active=cmd.account_active,
+                account_blocked=cmd.account_blocked,
+                account_expired=cmd.account_expired,
+                password_expired=cmd.password_expired
             )
         )
 

@@ -22,6 +22,14 @@ class UsersRepository(AbstractRepository):
     def update_user(self, user: User) -> User:
         pass
 
+    @abstractmethod
+    def update_password(self, user: User) -> User:
+        pass
+
+    @abstractmethod
+    def update_security(self, user: User) -> User:
+        pass
+
 
 class UsersImagesRepository(AbstractRepository):
     @abstractmethod

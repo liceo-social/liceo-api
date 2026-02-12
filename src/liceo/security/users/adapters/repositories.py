@@ -107,7 +107,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
 
     def update_user(self, user: User) -> User:
         sql = self.resolve_sql(self.update_user)
-        result = self._get_connection().execute(sql, params={
+        self._get_connection().execute(sql, params={
             "id": user.id.id,
             "name": user.name,
             "surname": user.surname,
@@ -116,6 +116,29 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
             "last_updated_by": user.last_updated_by
         })
         return self._update_user_roles(user)
+
+    def update_password(self, user: User) -> User:
+        sql = self.resolve_sql(self.update_password)
+        self._get_connection().execute(sql, params={
+            "id": user.id.id,
+            "password": user.password,
+            "last_updated_at": user.last_updated_at,
+            "last_updated_by": user.last_updated_by
+        })
+        return user
+
+    def update_security(self, user: User) -> User:
+        sql = self.resolve_sql(self.update_security)
+        self._get_connection().execute(sql, params={
+            "id": user.id.id,
+            "password_expired": user.password_expired,
+            "account_active": user.account_active,
+            "account_blocked": user.account_blocked,
+            "account_expired": user.account_expired,
+            "last_updated_at": user.last_updated_at,
+            "last_updated_by": user.last_updated_by
+        })
+        return user
 
 
 class SQLUsersImagesRepository(UsersImagesRepository, SQLRepository):

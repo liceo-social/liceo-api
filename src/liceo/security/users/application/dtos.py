@@ -62,3 +62,21 @@ class UpdatePasswordDTO:
     old_password: str
     new_password: str
     updated_by: CurrentUserDTO
+
+
+@dataclass
+class UpdateSecurityDTO:
+    id: str
+    password_expired: bool
+    account_active: bool
+    account_blocked: bool
+    account_expired: bool
+    updated_by: CurrentUserDTO
+
+
+@dataclass
+class UpdatedSecurityDTO:
+    password_expired: bool
+    account_active: bool
+    account_blocked: bool
+    account_expired: bool
