@@ -120,4 +120,7 @@ VALUES
 -- ###   ROLES_USERS   ###
 -- #######################
 
+-- ROLE_ADMIN (john.doe@liceo.social)
 INSERT INTO liceo_roles_users (role_id, user_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'ZLP35KRt4jm8EkaebeWjJP');
+-- ROLE_USER (pedro.gutierrez@liceo.social)
+INSERT INTO liceo_roles_users (role_id, user_id) VALUES ('RZ2JLgj89aFmyjv6yngmJ7', 'UAF65EbeDYf7X8CfjZfoqM');
