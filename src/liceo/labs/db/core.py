@@ -107,9 +107,6 @@ class ConnectionManager(AbstractContextManager, logged("liceo.db.core.Connection
                 self._conn.close()
 
 
-_savepoint_counter = count()
-
-
 class TransactionManager(AbstractContextManager, logged("liceo.db.core.TransactionManager")):
     """
     Ambient transaction manager with:
@@ -145,7 +142,7 @@ class TransactionManager(AbstractContextManager, logged("liceo.db.core.Transacti
         else:
             # nested transaction -> savepoint
             self._logger.debug("TM-creating-nested-transaction")
-            self._savepoint_name = f"sp_{next(_savepoint_counter)}"
+            self._savepoint_name = f"sp_{depth}"
             self._conn.create_savepoint(self._savepoint_name)
 
         _transaction_depth.set(depth + 1)

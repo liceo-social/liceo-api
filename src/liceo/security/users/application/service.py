@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from liceo.labs.db.core import AbstractService
 from liceo.infra.domain.vo import Paged
 from ..domain.entities import User
@@ -24,4 +24,10 @@ class AbstractUsersService(AbstractService):
 
     @abstractmethod
     def update_security(self, input: dtos.UpdateSecurityDTO) -> dtos.UpdatedSecurityDTO | None:
+        pass
+
+
+class UserNotificationService(ABC):
+    @abstractmethod
+    def send_activation_message(self, user: User) -> User:
         pass

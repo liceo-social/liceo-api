@@ -4,6 +4,7 @@
 
 -- USERS
 INSERT INTO liceo_permissions (id, name, description) VALUES ('kKCRCZrgu6f7LmQeKeBpn4', 'USERS_LIST', 'allows listing users');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('wZwcsF4frKkXEDQNiT2vyi', 'USERS_SHOW', 'shows a specific user');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('BFtJeZG2AprxV4EQThYjzD', 'USERS_CREATE', 'allows creating a new user');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('NPFxsWHzDUdsYqsJReC9k8', 'USERS_UPDATE_DETAILS', 'allows updating user details');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('tKEqg6EMhAFb6og8VJuz7B', 'USERS_UPDATE_PASSWORD', 'allows updating user password');
@@ -33,6 +34,8 @@ INSERT INTO liceo_roles (id, name, description) VALUES ('rDCJKyPVeGLfmboVS7PkXC'
 
 -- ADMIN/USERS_LIST
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'kKCRCZrgu6f7LmQeKeBpn4');
+-- ADMIN/USERS_SHOW
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'wZwcsF4frKkXEDQNiT2vyi');
 -- ADMIN/USERS_CREATE
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'BFtJeZG2AprxV4EQThYjzD');
 -- ADMIN/USERS_UPDATE_DETAILS

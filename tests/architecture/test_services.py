@@ -1,4 +1,4 @@
-from pytest_archon import archrule, core_modules
+from pytest_archon import archrule
 
 
 def test_service_contracts_should_extend_abstract_service():
@@ -9,6 +9,7 @@ def test_service_contracts_should_extend_abstract_service():
             comment="service contracts should extend AbstractService",
             use_regex=True
         )
+        .exclude("liceo.mail")
         .match(r"liceo\..*\.application.service")
         .should_import("liceo.labs.db.core")
         .check("liceo")

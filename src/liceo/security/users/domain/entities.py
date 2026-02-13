@@ -139,6 +139,7 @@ class User(AuditableAggregate[vo.UserId]):
         def handle(self, aggregate: "User"):
             aggregate.mark_created_by(self.created_by)
             aggregate.name = self.name
+            aggregate.photo = self.photo
             aggregate.surname = self.surname
             aggregate.username = self.username
             aggregate.roles = [self.role]

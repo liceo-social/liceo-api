@@ -73,3 +73,25 @@ CREATE TABLE IF NOT EXISTS liceo_users_images (
     created_at TIMESTAMP,
     created_by TEXT
 );
+
+-- ########################
+-- ###      MAILS       ###
+-- ########################
+
+CREATE TABLE liceo_outbound_emails (
+    id TEXT PRIMARY KEY,
+    recipient TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    body TEXT NOT NULL,
+    status TEXT NOT NULL, -- PENDING, SENT, FAILED
+    retry_count INT NOT NULL DEFAULT 0,
+    max_retries INT NOT NULL DEFAULT 5,
+    next_attempt_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    last_error TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by TEXT,
+    sent_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX idx_liceo_outbound_emails_status_next_attempt
+ON liceo_outbound_emails (status, next_attempt_at);

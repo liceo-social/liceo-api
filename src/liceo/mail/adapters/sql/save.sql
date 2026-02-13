@@ -1,0 +1,20 @@
+INSERT INTO liceo_outbound_emails
+(
+    id,
+    recipient,
+    subject,
+    body,
+    status,
+    next_attempt_at,
+    created_at
+)
+VALUES
+(
+    :id,
+    :recipient,
+    :subject,
+    :body,
+    :status,
+    :next_attempt_at,
+    :created_at
+);

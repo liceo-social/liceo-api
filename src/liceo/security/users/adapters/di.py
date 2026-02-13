@@ -3,11 +3,32 @@ from fastapi import Depends, Query, Body, Path
 
 from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency, ConnectionManagerDependency, TransactionManagerDependency
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
-
+from liceo.mail.adapters.di import MailSchedulerServiceDependency, TemplateRenderDependency
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
 from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields
-from .service import UsersService
+from .service import UsersService, SendActivationMailService
 from ..application.repository import UsersRepository, UsersImagesRepository
+from ..application.service import UserNotificationService
+
+# ----- NOTIFICATIONS
+
+
+def create_user_notifications(
+        mails: MailSchedulerServiceDependency,
+        templates: TemplateRenderDependency,
+        connection_manager: ConnectionManagerDependency,
+        transaction_manager: TransactionManagerDependency
+):
+    return SendActivationMailService(
+        mails=mails,
+        templates=templates,
+        connection_manager=connection_manager,
+        transaction_manager=transaction_manager
+    )
+
+
+NotificationsDependency = Annotated[UserNotificationService, Depends(
+    create_user_notifications)]
 
 
 # ----- REPOSITORIES
@@ -33,15 +54,17 @@ def users_service(
     event_store: EventStoreDependency,
     security: SecurityServiceDependency,
     transaction_manager: TransactionManagerDependency,
-    connection_manager: ConnectionManagerDependency
+    connection_manager: ConnectionManagerDependency,
+    notifications: NotificationsDependency,
 ) -> UsersService:
     return UsersService(
-        repository=repository,
-        images_repository=images_repository,
+        users=repository,
+        images=images_repository,
         security=security,
         event_store=event_store,
         connection_manager=connection_manager,
-        transaction_manager=transaction_manager
+        transaction_manager=transaction_manager,
+        notifications=notifications
     )
 
 

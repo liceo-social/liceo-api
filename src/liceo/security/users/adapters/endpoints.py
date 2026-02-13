@@ -24,6 +24,16 @@ def list_users(
     return responses.ListUsersResponse.from_dto(dto=service.list(request.toDTO()))
 
 
+@router.get(
+    path="/{id}",
+    summary="Allows admins to show a specific user",
+    dependencies=[has_permission(permissions.USERS_SHOW)],
+    openapi_extra={**open_api_permissions([permissions.USERS_SHOW])}
+)
+def show():
+    return None
+
+
 @router.post(
     path="/",
     summary="Allows admins to create a new user",
