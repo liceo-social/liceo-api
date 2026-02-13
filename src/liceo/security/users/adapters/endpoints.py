@@ -30,8 +30,11 @@ def list_users(
     dependencies=[has_permission(permissions.USERS_SHOW)],
     openapi_extra={**open_api_permissions([permissions.USERS_SHOW])}
 )
-def show():
-    return None
+def show(
+    request: di.ShowUserRequestDependency,
+    service: di.UsersServiceDependency
+) -> responses.ShowUserResponse | None:
+    return responses.ShowUserResponse.from_dto(service.get_user(request.to_dto()))
 
 
 @router.post(

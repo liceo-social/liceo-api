@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.adapters.di import UserInfo
 from liceo.security.common.application.dto import CurrentUserDTO
-from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO, UpdateSecurityDTO
+from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO, UpdateSecurityDTO, GetUserDTO
 
 
 class UserDetails(BaseModel):
@@ -122,3 +122,10 @@ class UpdateSecurityRequest(BaseModel):
                 is_admin=self.updated_by.is_admin
             )
         )
+
+
+class ShowUserRequest(BaseModel):
+    id: str
+
+    def to_dto(self) -> GetUserDTO:
+        return GetUserDTO(self.id)

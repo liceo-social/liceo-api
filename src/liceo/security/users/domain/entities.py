@@ -243,3 +243,7 @@ class User(AuditableAggregate[vo.UserId]):
             )
 
         return self
+
+    @property
+    def full_name(self):
+        return f"{self.name} {self.surname}"

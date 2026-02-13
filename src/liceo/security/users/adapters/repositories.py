@@ -4,22 +4,10 @@ from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
 from ..application.repository import UsersRepository, UsersImagesRepository
 from ..domain.vo import UserId
+from . import mappers
 
 
 class SQLUsersRepository(UsersRepository, SQLRepository):
-    def _map_to_user_dto(self, row: dict) -> UserDTO:
-        return UserDTO(
-            id=row["id"],
-            full_name=row["full_name"],
-            photo=row["photo"],
-            username=row["username"],
-            roles=row["roles"],
-            password_expired=row["password_expired"],
-            account_active=row["account_active"],
-            account_blocked=row["account_blocked"],
-            account_expired=row["account_expired"]
-        )
-
     @staticmethod
     def _map_to_user(row: dict) -> User:
         user = User(
@@ -57,7 +45,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
             sql,
             params=params
         )
-        data = list(map(self._map_to_user_dto, result))
+        data = list(map(mappers.map_to_user_dto, result))
         total_count = result[0]["total_count"]
 
         return Paged(total=0 if len(result) == 0 else total_count, data=data)

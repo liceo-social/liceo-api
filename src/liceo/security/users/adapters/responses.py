@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from liceo.infra.domain.vo import Paged
+from typing import Self
 from ..domain.entities import User
 from ..application.dtos import UpdatedSecurityDTO
-from .repositories import UserDTO
+from ..application.dtos import UserDTO, FullUserDTO
 
 
 class CreateUserResponse(BaseModel):
@@ -55,4 +56,28 @@ class UpdatedSecurityResponse(BaseModel):
             account_active=dto.account_active,
             account_blocked=dto.account_blocked,
             account_expired=dto.account_expired
+        )
+
+
+class ShowUserResponse(BaseModel):
+    id: str
+    name: str
+    surname: str
+    username: str
+    photo: str | None
+    role: str
+    created_by: str
+
+    @staticmethod
+    def from_dto(dto: UserDTO | None):
+        if not dto:
+            return None
+        return ShowUserResponse(
+            id=dto.id,
+            name=dto.name,
+            surname=dto.surname,
+            username=dto.username,
+            photo=dto.photo,
+            role=dto.roles[0],
+            created_by="",
         )

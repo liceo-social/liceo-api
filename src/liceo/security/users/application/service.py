@@ -7,6 +7,10 @@ from . import dtos
 
 class AbstractUsersService(AbstractService):
     @abstractmethod
+    def get_user(self, input: dtos.GetUserDTO) -> dtos.UserDTO | None:
+        pass
+
+    @abstractmethod
     def list(self, input: dtos.FilterUsersDTO) -> Paged[dtos.UserDTO]:
         pass
 

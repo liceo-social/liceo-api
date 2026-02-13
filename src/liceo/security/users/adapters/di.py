@@ -5,7 +5,7 @@ from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDepen
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 from liceo.mail.adapters.di import MailSchedulerServiceDependency, TemplateRenderDependency
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
-from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields
+from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields, ShowUserRequest
 from .service import UsersService, SendActivationMailService
 from ..application.repository import UsersRepository, UsersImagesRepository
 from ..application.service import UserNotificationService
@@ -120,3 +120,12 @@ def get_update_security_request(
 
 UpdateSecurityRequestDependency = Annotated[UpdateSecurityRequest, Depends(
     get_update_security_request)]
+
+
+def get_show_user_request(
+        id: str = Path()
+):
+    return ShowUserRequest(id=id)
+
+
+ShowUserRequestDependency = Annotated[ShowUserRequest, Depends(get_show_user_request)]

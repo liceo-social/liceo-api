@@ -6,6 +6,7 @@ from liceo.security.common.application.service import SecurityService
 from liceo.mail.application.service import MailScheduler, TemplateRenderer
 from liceo.mail.application.dtos import QueueMailDTO
 
+from . import mappers
 from ..domain import vo, entities
 from ..application import dtos, repository, service
 
@@ -42,6 +43,9 @@ class UsersService(service.AbstractUsersService):
     security: SecurityService
     event_store: EventStore
     notifications: service.UserNotificationService
+
+    def get_user(self, input: dtos.GetUserDTO) -> dtos.UserDTO | None:
+        return mappers.user_to_user_dto(self.users.find_user_by_id(input.id))
 
     def list(self, input: dtos.FilterUsersDTO) -> Paged[dtos.UserDTO]:
         return self.users.filter_users(input)

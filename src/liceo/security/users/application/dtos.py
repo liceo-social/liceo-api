@@ -27,8 +27,26 @@ class FilterUsersDTO:
 class UserDTO:
     id: str
     full_name: str
+    name: str
+    surname: str
     username: str
-    photo: str
+    photo: str | None
+    roles: list[str]
+    password_expired: bool
+    account_active: bool
+    account_blocked: bool
+    account_expired: bool
+
+
+@dataclass
+class FullUserDTO:
+    id: str
+    full_name: str
+    name: str
+    password: str
+    surname: str
+    username: str
+    photo: str | None
     roles: list[str]
     password_expired: bool
     account_active: bool
@@ -81,3 +99,8 @@ class UpdatedSecurityDTO:
     account_active: bool
     account_blocked: bool
     account_expired: bool
+
+
+@dataclass
+class GetUserDTO:
+    id: str
