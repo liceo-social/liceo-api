@@ -5,7 +5,9 @@ FROM
 (
 SELECT
     lu.id,
+    lu.name,
     lu.name || ' ' || lu.surname AS full_name,
+    lu.surname,
     lu.username,
     COALESCE(
         array_agg(lr.name) FILTER (WHERE lr.name IS NOT NULL),
@@ -28,6 +30,8 @@ WHERE lu.name ilike :name
 AND lu.surname = :surname
 GROUP BY
     lu.id,
+    lu.name,
+    lu.surname,
     lu.username,
     lu.password_expired,
     lu.account_active,
