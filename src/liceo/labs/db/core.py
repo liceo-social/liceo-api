@@ -1,6 +1,5 @@
 from functools import wraps
 from dataclasses import dataclass
-from itertools import count
 from contextlib import AbstractContextManager, contextmanager
 from contextvars import ContextVar
 from typing import Optional, Any

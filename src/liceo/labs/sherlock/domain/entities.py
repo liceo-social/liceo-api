@@ -1,3 +1,4 @@
+from datetime import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Generic, List, Self, TypeVar
@@ -16,6 +17,7 @@ class AggregateEvent(Generic[T], ABC):
     aggregate_id: str = ""
     aggregate_type: str = ""
     event_type: str
+    when: datetime = datetime.now()
     version: int = 0
 
     @abstractmethod

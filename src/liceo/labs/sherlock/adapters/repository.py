@@ -13,8 +13,11 @@ class SQLEventStoreRepository(EventStoreRepository, SQLRepository):
             params={
                 "id": uuid(),
                 "aggregate_id": event.aggregate_id,
+                "aggregate_type": event.aggregate_type,
+                "event_type": event.event_type,
+                "when": event.when,
                 "version": event.version,
-                "payload": dumps(event.unsecure_dict()),
+                "data": dumps(event.unsecure_dict()),
                 "created_at": datetime.now()
             }
         )
