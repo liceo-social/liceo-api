@@ -1,11 +1,10 @@
 from abc import abstractmethod, ABC
-from liceo.labs.db.core import AbstractService
 from liceo.infra.domain.vo import Paged
 from ..domain.entities import User
 from . import dtos
 
 
-class AbstractUsersService(AbstractService):
+class AbstractUsersService(ABC):
     @abstractmethod
     def get_user(self, input: dtos.GetUserDTO) -> dtos.UserDTO | None:
         pass

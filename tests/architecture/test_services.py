@@ -1,7 +1,7 @@
 from pytest_archon import archrule
 
 
-def test_service_contracts_should_extend_abstract_service():
+def test_service_implementations_should_extend_abstract_service():
     (
 
         archrule(
@@ -10,8 +10,23 @@ def test_service_contracts_should_extend_abstract_service():
             use_regex=True
         )
         .exclude("liceo.mail")
-        .match(r"liceo\..*\.application.service")
+        .match(r"liceo\..*\.adapters.service")
         .should_import("liceo.labs.db.core")
+        .check("liceo")
+    )
+
+
+def test_service_contracts_should_not_extend_db_service():
+    (
+
+        archrule(
+            name="service interfaces",
+            comment="service contracts should not extend AbstractService",
+            use_regex=True
+        )
+        .exclude("liceo.mail")
+        .match(r"liceo\..*\.application.service$")
+        .should_not_import("liceo.labs.db.core")
         .check("liceo")
     )
 

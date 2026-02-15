@@ -2,13 +2,13 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
-from liceo.labs.sherlock.core import AggregateEvent, Sensitive
+from liceo.labs.sherlock.domain.entities import AggregateEvent, Sensitive
 from liceo.security.users.domain import vo
 from liceo.security.users.domain import errors
 
 
 @dataclass(init=False)
-class User(AuditableAggregate[vo.UserId]):
+class User(AuditableAggregate[vo.UserId, vo.UserId]):
     @dataclass
     class UpdateDetailsCommand:
         name: str
@@ -247,3 +247,7 @@ class User(AuditableAggregate[vo.UserId]):
     @property
     def full_name(self):
         return f"{self.name} {self.surname}"
+
+    @property
+    def aggregate_type(self) -> str:
+        return "USER"

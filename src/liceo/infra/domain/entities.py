@@ -2,25 +2,24 @@ from dataclasses import dataclass
 from typing import Generic, TypeVar, Callable, Any
 from datetime import datetime
 from .vo import AuditInfo
-from abc import abstractmethod
-from liceo.infra.domain import error
-from liceo.labs.sherlock.core import Aggregate, AggregateRoot, AggregateId
+from liceo.labs.sherlock.domain.entities import Aggregate, AggregateRoot, AggregateId
 
 T = TypeVar("T", bound=AggregateId)
+U = TypeVar("U", bound=AggregateId)
 
 
-class AuditableAggregate(Aggregate[T], Generic[T]):
-    audit: AuditInfo[T]
+class AuditableAggregate(Aggregate[T], Generic[T, U],):
+    audit: AuditInfo[U]
 
-    def mark_created_by(self, by: T):
+    def mark_created_by(self, by: U):
         self.audit = AuditInfo(by)
         self.audit.created_at = datetime.now()
 
-    def mark_updated_by(self, by: T):
+    def mark_updated_by(self, by: U):
         self.audit.last_updated_by = by
         self.audit.last_updated_at = datetime.now()
 
-    def mark_deleted_by(self, by: T):
+    def mark_deleted_by(self, by: U):
         self.audit.deleted_by = by
         self.audit.deleted_at = datetime.now()
 

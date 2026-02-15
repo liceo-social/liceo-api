@@ -5,10 +5,10 @@ from fastapi import Depends
 from liceo.infra.adapters.persistence import SQLAlchemyConnectionFactory
 from liceo.infra.domain.vo import LiceoConfiguration
 from liceo.labs.db.core import ConnectionFactory, ConnectionManager, TransactionManager
+from liceo.labs.sherlock.application.service import EventStoreService
+from liceo.labs.sherlock.adapters.console import ConsoleEventStore
 
 from .migrations import MigrationLoader
-from ..application.output import EventStore
-from .event_store import ConsoleEventStore
 
 # ------------ CONFIGURATION
 
@@ -55,4 +55,4 @@ def event_store():
     return ConsoleEventStore()
 
 
-EventStoreDependency = Annotated[EventStore, Depends(event_store)]
+EventStoreDependency = Annotated[EventStoreService, Depends(event_store)]

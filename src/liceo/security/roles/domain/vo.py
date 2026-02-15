@@ -1,7 +1,8 @@
 from datetime import datetime
 from dataclasses import dataclass
 
-from typing import Generic, TypeVar
+from typing import TypeVar
+from liceo.labs.sherlock.domain.entities import AggregateId
 
 
 @dataclass(frozen=True)
@@ -10,12 +11,12 @@ class PermissionId:
 
 
 @dataclass
-class UserId:
+class UserId(AggregateId):
     id: str
 
 
 @dataclass
-class RoleId:
+class RoleId(AggregateId):
     id: str
 
 

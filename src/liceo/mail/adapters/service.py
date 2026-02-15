@@ -1,7 +1,7 @@
 from jinja2 import Environment
 from dataclasses import dataclass
 from liceo.labs.logs import logged
-from liceo.infra.application.output import EventStore
+from liceo.labs.sherlock.application.service import EventStoreService
 from liceo.mail.domain.entities import Mail
 from liceo.labs.db.core import AbstractService, managed_service, transactional, skip_default_connection
 
@@ -12,7 +12,7 @@ from ..application import repository, service, dtos
 @managed_service
 class DatabaseMailSchedulerService(service.MailScheduler, AbstractService):
     repository: repository.MailRepository
-    event_store: EventStore
+    event_store: EventStoreService
 
     @skip_default_connection
     @transactional()

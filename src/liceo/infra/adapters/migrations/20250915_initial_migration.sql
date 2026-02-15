@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS liceo_users (
     created_at TIMESTAMP,
     created_by TEXT,
     last_updated_at TIMESTAMP,
-    last_updated_by TEXT
+    last_updated_by TEXT,
+    UNIQUE("username")
 );
 
 CREATE TABLE IF NOT EXISTS liceo_permissions (
@@ -40,16 +41,6 @@ CREATE TABLE IF NOT EXISTS liceo_roles_users (
     role_id TEXT,
     user_id TEXT,
     UNIQUE("role_id", "user_id")
-);
-
-CREATE TABLE IF NOT EXISTS liceo_events (
-    id TEXT PRIMARY KEY,
-    aggregate_id TEXT,
-    version INTEGER,
-    event_type TEXT,
-    "when" TIMESTAMP,
-    data JSONB
-    -- UNIQUE("aggregate_id", "version")
 );
 
 
@@ -95,3 +86,18 @@ CREATE TABLE liceo_outbound_emails (
 
 CREATE INDEX idx_liceo_outbound_emails_status_next_attempt
 ON liceo_outbound_emails (status, next_attempt_at);
+
+-- ########################
+-- ###     EVENTS       ###
+-- ########################
+
+CREATE TABLE IF NOT EXISTS liceo_events (
+    id TEXT PRIMARY KEY,
+    aggregate_id TEXT,
+    aggregate_type TEXT,
+    version INTEGER,
+    event_type TEXT,
+    "when" TIMESTAMP,
+    data JSONB,
+    UNIQUE("aggregate_id", "aggregate_type", "version")
+);

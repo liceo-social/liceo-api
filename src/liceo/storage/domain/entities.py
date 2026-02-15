@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from liceo.labs.sherlock.core import Aggregate, AggregateEvent
+from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
 from .vo import FileMetadataId
 
 
@@ -46,3 +46,7 @@ class FileMetadata(Aggregate[FileMetadataId]):
                     type=cmd.type
                 )
         )
+
+    @property
+    def aggregate_type(self) -> str:
+        return "FILE_METADATA"

@@ -1,9 +1,8 @@
 from abc import abstractmethod
-from liceo.labs.db.core import AbstractService
 from .dtos import CredentialsDTO
 
 
-class AbstractAuthenticationService(AbstractService):
+class AbstractAuthenticationService():
     @abstractmethod
     def authenticate(self, dto: CredentialsDTO) -> str | None:
         pass

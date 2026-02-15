@@ -14,6 +14,7 @@ class Sensitive(Generic[T]):
 class AggregateEvent(Generic[T], ABC):
     id: str = ""
     aggregate_id: str = ""
+    aggregate_type: str = ""
     event_type: str
     version: int = 0
 
@@ -26,7 +27,7 @@ class AggregateEvent(Generic[T], ABC):
         filtered = {
             k: v
             for k, v in self.__dict__.items()
-            if k not in ["id", "aggregate_id", "event_type", "version"]
+            if k not in ["id", "aggregate_type", "aggregate_id", "event_type", "version"]
         }
         for k, v in filtered.items():
             if type(v) is Sensitive:
@@ -40,6 +41,9 @@ class AggregateEvent(Generic[T], ABC):
 class AggregateId:
     id: str
 
+    def __str__(self) -> str:
+        return self.id
+
 
 ID = TypeVar("ID", bound=AggregateId)
 
@@ -51,15 +55,21 @@ class Aggregate(Generic[ID]):
     _events: List[AggregateEvent[Self]] = field(default_factory=list)
 
     def append(self, event: AggregateEvent[Self]):
-        if not event.aggregate_id:
-            if self.id:
-                event.aggregate_id = self.id.id
-            else:
-                raise Exception("Can't add without aggregate id")
+        if not self.id:
+            raise Exception("Can't add without aggregate id")
 
+        event.aggregate_id = self.id.id
+        event.aggregate_type = self.aggregate_type
         event.handle(self)
+        event.version = self._version + 1
+        self._version += 1
         self._events.append(event)
         return self
+
+    @property
+    @abstractmethod
+    def aggregate_type(self) -> str:
+        pass
 
 
 @dataclass

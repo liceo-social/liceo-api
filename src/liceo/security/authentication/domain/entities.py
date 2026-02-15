@@ -1,6 +1,6 @@
 from datetime import datetime
 from dataclasses import dataclass
-from liceo.labs.sherlock.core import Aggregate, AggregateEvent
+from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
 from liceo.security.common.domain.errors import AuthenticationException
 from typing import Callable
 from .vo import UserId, UserAuthentication
@@ -50,3 +50,7 @@ class User(Aggregate[UserId]):
 
         return User(id=auth.id)\
             .append(User.UserAuthenticated(username=cmd.username, token=token))
+
+    @property
+    def aggregate_type(self) -> str:
+        return "USER"

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from liceo.labs.sherlock.core import Aggregate, AggregateEvent
+from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
 from . import vo
 
 
@@ -93,3 +93,7 @@ class Mail(Aggregate[vo.MailId]):
 
     def mark_sent(self):
         return self.append(Mail.MailSent())
+
+    @property
+    def aggregate_type(self) -> str:
+        return "MAIL"

@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from liceo.labs.sherlock.core import AggregateId
+from liceo.labs.sherlock.domain.entities import AggregateId
 
 
 @dataclass
@@ -9,5 +9,5 @@ class UserId(AggregateId):
 
 
 @dataclass
-class PermissionId:
+class PermissionId(AggregateId):
     id: str

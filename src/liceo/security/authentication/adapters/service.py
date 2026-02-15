@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from liceo.security.common.application.service import SecurityService
-from liceo.infra.application.output import EventStore
-from liceo.labs.db.core import managed_service
+from liceo.labs.sherlock.application.service import EventStoreService
+from liceo.labs.db.core import managed_service, AbstractService
 from ..domain.entities import User
 from ..domain.vo import UserAuthentication
 from ..application.repository import AuthenticationRepository
@@ -11,10 +11,10 @@ from ..application.dtos import CredentialsDTO
 
 @dataclass
 @managed_service
-class AuthenticationService(AbstractAuthenticationService):
+class AuthenticationService(AbstractAuthenticationService, AbstractService):
     repository: AuthenticationRepository
     security: SecurityService
-    event_store: EventStore
+    event_store: EventStoreService
 
     def authenticate(self, dto: CredentialsDTO) -> str | None:
         authenticated = User.authenticate(

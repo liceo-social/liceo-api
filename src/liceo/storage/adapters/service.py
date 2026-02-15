@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Iterator
 from filetype import filetype
-from liceo.infra.application.output import EventStore
-from liceo.labs.db.core import managed_service, transactional
+from liceo.labs.sherlock.application.service import EventStoreService
+from liceo.labs.db.core import managed_service, transactional, AbstractService
 from ..application.service import StorageService
 from ..application.repository import FileMetadataRepository
 from ..application.storage import Storage
@@ -12,10 +11,10 @@ from ..domain.entities import FileMetadata
 
 @dataclass
 @managed_service
-class LocalStorageService(StorageService):
+class LocalStorageService(StorageService, AbstractService):
     storage: Storage
     repository: FileMetadataRepository
-    event_store: EventStore
+    event_store: EventStoreService
 
     @transactional()
     def save_file(self, dto: SaveFileDTO) -> FileDTO:

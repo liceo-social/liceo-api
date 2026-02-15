@@ -1,12 +1,12 @@
 from typing import Callable, Set
 from dataclasses import dataclass
-from liceo.labs.sherlock.core import AggregateEvent
+from liceo.labs.sherlock.domain.entities import AggregateEvent
 from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
 from liceo.security.roles.domain import vo
 from liceo.security.roles.domain import permissions
 
 
-class Role(AuditableAggregate[vo.UserId]):
+class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
     @dataclass
     class CreateRoleCommand(PermissionAwareCommand[vo.UserId]):
         next_id: Callable[[], vo.RoleId]
@@ -89,3 +89,7 @@ class Role(AuditableAggregate[vo.UserId]):
     def delete(self, cmd: DeleteRoleCommand):
         cmd.check_permission(permissions.ROLES_DELETE, cmd.deleted_by)
         return self.append(Role.RoleDeleted(deleted_by=cmd.deleted_by))
+
+    @property
+    def aggregate_type(self) -> str:
+        return "ROLE"

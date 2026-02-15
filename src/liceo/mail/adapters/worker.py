@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from liceo.infra.application.output import EventStore
+from liceo.labs.sherlock.application.service import EventStoreService
 from ..application.repository import MailRepository
 from ..application.service import MailGateway
 from ..application.errors import MailGatewayError
@@ -10,7 +10,7 @@ from ..domain.entities import Mail
 class MailWorker:
     repository: MailRepository
     gateway: MailGateway
-    event_store: EventStore
+    event_store: EventStoreService
 
     def process(self) -> None:
         for mail in self.repository.fetch_pending():

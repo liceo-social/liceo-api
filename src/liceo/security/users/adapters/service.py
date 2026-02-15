@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from liceo.infra.domain.vo import Paged
-from liceo.infra.application.output import EventStore
+from liceo.labs.sherlock.application.service import EventStoreService
 from liceo.labs.db.core import managed_service, transactional, AbstractService, skip_default_connection
 from liceo.security.common.application.service import SecurityService
 from liceo.mail.application.service import MailScheduler, TemplateRenderer
@@ -37,11 +37,11 @@ class SendActivationMailService(service.UserNotificationService, AbstractService
 
 @dataclass
 @managed_service
-class UsersService(service.AbstractUsersService):
+class UsersService(service.AbstractUsersService, AbstractService):
     users: repository.UsersRepository
     images: repository.UsersImagesRepository
     security: SecurityService
-    event_store: EventStore
+    event_store: EventStoreService
     notifications: service.UserNotificationService
 
     def get_user(self, input: dtos.GetUserDTO) -> dtos.UserDTO | None:
