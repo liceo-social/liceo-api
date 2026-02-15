@@ -45,6 +45,8 @@ TransactionManagerDependency = Annotated[TransactionManager, Depends(
 def load_migration_loader(connection_factory: ConnectionFactoryDependency):
     return MigrationLoader(connection_factory)
 
+# -------------- DATABASE - MIGRATIONS
+
 
 MigrationsDependency = Annotated[MigrationLoader, Depends(load_migration_loader)]
 

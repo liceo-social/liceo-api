@@ -1,7 +1,7 @@
 import jwt
 import bcrypt
 from dataclasses import dataclass
-from liceo.infra.adapters.di import LiceoConfiguration
+from liceo.infra.domain.vo import LiceoConfiguration
 from .cases import HashPassword, CheckPermissions, GenerateToken
 from .repositories import PermissionsRepository
 
