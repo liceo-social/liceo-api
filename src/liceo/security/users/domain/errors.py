@@ -31,3 +31,11 @@ class AttemptedByNoAdmin(I18Error):
             "security.users.error.created_by_no_admin",
             "user created by a non admin user",
         )
+
+
+class EditedByOtherUser(I18Error):
+    def __init__(self):
+        super().__init__(
+            "security.users.error.concurrent_modification",
+            "user edited at the same time by another user",
+        )

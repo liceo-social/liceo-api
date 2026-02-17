@@ -5,6 +5,7 @@ from ..application.dtos import UserDTO
 def map_to_user_dto(row: dict) -> UserDTO:
     return UserDTO(
         id=row["id"],
+        version=row["version"],
         name=row["name"],
         surname=row["surname"],
         full_name=row["full_name"],
@@ -24,6 +25,7 @@ def user_to_user_dto(user: User | None) -> UserDTO | None:
 
     return UserDTO(
         id=user.id.id,
+        version=user._version,
         name=user.name,
         surname=user.surname,
         full_name=user.full_name,

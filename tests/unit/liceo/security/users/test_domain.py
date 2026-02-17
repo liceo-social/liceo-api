@@ -2,7 +2,7 @@ from liceo.security.users.domain.entities import User
 from liceo.security.users.domain.vo import UserId, Role
 from liceo.security.users.domain import errors
 
-
+WRONG_VERSION = 999
 def ALLOWED_PERMISSION_FN(permissions, user_id): return True
 
 
@@ -23,6 +23,7 @@ def test_change_details():
     user_id = UserId("user-id")
     user = create_user(user_id=user_id)
     change_name_cmd = User.UpdateDetailsCommand(
+        expected_version=user._version,
         name="Johnny",
         surname="Doe",
         username="johnny.be@bad.com",
@@ -37,9 +38,33 @@ def test_change_details():
     assert len(user._events) == 2
 
 
+def test_try_to_change_name_concurrently():
+    user = create_user()
+    change_name_cmd = User.UpdateDetailsCommand(
+        expected_version=WRONG_VERSION,
+        name="Johnny",
+        surname="Doe",
+        username="johnny.be@bad.com",
+        role="ROLE_USER",
+        photo=None,
+        changed_by_admin=False,
+        changed_by=UserId(id="another-user-id")
+    )
+
+    try:
+        user.update_details(change_name_cmd)
+        assert False
+    except errors.EditedByOtherUser:
+        assert True
+
+    assert user.name == "Johnny"
+    assert len(user._events) == 1
+
+
 def test_try_to_change_name_by_another_user():
     user = create_user()
     change_name_cmd = User.UpdateDetailsCommand(
+        expected_version=user._version,
         name="Johnny",
         surname="Doe",
         username="johnny.be@bad.com",
@@ -64,7 +89,9 @@ def test_change_password():
     old_password = "old-password"
     new_password = "new_password"
 
+    user = create_user(user_id=user_id)
     cmd = User.ChangePasswordCommand(
+        expected_version=user._version,
         old_password=old_password,
         old_password_check_handler=lambda pwd: True,
         new_password=new_password,
@@ -72,7 +99,8 @@ def test_change_password():
         new_password_hashing_handler=lambda pwd: "hashed",
         changed_by=user_id,
     )
-    user = create_user(user_id=user_id).change_password(cmd)
+
+    user.change_password(cmd)
 
     assert len(user._events) == 2
     assert user.password == "hashed"
@@ -83,6 +111,7 @@ def test_try_to_change_password_with_wrong_repeated_password():
     user = create_user(user_id=user_id)
     try:
         cmd = User.ChangePasswordCommand(
+            expected_version=user._version,
             old_password=None,
             old_password_check_handler=lambda pwd: pwd == user.password,
             new_password="new-password",
@@ -105,6 +134,7 @@ def test_try_to_change_password_by_another_user():
     user = create_user(user_id=user_id)
     try:
         cmd = User.ChangePasswordCommand(
+            expected_version=user._version,
             old_password=None,
             old_password_check_handler=lambda pwd: pwd == user.password,
             new_password="new-password",
@@ -127,6 +157,7 @@ def test_try_to_change_password_by_wrong_old_password():
     user = create_user(user_id=user_id)
     try:
         cmd = User.ChangePasswordCommand(
+            expected_version=user._version,
             old_password=None,
             old_password_check_handler=lambda pwd: False,
             new_password="new-password",
@@ -143,99 +174,24 @@ def test_try_to_change_password_by_wrong_old_password():
     assert user.password == None
 
 
-# def add_role_cmd_by_admin():
-#     return User.AddRoleCommand(
-#         added_by=UserId(id="admin-id"),
-#         role_to_add=Role.ROLE_USER,
-#         admin_check_handler=lambda user: True,
-#         check_permissions=ALLOWED_PERMISSION_FN
-#     )
+def test_try_to_change_password_concurrently():
+    user_id = UserId(id="user-id")
 
+    user = create_user(user_id=user_id)
+    try:
+        cmd = User.ChangePasswordCommand(
+            expected_version=WRONG_VERSION,
+            old_password=None,
+            old_password_check_handler=lambda pwd: False,
+            new_password="new-password",
+            new_password_repeated="new-password",
+            new_password_hashing_handler=lambda pwd: "hashed",
+            changed_by=user_id,
+        )
+        user.change_password(cmd)
+        assert False
+    except errors.EditedByOtherUser:
+        assert True
 
-# def test_add_role():
-#     user = create_user()
-#     user = user.add_role(add_role_cmd_by_admin())
-#     assert len(user.roles) == 1
-#     assert user.roles[0] == Role.ROLE_USER
-
-
-# def test_non_admin_user_adding_a_role_to_user():
-#     no_admin_id = UserId(id="no-admin-id")
-#     user = create_user()
-#     try:
-#         user.add_role(
-#             User.AddRoleCommand(
-#                 added_by=no_admin_id,
-#                 role_to_add=Role.ROLE_AUDITOR,
-#                 admin_check_handler=lambda user: False,
-#                 check_permissions=ALLOWED_PERMISSION_FN
-#             )
-#         )
-#         assert False
-#     except errors.AttemptedByNoAdmin:
-#         assert True
-
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-
-# def test_adding_same_role_more_than_once():
-#     user = create_user()
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-#     user.add_role(add_role_cmd_by_admin())
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-
-# def remove_cmd_by(is_admin: bool = True):
-#     return User.RemoveRoleCommand(
-#         removed_by=UserId("admin-id"),
-#         role_to_delete=Role.ROLE_USER,
-#         admin_check_handler=lambda user: is_admin,
-#         check_permissions=ALLOWED_PERMISSION_FN
-#     )
-
-
-# def test_removing_role():
-#     user = create_user()
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-#     user.add_role(add_role_cmd_by_admin())
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-#     user.remove_role(remove_cmd_by())
-#     assert len(user._events) == 2
-#     assert len(user.roles) == 0
-
-
-# def test_trying_to_remove_a_role_by_a_non_admin_user():
-#     user = create_user()
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-#     try:
-#         user.remove_role(remove_cmd_by(is_admin=False))
-#         assert False
-#     except errors.AttemptedByNoAdmin:
-#         assert True
-
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-
-# def test_removing_an_already_removed_role():
-#     user = create_user()
-#     assert len(user._events) == 1
-#     assert len(user.roles) == 1
-
-#     user.remove_role(remove_cmd_by())
-#     assert len(user._events) == 2
-#     assert len(user.roles) == 0
-
-#     user.remove_role(remove_cmd_by())
-#     assert len(user._events) == 2
-#     assert len(user.roles) == 0
+    assert len(user._events) == 1
+    assert user.password == None

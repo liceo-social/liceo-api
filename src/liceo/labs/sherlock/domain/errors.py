@@ -1,0 +1,4 @@
+
+
+class ConcurrentException(Exception):
+    pass

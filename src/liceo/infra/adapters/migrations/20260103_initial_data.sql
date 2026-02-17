@@ -23,10 +23,10 @@ INSERT INTO liceo_permissions (id, name, description) VALUES ('Fi9rbWdjGrcpLttbk
 -- #######################
 
 -- USERS
-INSERT INTO liceo_roles (id, name, description) VALUES ('RZ2JLgj89aFmyjv6yngmJ7', 'ROLE_USER', 'default permission for regular users');
+INSERT INTO liceo_roles (id, version, name, description) VALUES ('RZ2JLgj89aFmyjv6yngmJ7', 1, 'ROLE_USER', 'default permission for regular users');
 
 -- ADMINS
-INSERT INTO liceo_roles (id, name, description) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'ROLE_ADMIN', 'allows any action in the system');
+INSERT INTO liceo_roles (id, version, name, description) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 1, 'ROLE_ADMIN', 'allows any action in the system');
 
 -- #######################
 -- #  ROLES_PERMISSIONS  #
@@ -61,6 +61,7 @@ INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeG
 -- DEFAULT ADMIN USER (john.doe@liceo.social/superpassword)
 INSERT INTO liceo_users (
     id,
+    version,
     name,
     surname,
     username,
@@ -75,6 +76,7 @@ INSERT INTO liceo_users (
 VALUES 
 (
     'ZLP35KRt4jm8EkaebeWjJP', 
+    1,
     'John', 
     'Doe', 
     'john.doe@liceo.social', 
@@ -90,6 +92,7 @@ VALUES
 INSERT INTO liceo_users 
 (
     id,
+    version,
     name,
     surname,
     username,
@@ -104,6 +107,7 @@ INSERT INTO liceo_users
 VALUES 
 (
     'UAF65EbeDYf7X8CfjZfoqM', 
+    1,
     'Pedro', 
     'Gutierrez', 
     'pedro.gutierrez@liceo.social', 
@@ -124,3 +128,49 @@ VALUES
 INSERT INTO liceo_roles_users (role_id, user_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'ZLP35KRt4jm8EkaebeWjJP');
 -- ROLE_USER (pedro.gutierrez@liceo.social)
 INSERT INTO liceo_roles_users (role_id, user_id) VALUES ('RZ2JLgj89aFmyjv6yngmJ7', 'UAF65EbeDYf7X8CfjZfoqM');
+
+-- #######################
+-- ###      EVENTS     ###
+-- #######################
+
+INSERT INTO liceo_events
+(
+    id,
+    version,
+    aggregate_id,
+    aggregate_type,
+    event_type,
+    created_at,
+    data
+)
+VALUES
+(
+    'ijztYM9g6tivyPRN44sGUu', 
+    1, 
+    'ZLP35KRt4jm8EkaebeWjJP',
+    'USER',
+    'USER_CREATED',
+    '2026-02-16 23:01:21.329643',
+    '{"name": "John", "role": "ROLE_ADMIN", "photo": "None", "surname": "Doe", "username": "john.doe@liceo.social", "created_at": "2026-02-16 23:01:21.329643", "created_by": "ZLP35KRt4jm8EkaebeWjJP"}'
+);
+
+INSERT INTO liceo_events
+(
+    id,
+    version,
+    aggregate_id,
+    aggregate_type,
+    event_type,
+    created_at,
+    data
+)
+VALUES
+(
+    'ijztYM9g6tivyPRN44sGUv', 
+    1, 
+    'UAF65EbeDYf7X8CfjZfoqM',
+    'USER',
+    'USER_CREATED',
+    '2026-02-16 23:01:21.329643',
+    '{"name": "Pedro", "role": "ROLE_USER", "photo": "None", "surname": "Gutierrez", "username": "pedro.gutierrez@liceo.social", "created_at": "2026-02-16 23:01:21.329643", "created_by": "ZLP35KRt4jm8EkaebeWjJP"}'
+);

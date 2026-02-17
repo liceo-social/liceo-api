@@ -1,5 +1,6 @@
 SELECT
     lu.id,
+    MAX(lu.version) as version,
     lu.name,
     lu.surname,
     lu.password,

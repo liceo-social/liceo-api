@@ -1,5 +1,6 @@
 SELECT
     lu.id,
+    lu.version,
     lu.username,
     lu.password as hashed,
     array_agg(lr.name ORDER BY lr.name) AS roles

@@ -3,7 +3,7 @@ from liceo.infra.domain.vo import Paged
 from typing import Self
 from ..domain.entities import User
 from ..application.dtos import UpdatedSecurityDTO
-from ..application.dtos import UserDTO, FullUserDTO
+from ..application.dtos import UserDTO
 
 
 class CreateUserResponse(BaseModel):
@@ -16,20 +16,22 @@ class CreateUserResponse(BaseModel):
 
 class UpdateUserResponse(BaseModel):
     id: str
+    version: int
 
     @staticmethod
     def from_user(user: User | None):
         if (user):
-            return UpdateUserResponse(id=user.id.id)
+            return UpdateUserResponse(id=user.id.id, version=user._version)
 
 
 class UpdatePasswordResponse(BaseModel):
     id: str
+    version: int
 
     @staticmethod
     def from_user(user: User | None):
         if (user):
-            return UpdatePasswordResponse(id=user.id.id)
+            return UpdatePasswordResponse(id=user.id.id, version=user._version)
 
 
 class ListUsersResponse(BaseModel):
@@ -42,6 +44,7 @@ class ListUsersResponse(BaseModel):
 
 
 class UpdatedSecurityResponse(BaseModel):
+    version: int
     password_expired: bool
     account_active: bool
     account_blocked: bool
@@ -52,6 +55,7 @@ class UpdatedSecurityResponse(BaseModel):
         if not dto:
             return None
         return UpdatedSecurityResponse(
+            version=dto.version,
             password_expired=dto.password_expired,
             account_active=dto.account_active,
             account_blocked=dto.account_blocked,
@@ -61,6 +65,7 @@ class UpdatedSecurityResponse(BaseModel):
 
 class ShowUserResponse(BaseModel):
     id: str
+    version: int
     name: str
     surname: str
     username: str
@@ -74,6 +79,7 @@ class ShowUserResponse(BaseModel):
             return None
         return ShowUserResponse(
             id=dto.id,
+            version=dto.version,
             name=dto.name,
             surname=dto.surname,
             username=dto.username,

@@ -85,9 +85,10 @@ class UsersService(service.AbstractUsersService, AbstractService):
         loaded = self.users.find_user_by_id(input.id)
 
         if not loaded:
-            return
+            return None
 
         updated = loaded.update_details(entities.User.UpdateDetailsCommand(
+            expected_version=input.expected_version,
             name=input.name,
             surname=input.surname,
             username=input.username,
@@ -99,8 +100,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
         # saving user
         saved_user = self.users.update_user(updated)
         # saving user photo
-        if (saved_user.photo):
-            self._save_user_photo(saved_user)
+        self._save_user_photo(saved_user)
         # saving event trail
         self.event_store.append(saved_user)
         # return saved_user
@@ -120,6 +120,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
 
         # updating password
         updated = loaded.change_password(entities.User.ChangePasswordCommand(
+            expected_version=input.expected_version,
             old_password=input.old_password,
             old_password_check_handler=lambda old_plain: self._check_old_passwd(
                 old_plain, loaded.password),
@@ -145,6 +146,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
         # updating user
         updated = loaded.update_security(
             entities.User.UpdateSecurityCommand(
+                expected_version=input.expected_version,
                 password_expired=input.password_expired,
                 account_active=input.account_active,
                 account_blocked=input.account_blocked,
@@ -159,6 +161,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
         self.event_store.append(saved_user)
         # return saved_user
         return dtos.UpdatedSecurityDTO(
+            version=saved_user._version,
             password_expired=saved_user.password_expired,
             account_active=saved_user.account_active,
             account_blocked=saved_user.account_blocked,

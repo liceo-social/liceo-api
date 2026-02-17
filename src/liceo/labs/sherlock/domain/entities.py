@@ -17,7 +17,7 @@ class AggregateEvent(Generic[T], ABC):
     aggregate_id: str = ""
     aggregate_type: str = ""
     event_type: str
-    when: datetime = datetime.now()
+    created_at: datetime = datetime.now()
     version: int = 0
 
     @abstractmethod
@@ -67,6 +67,9 @@ class Aggregate(Generic[ID]):
         self._version += 1
         self._events.append(event)
         return self
+
+    def check_version_matches(self, expected_version: int) -> bool:
+        return self._version == expected_version
 
     @property
     @abstractmethod

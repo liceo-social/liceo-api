@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
+from liceo.labs.sherlock.domain.entities import Aggregate
 from liceo.labs.db.core import AbstractService, managed_service, transactional
 from ..application.service import EventStoreService
 from ..application.repository import EventStoreRepository
+from ..domain.errors import ConcurrentException
 
 
 @dataclass
@@ -12,8 +13,5 @@ class DatabaseEventStoreService(EventStoreService, AbstractService):
 
     @transactional()
     def append(self, aggregate: Aggregate) -> None:
-        for event in aggregate._events:
-            self.append_event(event)
-
-    def append_event(self, event: AggregateEvent) -> None:
-        self.events.append_event(event)
+        if (self.events.append_batched_events(aggregate._events) != len(aggregate._events)):
+            raise ConcurrentException()

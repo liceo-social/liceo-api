@@ -15,6 +15,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         )
         user.audit = AuditInfo(created_by=UserId(id=row["created_by"]))
         user.name = row["name"]
+        user._version = row["version"]
         user.surname = row["surname"]
         user.password = row["password"]
         user.photo = row["photo"]
@@ -54,6 +55,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         sql = self.resolve_sql(self.save_user)
         self._get_connection().insert(sql, params={
             "id": user.id.id,
+            "version": user._version,
             "name": user.name,
             "surname": user.surname,
             "username": user.username,
@@ -99,6 +101,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         sql = self.resolve_sql(self.update_user)
         self._get_connection().execute(sql, params={
             "id": user.id.id,
+            "version": user._version,
             "name": user.name,
             "surname": user.surname,
             "username": user.username,
@@ -111,9 +114,10 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         sql = self.resolve_sql(self.update_password)
         self._get_connection().execute(sql, params={
             "id": user.id.id,
+            "version": user._version,
             "password": user.password,
             "last_updated_at": user.last_updated_at,
-            "last_updated_by": user.last_updated_by
+            "last_updated_by": user.last_updated_by.id
         })
         return user
 
@@ -121,6 +125,7 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         sql = self.resolve_sql(self.update_security)
         self._get_connection().execute(sql, params={
             "id": user.id.id,
+            "version": user._version,
             "password_expired": user.password_expired,
             "account_active": user.account_active,
             "account_blocked": user.account_blocked,

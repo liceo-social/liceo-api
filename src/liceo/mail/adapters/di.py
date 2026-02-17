@@ -46,8 +46,8 @@ def create_scheduler(
     event_store: EventStoreDependency
 ):
     return DatabaseMailSchedulerService(
-        connection_manager=connection_manager,
-        transaction_manager=transaction_manager,
+        connection_manager_factory=connection_manager,
+        transaction_manager_factory=transaction_manager,
         repository=repository,
         event_store=event_store
     )

@@ -4,5 +4,5 @@ from ..domain import entities
 
 class EventStoreRepository(ABC):
     @abstractmethod
-    def append_event(self, event: entities.AggregateEvent) -> None:
+    def append_batched_events(self, events: list[entities.AggregateEvent]) -> int:
         pass

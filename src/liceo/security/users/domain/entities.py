@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Callable
 
-from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
+from liceo.infra.domain.entities import AuditableAggregate, VersionAwareCommand
 from liceo.labs.sherlock.domain.entities import AggregateEvent, Sensitive
 from liceo.security.users.domain import vo
 from liceo.security.users.domain import errors
@@ -10,7 +10,7 @@ from liceo.security.users.domain import errors
 @dataclass(init=False)
 class User(AuditableAggregate[vo.UserId, vo.UserId]):
     @dataclass
-    class UpdateDetailsCommand:
+    class UpdateDetailsCommand(VersionAwareCommand):
         name: str
         photo: str | None
         surname: str
@@ -21,7 +21,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
 
     @dataclass(kw_only=True)
     class DetailsChanged(AggregateEvent):
-        event_type: str = "USER_NAME_CHANGED"
+        event_type: str = "USER_BASIC_DETAILS_CHANGED"
         name: str
         photo: str | None
         surname: str
@@ -37,7 +37,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
             aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
-    class ChangePasswordCommand:
+    class ChangePasswordCommand(VersionAwareCommand):
         old_password: str | None
         new_password: str
         new_password_repeated: str
@@ -59,7 +59,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
             aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
-    class UpdateSecurityCommand:
+    class UpdateSecurityCommand(VersionAwareCommand):
         password_expired: bool
         account_active: bool
         account_blocked: bool
@@ -82,38 +82,6 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
             aggregate.account_blocked = self.account_blocked
             aggregate.account_expired = self.account_expired
             aggregate.mark_updated_by(self.updated_by)
-
-    @dataclass
-    class AddRoleCommand(PermissionAwareCommand[vo.UserId]):
-        added_by: vo.UserId
-        admin_check_handler: Callable[[vo.UserId], bool]
-        role_to_add: str
-
-    @dataclass(kw_only=True)
-    class RoleAdded(AggregateEvent):
-        event_type: str = "USER_ROLE_ADDED"
-        added_by: vo.UserId
-        role: str
-
-        def handle(self, aggregate: "User"):
-            aggregate.roles.append(self.role)
-            aggregate.mark_updated_by(self.added_by)
-
-    @dataclass
-    class RemoveRoleCommand(PermissionAwareCommand[vo.UserId]):
-        removed_by: vo.UserId
-        role_to_delete: str
-        admin_check_handler: Callable[[vo.UserId], bool]
-
-    @dataclass(kw_only=True)
-    class RoleRemoved(AggregateEvent):
-        event_type: str = "USER_ROLE_REMOVED"
-        removed_by: vo.UserId
-        role: str
-
-        def handle(self, aggregate: "User"):
-            aggregate.roles.remove(self.role)
-            aggregate.mark_updated_by(self.removed_by)
 
     @dataclass
     class CreateUserCommand:
@@ -177,6 +145,9 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
         return self.id and self.id == changed_by
 
     def update_details(self, cmd: UpdateDetailsCommand):
+        if not self.check_version_matches(cmd.expected_version):
+            raise errors.EditedByOtherUser()
+
         if not (self._is_changed_by_same_user(cmd.changed_by) or cmd.changed_by_admin):
             raise errors.NotChangedBySameUserError()
 
@@ -192,6 +163,9 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
         )
 
     def change_password(self, cmd: ChangePasswordCommand):
+        if not self.check_version_matches(cmd.expected_version):
+            raise errors.EditedByOtherUser()
+
         if not self._is_changed_by_same_user(cmd.changed_by):
             raise errors.NotChangedBySameUserError()
 
@@ -211,6 +185,9 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
         )
 
     def update_security(self, cmd: UpdateSecurityCommand):
+        if not self.check_version_matches(cmd.expected_version):
+            raise errors.EditedByOtherUser()
+
         if not cmd.updated_by_admin:
             raise errors.AttemptedByNoAdmin()
 
@@ -223,26 +200,6 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
                 password_expired=cmd.password_expired
             )
         )
-
-    def add_role(self, cmd: AddRoleCommand) -> "User":
-        if not cmd.admin_check_handler(cmd.added_by):
-            raise errors.AttemptedByNoAdmin()
-
-        if cmd.role_to_add in self.roles:
-            return self
-
-        return self.append(User.RoleAdded(added_by=cmd.added_by, role=cmd.role_to_add))
-
-    def remove_role(self, cmd: RemoveRoleCommand) -> "User":
-        if not cmd.admin_check_handler(cmd.removed_by):
-            raise errors.AttemptedByNoAdmin()
-
-        if cmd.role_to_delete in self.roles:
-            return self.append(
-                User.RoleRemoved(role=cmd.role_to_delete, removed_by=cmd.removed_by)
-            )
-
-        return self
 
     @property
     def full_name(self):

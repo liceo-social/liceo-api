@@ -15,6 +15,7 @@ class SQLMailRepository(MailRepository, SQLRepository):
             sql,
             params={
                 "id": mail.id.id,
+                "version": mail._version,
                 "recipient": mail.recipient,
                 "subject": mail.subject,
                 "body": mail.body,

@@ -26,8 +26,8 @@ def create_authentication_service(
         repository=repository,
         security=security,
         event_store=event_store,
-        connection_manager=connection_manager,
-        transaction_manager=transaction_manager
+        connection_manager_factory=connection_manager,
+        transaction_manager_factory=transaction_manager
     )
 
 

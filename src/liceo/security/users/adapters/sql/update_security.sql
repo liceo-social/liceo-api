@@ -1,4 +1,5 @@
-UPDATE liceo_users SET     
+UPDATE liceo_users SET
+    version = :version,
     password_expired = :password_expired,
     account_active = :account_active,
     account_blocked = :account_blocked,

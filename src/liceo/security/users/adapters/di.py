@@ -5,7 +5,7 @@ from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDepen
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 from liceo.mail.adapters.di import MailSchedulerServiceDependency, TemplateRenderDependency
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
-from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields, ShowUserRequest
+from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields, ShowUserRequest
 from .service import UsersService, SendActivationMailService
 from ..application.repository import UsersRepository, UsersImagesRepository
 from ..application.service import UserNotificationService
@@ -22,8 +22,8 @@ def create_user_notifications(
     return SendActivationMailService(
         mails=mails,
         templates=templates,
-        connection_manager=connection_manager,
-        transaction_manager=transaction_manager
+        connection_manager_factory=connection_manager,
+        transaction_manager_factory=transaction_manager
     )
 
 
@@ -62,8 +62,8 @@ def users_service(
         images=images_repository,
         security=security,
         event_store=event_store,
-        connection_manager=connection_manager,
-        transaction_manager=transaction_manager,
+        connection_manager_factory=connection_manager,
+        transaction_manager_factory=transaction_manager,
         notifications=notifications
     )
 
@@ -89,7 +89,7 @@ CreateUserRequestDependency = Annotated[CreateUserRequest, Depends(
 def get_update_user_request(
         user: UserInfo,
         id: str = Path(),
-        fields: UserDetails = Body()
+        fields: UpdateUserDetails = Body()
 ):
     return UpdateUserRequest(id=id, fields=fields, updated_by=user)
 

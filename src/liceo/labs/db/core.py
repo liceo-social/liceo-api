@@ -106,78 +106,61 @@ class ConnectionManager(AbstractContextManager, logged("liceo.db.core.Connection
                 self._conn.close()
 
 
-class TransactionManager(AbstractContextManager, logged("liceo.db.core.TransactionManager")):
-    """
-    Ambient transaction manager with:
-    - connection ownership
-    - nested transactions (savepoints)
-    - strict lifecycle guarantees
-    """
-
-    def __init__(self, factory: ConnectionFactory):
-        self._factory = factory
-        self._conn: Optional[Connection] = None
+class TransactionManager:
+    def __init__(self, connection_factory: ConnectionFactory):
+        self._factory = connection_factory
+        self._conn = None
+        self._conn_token = None
+        self._depth_token = None
         self._owns_connection = False
-        self._savepoint_name: Optional[str] = None
-        self._token = None
+        self._savepoint_name = None
 
     def __enter__(self):
-        self._conn = _current_connection.get()
-        self._logger.debug("TM-getting-connection")
-        # ---- Connection ownership ---------------------------------
-        if self._conn is None:
-            self._logger.debug("TM-creating-connection")
-            self._conn = self._factory.create()
-            self._owns_connection = True
-            self._token = _current_connection.set(self._conn)
-
-        # ---- Transaction ownership --------------------------------
+        conn = _current_connection.get()
         depth = _transaction_depth.get()
 
+        # Ensure connection exists
+        if conn is None:
+            self._conn = self._factory.create()
+            self._owns_connection = True
+            self._conn_token = _current_connection.set(self._conn)
+        else:
+            self._conn = conn
+
         if depth == 0:
-            # first transaction on this connection
-            self._logger.debug("TM-creating-transaction")
             self._conn.begin()
         else:
-            # nested transaction -> savepoint
-            self._logger.debug("TM-creating-nested-transaction")
-            self._savepoint_name = f"sp_{depth}"
-            self._conn.create_savepoint(self._savepoint_name)
+            self._conn.create_savepoint(f"sp_{depth}")
 
-        _transaction_depth.set(depth + 1)
+        # Increase depth
+        self._depth_token = _transaction_depth.set(depth + 1)
 
-        return self
+        return self._conn
 
     def __exit__(self, exc_type, exc, tb):
         depth = _transaction_depth.get() - 1
-        _transaction_depth.set(depth)
-
-        if self._conn is None:
-            raise Exception("Transaction connection closed unexpectedly")
 
         try:
-
-            if exc_type is not None:
-                # ---- rollback path --------------------------------
-                self._logger.debug("TM-rollback")
-                if depth == 0:
-                    self._conn.rollback()
-                elif self._savepoint_name:
-                    self._conn.rollback_to_savepoint(self._savepoint_name)
-            else:
-                # ---- commit path ----------------------------------
-                self._logger.debug("TM-commit")
-                if depth == 0:
-                    self._conn.commit()
-                elif self._savepoint_name:
-                    self._conn.release_savepoint(self._savepoint_name)
+            if self._conn:
+                if exc_type is None:
+                    if depth == 0:
+                        self._conn.commit()
+                    elif self._savepoint_name:
+                        self._conn.release_savepoint(self._savepoint_name)
+                else:
+                    if depth == 0:
+                        self._conn.rollback()
+                    elif self._savepoint_name:
+                        self._conn.rollback_to_savepoint(self._savepoint_name)
         finally:
-            # ---- connection cleanup ------------------------------
+            if self._depth_token:
+                _transaction_depth.reset(self._depth_token)
+
             if self._owns_connection:
-                if self._token:
-                    _current_connection.reset(self._token)
-                self._logger.debug("TM-closing-connection")
-                self._conn.close()
+                if self._conn_token:
+                    _current_connection.reset(self._conn_token)
+                    if self._conn:
+                        self._conn.close()
 
 
 class Repository:
@@ -211,10 +194,27 @@ class Repository:
             conn.close()
 
 
+class ConnectionManagerFactory:
+    def __init__(self, connection_factory):
+        self._connection_factory = connection_factory
+
+    def __call__(self):
+        return ConnectionManager(self._connection_factory)
+
+
+class TransactionManagerFactory:
+
+    def __init__(self, connection_factory):
+        self._connection_factory = connection_factory
+
+    def __call__(self):
+        return TransactionManager(self._connection_factory)
+
+
 @dataclass
 class AbstractService:
-    connection_manager: ConnectionManager
-    transaction_manager: TransactionManager
+    connection_manager_factory: ConnectionManagerFactory
+    transaction_manager_factory: TransactionManagerFactory
 
     @property
     def connection(self) -> Connection | None:
@@ -225,10 +225,10 @@ class AbstractService:
         return _current_connection.get()
 
     def transactional(self):
-        return self.transaction_manager
+        return self.transaction_manager_factory
 
     def connectional(self):
-        return self.connection_manager
+        return self.connection_manager_factory
 
 
 def managed_service(cls):
@@ -248,7 +248,7 @@ def managed_service(cls):
 def _wrap_with_connection(fn):
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
-        with self.connection_manager:
+        with self.connection_manager_factory():
             return fn(self, *args, **kwargs)
     return wrapper
 
@@ -258,12 +258,11 @@ def skip_default_connection(fn):
     return fn
 
 
-def transactional(factory_attr: str = "transaction_manager"):
+def transactional():
     def decorator(fn):
         @wraps(fn)
         def wrapper(self, *args, **kwargs):
-            tx_manager = getattr(self, factory_attr)
-            with tx_manager:
+            with self.transaction_manager_factory():
                 return fn(self, *args, **kwargs)
         return wrapper
     return decorator

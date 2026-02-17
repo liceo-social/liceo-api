@@ -97,3 +97,8 @@ class PermissionAwareCommand(Generic[U]):
 
     def check_permission(self, permission: str, user_id: U):
         return self.check_permissions([permission], user_id)
+
+
+@dataclass
+class VersionAwareCommand:
+    expected_version: int

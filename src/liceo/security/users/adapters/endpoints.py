@@ -4,7 +4,7 @@ from . import di, responses, permissions
 
 specs = RestGroupSpec(
     name="USERS",
-    path="/admin/users",
+    path="/users",
     description="Operations for managing users",
 )
 

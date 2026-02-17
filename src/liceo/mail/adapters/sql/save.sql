@@ -1,6 +1,7 @@
 INSERT INTO liceo_outbound_emails
 (
     id,
+    version,
     recipient,
     subject,
     body,
@@ -11,6 +12,7 @@ INSERT INTO liceo_outbound_emails
 VALUES
 (
     :id,
+    :version,
     :recipient,
     :subject,
     :body,

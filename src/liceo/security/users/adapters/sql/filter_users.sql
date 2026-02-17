@@ -6,6 +6,7 @@ FROM
 SELECT
     lu.id,
     lu.name,
+    max(lu.version) as version,
     lu.name || ' ' || lu.surname AS full_name,
     lu.surname,
     lu.username,

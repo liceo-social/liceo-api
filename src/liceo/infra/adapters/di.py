@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from liceo.infra.adapters.persistence import SQLAlchemyConnectionFactory
 from liceo.infra.domain.vo import LiceoConfiguration
-from liceo.labs.db.core import ConnectionFactory, ConnectionManager, TransactionManager
+from liceo.labs.db.core import ConnectionFactory, ConnectionManagerFactory, TransactionManagerFactory
 from liceo.labs.sherlock.application.service import EventStoreService
 from liceo.labs.sherlock.application.repository import EventStoreRepository
 from liceo.labs.sherlock.adapters.service import DatabaseEventStoreService
@@ -29,18 +29,18 @@ ConnectionFactoryDependency = Annotated[ConnectionFactory, Depends(
 
 
 def create_connection_manager(connection_factory: ConnectionFactoryDependency):
-    return ConnectionManager(connection_factory)
+    return ConnectionManagerFactory(connection_factory)
 
 
-ConnectionManagerDependency = Annotated[ConnectionManager, Depends(
+ConnectionManagerDependency = Annotated[ConnectionManagerFactory, Depends(
     create_connection_manager)]
 
 
 def create_transaction_factory(connection_factory: ConnectionFactoryDependency):
-    return TransactionManager(connection_factory)
+    return TransactionManagerFactory(connection_factory)
 
 
-TransactionManagerDependency = Annotated[TransactionManager, Depends(
+TransactionManagerDependency = Annotated[TransactionManagerFactory, Depends(
     create_transaction_factory)]
 
 
@@ -71,8 +71,8 @@ def event_store(
         repository: EventStoreRepositoryDependency,
 ) -> EventStoreService:
     return DatabaseEventStoreService(
-        transaction_manager=transaction_manager,
-        connection_manager=connection_manager,
+        transaction_manager_factory=transaction_manager,
+        connection_manager_factory=connection_manager,
         events=repository
     )
 

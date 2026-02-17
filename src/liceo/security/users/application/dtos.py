@@ -26,24 +26,9 @@ class FilterUsersDTO:
 @dataclass
 class UserDTO:
     id: str
+    version: int
     full_name: str
     name: str
-    surname: str
-    username: str
-    photo: str | None
-    roles: list[str]
-    password_expired: bool
-    account_active: bool
-    account_blocked: bool
-    account_expired: bool
-
-
-@dataclass
-class FullUserDTO:
-    id: str
-    full_name: str
-    name: str
-    password: str
     surname: str
     username: str
     photo: str | None
@@ -66,6 +51,7 @@ class SaveUserImageDTO:
 @dataclass
 class UpdateUserDetailsDTO:
     id: str
+    expected_version: int
     name: str
     surname: str
     username: str
@@ -77,6 +63,7 @@ class UpdateUserDetailsDTO:
 @dataclass
 class UpdatePasswordDTO:
     id: str
+    expected_version: int
     old_password: str
     new_password: str
     new_password_repeated: str
@@ -86,6 +73,7 @@ class UpdatePasswordDTO:
 @dataclass
 class UpdateSecurityDTO:
     id: str
+    expected_version: int
     password_expired: bool
     account_active: bool
     account_blocked: bool
@@ -95,6 +83,7 @@ class UpdateSecurityDTO:
 
 @dataclass
 class UpdatedSecurityDTO:
+    version: int
     password_expired: bool
     account_active: bool
     account_blocked: bool

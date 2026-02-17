@@ -4,6 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS liceo_users (
     id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
     name TEXT,
     surname TEXT,
     username TEXT,
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS liceo_permissions (
 
 CREATE TABLE IF NOT EXISTS liceo_roles (
     id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
     name TEXT,
     description TEXT
 );
@@ -50,6 +52,7 @@ CREATE TABLE IF NOT EXISTS liceo_roles_users (
 
 CREATE TABLE IF NOT EXISTS liceo_storage (
     id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
     filename TEXT,
     type TEXT,
     path TEXT,
@@ -71,6 +74,7 @@ CREATE TABLE IF NOT EXISTS liceo_users_images (
 
 CREATE TABLE liceo_outbound_emails (
     id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
     recipient TEXT NOT NULL,
     subject TEXT NOT NULL,
     body TEXT NOT NULL,
@@ -93,11 +97,11 @@ ON liceo_outbound_emails (status, next_attempt_at);
 
 CREATE TABLE IF NOT EXISTS liceo_events (
     id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
     aggregate_id TEXT,
     aggregate_type TEXT,
-    version INTEGER,
     event_type TEXT,
-    "when" TIMESTAMP,
+    created_at TIMESTAMP,
     data JSONB,
     UNIQUE("aggregate_id", "aggregate_type", "version")
 );

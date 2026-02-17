@@ -1,5 +1,6 @@
 INSERT INTO liceo_users (
     id,
+    version,
     name,
     surname,
     username,    
@@ -9,6 +10,7 @@ INSERT INTO liceo_users (
 VALUES
 (
     :id,
+    :version,
     :name,
     :surname,
     :username,
