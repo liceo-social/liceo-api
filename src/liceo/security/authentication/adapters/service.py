@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from liceo.security.common.application.service import SecurityService
-from liceo.security.common.domain.errors import AuthenticationException
+from liceo.security.authentication.domain.errors import AuthenticationException
 from liceo.labs.sherlock.application.service import EventStoreService
 from liceo.labs.db.core import managed_service, AbstractService, transactional
 from ..domain.entities import User

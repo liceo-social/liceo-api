@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Generic, List, TypeVar
+from typing import Generic, List, TypeVar, Callable
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from liceo.labs.utils import singleton
 
 T = TypeVar("T")
+R = TypeVar("R")
 
 
 @dataclass
@@ -18,6 +19,9 @@ class Paged(Generic[T]):
     @staticmethod
     def empty():
         return Paged(total=0, data=[])
+
+    def map(self, fn: Callable[[T], R]) -> "Paged[R]":
+        return Paged(total=self.total, data=list(map(fn, self.data)))
 
 
 @dataclass

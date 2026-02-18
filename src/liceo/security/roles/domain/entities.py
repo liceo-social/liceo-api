@@ -1,64 +1,76 @@
 from typing import Callable, Set
 from dataclasses import dataclass
 from liceo.labs.sherlock.domain.entities import AggregateEvent
-from liceo.infra.domain.entities import AuditableAggregate, PermissionAwareCommand
+from liceo.labs.sherlock.domain.errors import ConcurrentException
+from liceo.infra.domain.entities import AuditableAggregate, VersionAwareCommand
 from liceo.security.roles.domain import vo
-from liceo.security.roles.domain import permissions
+from .errors import AttemptedByNoAdmin
 
 
 class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
     @dataclass
-    class CreateRoleCommand(PermissionAwareCommand[vo.UserId]):
+    class CreateRoleCommand:
         next_id: Callable[[], vo.RoleId]
+        is_admin: bool
         name: str
+        description: str
+        permissions: Set[vo.PermissionId]
         created_by: vo.UserId
 
     @dataclass(kw_only=True)
     class RoleCreated(AggregateEvent):
         event_type: str = "ROLE_CREATED"
         name: str
+        description: str
+        permissions: Set[vo.PermissionId]
         created_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
             aggregate.name = self.name
+            aggregate.description = self.description
+            aggregate.permissions = self.permissions
             aggregate.mark_created_by(self.created_by)
 
     @dataclass
-    class AddPermissionsCommand(PermissionAwareCommand[vo.UserId]):
-        permissions: Set[vo.PermissionId]
-        added_by: vo.UserId
+    class ChangeRoleDetailsCommand(VersionAwareCommand):
+        name: str
+        description: str
+        is_admin: bool
+        updated_by: vo.UserId
 
     @dataclass(kw_only=True)
-    class PermissionsAdded(AggregateEvent):
-        event_type: str = "ROLE_PERMISSIONS_ADDED"
+    class RoleDetailsChanged(AggregateEvent):
+        event_type: str = "ROLE_DETAILS_CHANGED"
+        name: str
+        description: str
+        updated_by: vo.UserId
+
+        def handle(self, aggregate: "Role"):
+            aggregate.name = self.name
+            aggregate.description = self.description
+            aggregate.mark_updated_by(self.updated_by)
+
+    @dataclass
+    class ModifyPermissionsCommand(VersionAwareCommand):
         permissions: Set[vo.PermissionId]
-        added_by: vo.UserId
+        is_admin: bool
+        changed_by: vo.UserId
+
+    @dataclass(kw_only=True)
+    class PermissionsModified(AggregateEvent):
+        event_type: str = "ROLE_PERMISSIONS_MODIFIED"
+        permissions: Set[vo.PermissionId]
+        changed_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
             for permission in self.permissions:
                 aggregate.permissions.add(permission)
 
-            aggregate.mark_updated_by(self.added_by)
+            aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
-    class RemovePermissionsCommand(PermissionAwareCommand[vo.UserId]):
-        removed_by: vo.UserId
-        permissions: Set[vo.PermissionId]
-
-    @dataclass(kw_only=True)
-    class PermissionsRemoved(AggregateEvent):
-        event_type: str = "ROLE_PERMISSIONS_REMOVED"
-        removed_by: vo.UserId
-        permissions: Set[vo.PermissionId]
-
-        def handle(self, aggregate: "Role"):
-            for permission in self.permissions:
-                aggregate.permissions.remove(permission)
-
-            aggregate.mark_updated_by(self.removed_by)
-
-    @dataclass
-    class DeleteRoleCommand(PermissionAwareCommand[vo.UserId]):
+    class DeleteRoleCommand(VersionAwareCommand):
+        is_admin: bool
         deleted_by: vo.UserId
 
     @dataclass(kw_only=True)
@@ -71,23 +83,52 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
             aggregate.mark_deleted_by(self.deleted_by)
 
     name: str
+    description: str
     permissions: Set[vo.PermissionId] = set()
 
     @staticmethod
     def create(cmd: CreateRoleCommand):
-        cmd.check_permission(permissions.ROLES_CREATE, cmd.created_by)
-        return Role(id=cmd.next_id()).append(Role.RoleCreated(name=cmd.name, created_by=cmd.created_by))
+        if not cmd.is_admin:
+            raise AttemptedByNoAdmin()
 
-    def add_permissions(self, cmd: AddPermissionsCommand):
-        cmd.check_permission(permissions.ROLES_MODIFY, cmd.added_by)
-        return self.append(Role.PermissionsAdded(permissions=cmd.permissions, added_by=cmd.added_by))
+        return Role(id=cmd.next_id()).append(
+            Role.RoleCreated(
+                name=cmd.name,
+                created_by=cmd.created_by,
+                permissions=cmd.permissions
+            )
+        )
 
-    def remove_permissions(self, cmd: RemovePermissionsCommand):
-        cmd.check_permission(permissions.ROLES_MODIFY, cmd.removed_by)
-        return self.append(Role.PermissionsRemoved(permissions=cmd.permissions, removed_by=cmd.removed_by))
+    def modify_details(self, cmd: ChangeRoleDetailsCommand):
+        if not self.check_version_matches(cmd.expected_version):
+            raise ConcurrentException()
+
+        if not cmd.is_admin:
+            raise AttemptedByNoAdmin()
+
+        return self.append(
+            Role.RoleDetailsChanged(
+                name=cmd.name,
+                updated_by=cmd.updated_by
+            )
+        )
+
+    def modify_permissions(self, cmd: ModifyPermissionsCommand):
+        if not self.check_version_matches(cmd.expected_version):
+            raise ConcurrentException()
+
+        if not cmd.is_admin:
+            raise AttemptedByNoAdmin()
+
+        return self.append(Role.PermissionsModified(permissions=cmd.permissions, changed_by=cmd.changed_by))
 
     def delete(self, cmd: DeleteRoleCommand):
-        cmd.check_permission(permissions.ROLES_DELETE, cmd.deleted_by)
+        if not self.check_version_matches(cmd.expected_version):
+            raise ConcurrentException()
+
+        if not cmd.is_admin:
+            raise AttemptedByNoAdmin()
+
         return self.append(Role.RoleDeleted(deleted_by=cmd.deleted_by))
 
     @property

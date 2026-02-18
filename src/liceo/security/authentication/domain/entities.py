@@ -1,7 +1,7 @@
 from datetime import datetime
 from dataclasses import dataclass
 from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
-from liceo.security.common.domain.errors import AuthenticationException
+from liceo.security.authentication.domain.errors import AuthenticationException
 from typing import Callable
 from .vo import UserId
 

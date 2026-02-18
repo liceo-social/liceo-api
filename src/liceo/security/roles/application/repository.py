@@ -1,0 +1,34 @@
+from abc import ABC, abstractmethod
+from liceo.infra.domain.vo import Pagination, Paged
+from ..domain.entities import Role
+from ..domain.vo import RoleId
+
+
+class RolesRepository(ABC):
+    @abstractmethod
+    def generate_id(self) -> RoleId:
+        pass
+
+    @abstractmethod
+    def list(self, max: int, offset: int) -> Paged[Role]:
+        pass
+
+    @abstractmethod
+    def find_by_id(self, id: str) -> Role | None:
+        pass
+
+    @abstractmethod
+    def save(self, role: Role) -> Role:
+        pass
+
+    @abstractmethod
+    def update(self, role: Role) -> Role:
+        pass
+
+    @abstractmethod
+    def update_role_permissions(self, role: Role) -> Role:
+        pass
+
+    @abstractmethod
+    def delete(self, role: Role) -> None:
+        pass

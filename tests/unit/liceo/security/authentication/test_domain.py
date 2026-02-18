@@ -1,7 +1,7 @@
 import pytest
 from liceo.security.authentication.domain.entities import User
 from liceo.security.authentication.domain.vo import UserId
-from liceo.security.common.domain.errors import AuthenticationException
+from liceo.security.authentication.domain.errors import AuthenticationException
 
 TOKEN = "token"
 

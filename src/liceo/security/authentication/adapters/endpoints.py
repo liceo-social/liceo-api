@@ -7,7 +7,7 @@ from .requests import OAuth2PasswordJSON
 from ..application.dtos import CredentialsDTO
 
 specs = RestGroupSpec(
-    name="SECURITY",
+    name="AUTH",
     path="/auth",
     description="Operations accessing the system",
 )

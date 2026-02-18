@@ -29,9 +29,9 @@ def test_create_role():
 
 
 def test_add_permissions():
-    role = create_role().add_permissions(
-        Role.AddPermissionsCommand(
-            added_by=vo.UserId("modifierid"),
+    role = create_role().modify_permissions(
+        Role.ModifyPermissionsCommand(
+            changed_by=vo.UserId("modifierid"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
             check_permissions=ALLOWED_PERMISSION_FN
         ),
@@ -43,17 +43,17 @@ def test_add_permissions():
 
 
 def test_permissions_are_not_duplicated():
-    role = create_role().add_permissions(
-        Role.AddPermissionsCommand(
-            added_by=vo.UserId("modifierid"),
+    role = create_role().modify_permissions(
+        Role.ModifyPermissionsCommand(
+            changed_by=vo.UserId("modifierid"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
             check_permissions=ALLOWED_PERMISSION_FN
         )
     )
 
-    role = role.add_permissions(
-        Role.AddPermissionsCommand(
-            added_by=vo.UserId("modifier2id"),
+    role = role.modify_permissions(
+        Role.ModifyPermissionsCommand(
+            changed_by=vo.UserId("modifier2id"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
             check_permissions=ALLOWED_PERMISSION_FN
         )
@@ -66,9 +66,9 @@ def test_permissions_are_not_duplicated():
 
 def test_remove_permissions():
     role = create_role()\
-        .add_permissions(
-            Role.AddPermissionsCommand(
-                added_by=vo.UserId("modifierid"),
+        .modify_permissions(
+            Role.ModifyPermissionsCommand(
+                changed_by=vo.UserId("modifierid"),
                 permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
                 check_permissions=ALLOWED_PERMISSION_FN
             )
@@ -87,9 +87,9 @@ def test_remove_permissions():
 
 def test_delete_role():
     role = create_role()\
-        .add_permissions(
-            Role.AddPermissionsCommand(
-                added_by=vo.UserId("modifierid"),
+        .modify_permissions(
+            Role.ModifyPermissionsCommand(
+                changed_by=vo.UserId("modifierid"),
                 permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
                 check_permissions=ALLOWED_PERMISSION_FN
             )
