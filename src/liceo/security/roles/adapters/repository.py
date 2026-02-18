@@ -16,7 +16,7 @@ class SQLRolesRepository(RolesRepository, SQLRepository):
         return None
 
     @sql(mappers.map_from_rows_to_paged_role)
-    def list(self, max: int, offset: int) -> Paged[Role]:
+    def paged_roles(self, max: int, offset: int) -> Paged[Role]:
         return Paged.empty()
 
     def save(self, role: Role) -> Role:

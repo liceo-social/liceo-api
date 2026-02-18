@@ -18,12 +18,10 @@ class DatabaseRolesService(service.RolesService, AbstractService):
     def show(self, dto: dtos.ShowRoleDTO) -> entities.Role | None:
         return self.roles.find_by_id(dto.id)
 
-    def list(self, dto: dtos.ListRolesDTO) -> Paged[dtos.RoleDTO]:
-        return self.roles.list(
-            Pagination(
-                max=dto.max,
-                page=dto.page
-            )
+    def list(self, pagination: Pagination) -> Paged[dtos.RoleDTO]:
+        return self.roles.paged_roles(
+            max=pagination.max,
+            offset=pagination.get_offset()
         ).map(mappers.map_from_role_to_dto)
 
     @transactional()

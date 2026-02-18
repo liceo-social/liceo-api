@@ -7,15 +7,10 @@ class ShowRoleDTO:
 
 
 @dataclass
-class ListRolesDTO:
-    max: int
-    page: int
-
-
-@dataclass
 class RoleDTO:
     id: str
     name: str
+    description: str
 
 
 @dataclass

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from liceo.infra.domain.vo import Paged
-from .dtos import ListRolesDTO, RoleDTO, CreateRoleDTO, UpdateRoleDetailsDTO, UpdateRolePermissionsDTO, DeleteRoleDTO, ShowRoleDTO
+from liceo.infra.domain.vo import Paged, Pagination
+from .dtos import RoleDTO, CreateRoleDTO, UpdateRoleDetailsDTO, UpdateRolePermissionsDTO, DeleteRoleDTO, ShowRoleDTO
 from ..domain.entities import Role
 
 
@@ -10,7 +10,7 @@ class RolesService(ABC):
         pass
 
     @abstractmethod
-    def list(self, dto: ListRolesDTO) -> Paged[RoleDTO]:
+    def list(self, pagination: Pagination) -> Paged[RoleDTO]:
         pass
 
     @abstractmethod

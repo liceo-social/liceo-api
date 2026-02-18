@@ -109,6 +109,11 @@ def sql(mapper: Callable[..., A] = lambda row: row):
                 all = self._get_connection().all(sql=sql_content, params=kwargs)
                 return mapper([next for next in all])
 
+            if func.__name__.startswith("paged_"):
+                logger.debug("executing paged___ query")
+                all = self._get_connection().all(sql=sql_content, params=kwargs)
+                return mapper(all)
+
             if func.__name__.startswith("find_") or func.__name__.startswith("insert_"):
                 logger.debug("executing find___ query")
                 one = self._get_connection().one(sql=sql_content, params=kwargs)

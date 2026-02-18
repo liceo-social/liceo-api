@@ -10,7 +10,7 @@ class RolesRepository(ABC):
         pass
 
     @abstractmethod
-    def list(self, max: int, offset: int) -> Paged[Role]:
+    def paged_roles(self, max: int, offset: int) -> Paged[Role]:
         pass
 
     @abstractmethod
