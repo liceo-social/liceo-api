@@ -78,3 +78,21 @@ class UpdateRoleDetailsResponse:
             name=role.name,
             description=role.description
         )
+
+
+@dataclass
+class UpdateRolePermissionsResponse:
+    id: str
+    version: int
+    permissions: list[str]
+
+    @staticmethod
+    def from_role(role: entities.Role | None):
+        if not role:
+            return
+
+        return UpdateRolePermissionsResponse(
+            id=role.id.id,
+            version=role._version,
+            permissions=[p.id for p in role.permissions]
+        )

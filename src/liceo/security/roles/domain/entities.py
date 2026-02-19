@@ -58,12 +58,13 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
 
     @dataclass(kw_only=True)
     class PermissionsModified(AggregateEvent):
-        event_type: str = "ROLE_PERMISSIONS_MODIFIED"
+        event_type: str = "ROLE_PERMISSIONS_CHANGED"
         permissions: Set[vo.PermissionId]
         changed_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
             aggregate.mark_updated_by(self.changed_by)
+            aggregate.permissions = set()
             for permission in self.permissions:
                 aggregate.permissions.add(permission)
 

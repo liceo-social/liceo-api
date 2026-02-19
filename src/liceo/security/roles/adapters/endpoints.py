@@ -64,14 +64,14 @@ def change_name(
     return responses.UpdateRoleDetailsResponse.from_role(service.update_role_details(request.to_dto()))
 
 
-# @router.put(
-#     path="/{id}/permissions",
-#     summary="Modify which permissions are attached to the role",
-#     dependencies=[has_permission(permissions.ROLES_MODIFY)],
-#     openapi_extra={**open_api_permissions([permissions.ROLES_MODIFY])}
-# )
-# def upate_permissions(
-#     request: object,
-#     service: di.RolesServiceDependency
-# ):
-#     pass
+@router.put(
+    path="/{id}/permissions",
+    summary="Modify which permissions are attached to the role",
+    dependencies=[has_permission(permissions.ROLES_UPDATE)],
+    openapi_extra={**open_api_permissions([permissions.ROLES_UPDATE])}
+)
+def upate_permissions(
+    request: di.UpdateRolePermissionsRequestDependency,
+    service: di.RolesServiceDependency
+) -> responses.UpdateRolePermissionsResponse | None:
+    return responses.UpdateRolePermissionsResponse.from_role(service.update_role_permissions(request.to_dto()))
