@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from liceo.infra.domain.vo import Pagination, Paged
 from ..domain.entities import Role
-from ..domain.vo import RoleId
+from ..domain.vo import RoleId, Permission
 
 
 class RolesRepository(ABC):
@@ -15,6 +15,10 @@ class RolesRepository(ABC):
 
     @abstractmethod
     def find_by_id(self, id: str) -> Role | None:
+        pass
+
+    @abstractmethod
+    def find_all_permissions_by_role_id(self, role_id: str) -> list[Permission]:
         pass
 
     @abstractmethod

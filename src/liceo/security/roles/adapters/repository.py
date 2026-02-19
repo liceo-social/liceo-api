@@ -2,7 +2,7 @@ from shortuuid import uuid
 from liceo.infra.domain.vo import Paged
 from liceo.labs.db.sql import SQLRepository, sql
 from liceo.security.roles.domain.entities import Role
-from liceo.security.roles.domain.vo import RoleId
+from liceo.security.roles.domain.vo import Permission, RoleId
 from ..application.repository import RolesRepository
 from . import mappers
 
@@ -42,6 +42,10 @@ class SQLRolesRepository(RolesRepository, SQLRepository):
             }
         )
         return role
+
+    @sql(mappers.map_rows_to_permissions)
+    def find_all_permissions_by_role_id(self, role_id: str) -> list[Permission]:
+        return []
 
     @sql()
     def _delete_role_permissions(self, role_id: str) -> None:

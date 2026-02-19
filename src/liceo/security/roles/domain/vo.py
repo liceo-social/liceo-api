@@ -13,6 +13,16 @@ class PermissionId:
         return self.id
 
 
+@dataclass(frozen=True)
+class Permission:
+    id: str
+    name: str
+    description: str
+
+    def __str__(self) -> str:
+        return self.name
+
+
 @dataclass
 class UserId(AggregateId):
     id: str

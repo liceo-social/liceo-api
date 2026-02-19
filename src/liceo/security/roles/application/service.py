@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from liceo.infra.domain.vo import Paged, Pagination
-from .dtos import RoleDTO, CreateRoleDTO, UpdateRoleDetailsDTO, UpdateRolePermissionsDTO, DeleteRoleDTO, ShowRoleDTO
+from .dtos import RoleDTO, CreateRoleDTO, UpdateRoleDetailsDTO, UpdateRolePermissionsDTO, DeleteRoleDTO, ShowRoleDTO, FullRoleDTO
 from ..domain.entities import Role
 
 
 class RolesService(ABC):
     @abstractmethod
-    def show(self, dto: ShowRoleDTO) -> Role | None:
+    def show(self, dto: ShowRoleDTO) -> FullRoleDTO | None:
         pass
 
     @abstractmethod

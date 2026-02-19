@@ -9,8 +9,21 @@ class ShowRoleDTO:
 @dataclass
 class RoleDTO:
     id: str
+    version: int
     name: str
     description: str
+
+
+@dataclass
+class PermissionDTO:
+    id: str
+    name: str
+    description: str
+
+
+@dataclass
+class FullRoleDTO(RoleDTO):
+    permissions: list[PermissionDTO]
 
 
 @dataclass

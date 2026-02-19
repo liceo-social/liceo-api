@@ -10,8 +10,10 @@ def create_role():
         Role.CreateRoleCommand(
             next_id=lambda: vo.RoleId(id="roleid"),
             name="ADMIN",
+            description="admin",
             created_by=vo.UserId(id="creatorid"),
-            check_permissions=ALLOWED_PERMISSION_FN
+            is_admin=True,
+            permissions=set([vo.PermissionId(id="p1")])
         )
     )
 
@@ -31,9 +33,10 @@ def test_create_role():
 def test_add_permissions():
     role = create_role().modify_permissions(
         Role.ModifyPermissionsCommand(
+            expected_version=1,
             changed_by=vo.UserId("modifierid"),
-            permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-            check_permissions=ALLOWED_PERMISSION_FN
+            is_admin=True,
+            permissions=set([vo.PermissionId(id="p1"), vo.PermissionId(id="p2")])
         ),
     )
 
@@ -45,17 +48,19 @@ def test_add_permissions():
 def test_permissions_are_not_duplicated():
     role = create_role().modify_permissions(
         Role.ModifyPermissionsCommand(
+            expected_version=1,
             changed_by=vo.UserId("modifierid"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-            check_permissions=ALLOWED_PERMISSION_FN
+            is_admin=True
         )
     )
 
     role = role.modify_permissions(
         Role.ModifyPermissionsCommand(
+            expected_version=2,
             changed_by=vo.UserId("modifier2id"),
             permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-            check_permissions=ALLOWED_PERMISSION_FN
+            is_admin=True
         )
     )
 
@@ -64,46 +69,21 @@ def test_permissions_are_not_duplicated():
     assert len(role.permissions) == 2
 
 
-def test_remove_permissions():
-    role = create_role()\
-        .modify_permissions(
-            Role.ModifyPermissionsCommand(
-                changed_by=vo.UserId("modifierid"),
-                permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-                check_permissions=ALLOWED_PERMISSION_FN
-            )
-    )\
-        .remove_permissions(
-            Role.RemovePermissionsCommand(
-                removed_by=vo.UserId("modifier2id"),
-                permissions=set([vo.PermissionId("p2")]),
-                check_permissions=ALLOWED_PERMISSION_FN
-            )
-    )
-
-    assert role.last_updated_by.id == "modifier2id"
-    assert len(role.permissions) == 1
-
-
 def test_delete_role():
     role = create_role()\
         .modify_permissions(
             Role.ModifyPermissionsCommand(
+                expected_version=1,
                 changed_by=vo.UserId("modifierid"),
                 permissions=set([vo.PermissionId("p1"), vo.PermissionId("p2")]),
-                check_permissions=ALLOWED_PERMISSION_FN
+                is_admin=True
             )
     )\
-        .remove_permissions(
-            Role.RemovePermissionsCommand(
-                removed_by=vo.UserId("modifier2id"),
-                permissions=set([vo.PermissionId("p2")]),
-                check_permissions=ALLOWED_PERMISSION_FN
-            )
-    ).delete(cmd=Role.DeleteRoleCommand(
-        deleted_by=vo.UserId(id="deletedbyid"),
-        check_permissions=ALLOWED_PERMISSION_FN
-    ))
+        .delete(cmd=Role.DeleteRoleCommand(
+            expected_version=2,
+            deleted_by=vo.UserId(id="deletedbyid"),
+            is_admin=True
+        ))
 
     assert len(role.permissions) == 0
     assert role.deleted_by is not None

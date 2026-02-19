@@ -1,6 +1,7 @@
 SELECT 
     lr.id,
     lr.name,
+    lr.description,
     MAX(lr.version) as version,
     COALESCE(
         array_agg(lp.name) FILTER (WHERE lp.name IS NOT NULL),
@@ -12,4 +13,5 @@ JOIN liceo_permissions lp ON lp.id = lrp.permission_id
 WHERE lr.id = :id
 GROUP BY
     lr.id,
-    lr.name
+    lr.name,
+    lr.description

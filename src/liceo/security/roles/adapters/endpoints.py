@@ -25,17 +25,17 @@ def list_roles(
     return responses.ListRolesResponses.from_dto(service.list(request.to_pagination()))
 
 
-# @router.get(
-#     path="/{id}",
-#     summary="Shows a specific role detail",
-#     dependencies=[has_permission(permissions.ROLES_SHOW)],
-#     openapi_extra={**open_api_permissions([permissions.ROLES_SHOW])}
-# )
-# def show(
-#     request: object,
-#     service: di.RolesServiceDependency
-# ):
-#     pass
+@router.get(
+    path="/{id}",
+    summary="Shows a specific role detail",
+    dependencies=[has_permission(permissions.ROLES_SHOW)],
+    openapi_extra={**open_api_permissions([permissions.ROLES_SHOW])}
+)
+def show(
+    request: di.ShowRoleRequestDependency,
+    service: di.RolesServiceDependency
+) -> responses.ShowRoleResponse | None:
+    return responses.ShowRoleResponse.from_role(service.show(request.to_dto()))
 
 
 # @router.post(

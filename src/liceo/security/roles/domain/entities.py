@@ -94,6 +94,7 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         return Role(id=cmd.next_id()).append(
             Role.RoleCreated(
                 name=cmd.name,
+                description=cmd.description,
                 created_by=cmd.created_by,
                 permissions=cmd.permissions
             )
@@ -109,6 +110,7 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         return self.append(
             Role.RoleDetailsChanged(
                 name=cmd.name,
+                description=cmd.description,
                 updated_by=cmd.updated_by
             )
         )

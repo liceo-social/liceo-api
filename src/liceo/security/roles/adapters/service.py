@@ -15,8 +15,16 @@ class DatabaseRolesService(service.RolesService, AbstractService):
     roles: repository.RolesRepository
     event_store: EventStoreService
 
-    def show(self, dto: dtos.ShowRoleDTO) -> entities.Role | None:
-        return self.roles.find_by_id(dto.id)
+    def show(self, dto: dtos.ShowRoleDTO) -> dtos.FullRoleDTO | None:
+        role = self.roles.find_by_id(dto.id)
+
+        if not role:
+            return
+
+        return mappers.map_role_to_full_role_dto(
+            role,
+            self.roles.find_all_permissions_by_role_id(role.id.id)
+        )
 
     def list(self, pagination: Pagination) -> Paged[dtos.RoleDTO]:
         return self.roles.paged_roles(
