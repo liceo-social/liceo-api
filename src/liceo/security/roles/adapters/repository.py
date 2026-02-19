@@ -55,6 +55,18 @@ class SQLRolesRepository(RolesRepository, SQLRepository):
     def _delete_role_permissions(self, role_id: str) -> None:
         pass
 
+    def _update_audit(self, role: Role) -> None:
+        sql = self.resolve_sql(self._update_audit)
+        self._get_connection().execute(
+            sql,
+            params={
+                "id": role.id.id,
+                "version": role._version,
+                "last_updated_by": role.last_updated_by,
+                "last_updated_at": role.last_updated_at
+            }
+        )
+
     def update_role_permissions(self, role: Role) -> Role:
         # deleting previous role permissions
         self._delete_role_permissions(role.id)
@@ -67,9 +79,15 @@ class SQLRolesRepository(RolesRepository, SQLRepository):
             } for p in role.permissions
         ]
         self._get_connection().execute(sql, params=params)
+        # dont miss updating role audit metadata
+        self._update_audit(role)
         # returning modified role
         return role
 
     def delete(self, role: Role) -> None:
-        self._get_connection().execute(self.resolve_sql(
-            self.delete), params={"id": role.id, })
+        self._delete_role_permissions(role.id.id)
+        self._get_connection().execute(
+            self.resolve_sql(self.delete),
+            params={"id": role.id, }
+        )
+        self._update_audit(role)

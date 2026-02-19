@@ -81,3 +81,21 @@ class UpdateRolePermissionsRequest(BaseModel):
             updated_by=self.user.id,
             is_admin=self.user.is_admin
         )
+
+
+class DeleteRoleDetails(BaseModel):
+    version: int
+
+
+class DeleteRoleRequest(BaseModel):
+    id: str
+    details: DeleteRoleDetails
+    deleted_by: UserContextModel
+
+    def to_dto(self):
+        return dtos.DeleteRoleDTO(
+            id=self.id,
+            version=self.details.version,
+            is_admin=self.deleted_by.is_admin,
+            deleted_by=self.deleted_by.id
+        )

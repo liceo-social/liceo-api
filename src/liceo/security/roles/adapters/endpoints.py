@@ -75,3 +75,16 @@ def upate_permissions(
     service: di.RolesServiceDependency
 ) -> responses.UpdateRolePermissionsResponse | None:
     return responses.UpdateRolePermissionsResponse.from_role(service.update_role_permissions(request.to_dto()))
+
+
+@router.delete(
+    path="/{id}",
+    summary="Delete a specific role by its id",
+    dependencies=[has_permission(permissions.ROLES_DELETE)],
+    openapi_extra={**open_api_permissions([permissions.ROLES_DELETE])}
+)
+def delete(
+    request: di.DeleteRoleRequestDependency,
+    service: di.RolesServiceDependency
+) -> responses.DeleteRoleResponse | None:
+    return responses.DeleteRoleResponse.from_role(service.delete_role(request.to_dto()))

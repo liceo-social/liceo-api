@@ -85,7 +85,7 @@ class DatabaseRolesService(service.RolesService, AbstractService):
         return loaded
 
     @transactional()
-    def delete_role(self, dto: dtos.DeleteRoleDTO) -> None:
+    def delete_role(self, dto: dtos.DeleteRoleDTO) -> entities.Role | None:
         loaded = self.roles.find_by_id(dto.id)
 
         if not loaded:
@@ -101,3 +101,4 @@ class DatabaseRolesService(service.RolesService, AbstractService):
 
         self.roles.delete(to_delete)
         self.event_store.append(to_delete)
+        return to_delete

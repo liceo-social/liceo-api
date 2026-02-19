@@ -96,3 +96,15 @@ class UpdateRolePermissionsResponse:
             version=role._version,
             permissions=[p.id for p in role.permissions]
         )
+
+
+@dataclass
+class DeleteRoleResponse:
+    id: str
+    version: int
+
+    @staticmethod
+    def from_role(role: entities.Role | None):
+        if not role:
+            return None
+        return DeleteRoleResponse(id=role.id.id, version=role._version)

@@ -26,5 +26,5 @@ class RolesService(ABC):
         pass
 
     @abstractmethod
-    def delete_role(self, dto: DeleteRoleDTO) -> None:
+    def delete_role(self, dto: DeleteRoleDTO) -> Role | None:
         pass
