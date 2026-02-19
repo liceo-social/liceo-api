@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pydantic import Field, BaseModel
 from liceo.infra.domain.vo import Pagination
+from liceo.security.common.adapters.requests import UserContextModel
+
 from ..application import dtos
 
 
@@ -17,3 +19,23 @@ class ShowRoleRequest(BaseModel):
 
     def to_dto(self) -> dtos.ShowRoleDTO:
         return dtos.ShowRoleDTO(id=self.id)
+
+
+class CreateRoleRequestDetails(BaseModel):
+    name: str
+    description: str
+    permissions: list[str]
+
+
+class CreateRoleRequest(BaseModel):
+    user: UserContextModel
+    details: CreateRoleRequestDetails
+
+    def to_dto(self):
+        return dtos.CreateRoleDTO(
+            name=self.details.name,
+            description=self.details.description,
+            is_admin=self.user.is_admin,
+            created_by=self.user.id,
+            permissions=self.details.permissions
+        )

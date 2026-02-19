@@ -11,4 +11,4 @@ VALUES
     :version,
     :name,
     :description
-);
+) RETURNING id;

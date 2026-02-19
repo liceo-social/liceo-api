@@ -1,8 +1,9 @@
 from typing import Annotated
-from fastapi import Depends, Query, Path
+from fastapi import Depends, Query, Path, Body
 
 from liceo.infra.adapters.di import ConnectionManagerDependency, TransactionManagerDependency, ConnectionFactoryDependency, EventStoreDependency
-from .requests import ListRolesRequest, ShowRoleRequest
+from liceo.security.common.adapters.di import UserInfo
+from .requests import ListRolesRequest, ShowRoleRequest, CreateRoleRequest, CreateRoleRequestDetails
 from .repository import SQLRolesRepository
 from .service import DatabaseRolesService
 from ..application.service import RolesService
@@ -41,3 +42,17 @@ def create_show_role_request(id: str = Path()):
 
 ShowRoleRequestDependency = Annotated[ShowRoleRequest,
                                       Depends(create_show_role_request)]
+
+
+def create_create_role_request(
+        user: UserInfo,
+        details: CreateRoleRequestDetails = Body()
+):
+    return CreateRoleRequest(
+        user=user,
+        details=details
+    )
+
+
+CreateRoleRequestDependency = Annotated[CreateRoleRequest, Depends(
+    create_create_role_request)]

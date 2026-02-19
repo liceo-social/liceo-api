@@ -30,7 +30,7 @@ class ShowRoleResponse:
     permissions: list[ShowRolePermissionResponse]
 
     @staticmethod
-    def from_role(role: dtos.FullRoleDTO | None) -> "ShowRoleResponse | None":
+    def from_dto(role: dtos.FullRoleDTO | None) -> "ShowRoleResponse | None":
         if not role:
             return
         return ShowRoleResponse(
@@ -40,4 +40,21 @@ class ShowRoleResponse:
             description=role.description,
             permissions=[ShowRolePermissionResponse(
                 id=p.id, name=p.name, description=p.description) for p in role.permissions]
+        )
+
+
+@dataclass
+class CreateRoleResponse:
+    id: str
+    version: int
+    name: str
+    description: str
+
+    @staticmethod
+    def from_dto(dto: dtos.RoleDTO):
+        return CreateRoleResponse(
+            id=dto.id,
+            version=dto.version,
+            name=dto.name,
+            description=dto.description
         )

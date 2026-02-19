@@ -43,6 +43,7 @@ class DatabaseRolesService(service.RolesService, AbstractService):
             created_by=vo.UserId(id=dto.created_by)
         ))
         saved = self.roles.save(created)
+        self.roles.update_role_permissions(saved)
         self.event_store.append(saved)
         return mappers.map_from_role_to_dto(saved)
 

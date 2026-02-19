@@ -35,20 +35,20 @@ def show(
     request: di.ShowRoleRequestDependency,
     service: di.RolesServiceDependency
 ) -> responses.ShowRoleResponse | None:
-    return responses.ShowRoleResponse.from_role(service.show(request.to_dto()))
+    return responses.ShowRoleResponse.from_dto(service.show(request.to_dto()))
 
 
-# @router.post(
-#     path="/",
-#     summary="Creates a new role",
-#     dependencies=[has_permission(permissions.ROLES_CREATE)],
-#     openapi_extra={**open_api_permissions([permissions.ROLES_CREATE])}
-# )
-# def create(
-#     request: object,
-#     service: di.RolesServiceDependency
-# ):
-#     pass
+@router.post(
+    path="/",
+    summary="Creates a new role",
+    dependencies=[has_permission(permissions.ROLES_CREATE)],
+    openapi_extra={**open_api_permissions([permissions.ROLES_CREATE])}
+)
+def create(
+    request: di.CreateRoleRequestDependency,
+    service: di.RolesServiceDependency
+) -> responses.CreateRoleResponse:
+    return responses.CreateRoleResponse.from_dto(service.create_role(request.to_dto()))
 
 
 # @router.put(
