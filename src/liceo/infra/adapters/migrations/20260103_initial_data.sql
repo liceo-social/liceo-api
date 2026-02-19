@@ -14,6 +14,7 @@ INSERT INTO liceo_permissions (id, name, description) VALUES ('zrijiR9osDidEX6dQ
 INSERT INTO liceo_permissions (id, name, description) VALUES ('J9fYxw932HbnRs5RzaYbbs', 'ROLES_LIST', 'allows listing roles');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('JLEBxFv8WmocNkmmZyeyxT', 'ROLES_CREATE', 'allows creating a new role');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('F7QiKhsph82Pq7mpKKXcKH', 'ROLES_SHOW', 'allows showing details from a role');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('FUw9KNMVzPaQ7zh8ibJNTc', 'ROLES_UPDATE', 'allows to update a role');
 
 -- STORAGE
 INSERT INTO liceo_permissions (id, name, description) VALUES ('8abQNKu4jXMrQPyrteBXcD', 'STORAGE_UPLOAD', 'allows to upload files');
@@ -24,10 +25,44 @@ INSERT INTO liceo_permissions (id, name, description) VALUES ('Fi9rbWdjGrcpLttbk
 -- #######################
 
 -- USERS
-INSERT INTO liceo_roles (id, version, name, description) VALUES ('RZ2JLgj89aFmyjv6yngmJ7', 1, 'ROLE_USER', 'default permission for regular users');
+INSERT INTO liceo_roles 
+(
+    id, 
+    version, 
+    name, 
+    description,
+    created_at,
+    created_by
+) 
+VALUES 
+(
+    'RZ2JLgj89aFmyjv6yngmJ7', 
+    1, 
+    'ROLE_USER', 
+    'default permission for regular users',
+    '2026-02-06T16:59:35.444164', 
+    'ZLP35KRt4jm8EkaebeWjJP'
+);
 
 -- ADMINS
-INSERT INTO liceo_roles (id, version, name, description) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 1, 'ROLE_ADMIN', 'allows any action in the system');
+INSERT INTO liceo_roles 
+(
+    id, 
+    version, 
+    name, 
+    description,
+    created_at,
+    created_by
+) 
+VALUES 
+(
+    'rDCJKyPVeGLfmboVS7PkXC', 
+    1, 
+    'ROLE_ADMIN', 
+    'allows any action in the system',
+    '2026-02-06T16:59:35.444164', 
+    'ZLP35KRt4jm8EkaebeWjJP'
+);
 
 -- #######################
 -- #  ROLES_PERMISSIONS  #
@@ -52,6 +87,8 @@ INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeG
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'JLEBxFv8WmocNkmmZyeyxT');
 -- ADMIN/ROLE_SHOW
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'F7QiKhsph82Pq7mpKKXcKH');
+-- ADMIN/ROLE_UPDATE
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'FUw9KNMVzPaQ7zh8ibJNTc');
 
 -- ADMIN/STORAGE_UPLOAD
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', '8abQNKu4jXMrQPyrteBXcD');

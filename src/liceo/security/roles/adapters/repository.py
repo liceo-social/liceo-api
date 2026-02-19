@@ -26,7 +26,9 @@ class SQLRolesRepository(RolesRepository, SQLRepository):
                 "id": role.id,
                 "version": role._version,
                 "name": role.name,
-                "description": role.description
+                "description": role.description,
+                "created_by": role.audit.created_by,
+                "created_at": role.audit.created_at
             }
         )
         return role
@@ -38,7 +40,9 @@ class SQLRolesRepository(RolesRepository, SQLRepository):
                 "id": role.id,
                 "version": role._version,
                 "name": role.name,
-                "description": role.description
+                "description": role.description,
+                "last_updated_at": role.audit.last_updated_at,
+                "last_updated_by": role.audit.last_updated_by
             }
         )
         return role

@@ -11,9 +11,17 @@ U = TypeVar("U", bound=AggregateId)
 class AuditableAggregate(Aggregate[T], Generic[T, U],):
     audit: AuditInfo[U]
 
+    def set_created(self, by: U, when: datetime):
+        self.audit = AuditInfo(by)
+        self.audit.created_at = when
+
     def mark_created_by(self, by: U):
         self.audit = AuditInfo(by)
         self.audit.created_at = datetime.now()
+
+    def set_updated(self, by: U, when: datetime):
+        self.audit.last_updated_by = by
+        self.audit.last_updated_at = when
 
     def mark_updated_by(self, by: U):
         self.audit.last_updated_by = by

@@ -39,3 +39,25 @@ class CreateRoleRequest(BaseModel):
             created_by=self.user.id,
             permissions=self.details.permissions
         )
+
+
+class UpdateRoleDetails(BaseModel):
+    version: int
+    name: str
+    description: str
+
+
+class UpdateRoleDetailsRequest(BaseModel):
+    id: str
+    user: UserContextModel
+    details: UpdateRoleDetails
+
+    def to_dto(self):
+        return dtos.UpdateRoleDetailsDTO(
+            id=self.id,
+            version=self.details.version,
+            name=self.details.name,
+            description=self.details.description,
+            updated_by=self.user.id,
+            is_admin=self.user.is_admin
+        )

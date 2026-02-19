@@ -18,7 +18,7 @@ class RolesService(ABC):
         pass
 
     @abstractmethod
-    def update_role_name(self, dto: UpdateRoleDetailsDTO) -> Role | None:
+    def update_role_details(self, dto: UpdateRoleDetailsDTO) -> Role | None:
         pass
 
     @abstractmethod

@@ -48,7 +48,7 @@ class DatabaseRolesService(service.RolesService, AbstractService):
         return mappers.map_from_role_to_dto(saved)
 
     @transactional()
-    def update_role_name(self, dto: dtos.UpdateRoleDetailsDTO) -> entities.Role | None:
+    def update_role_details(self, dto: dtos.UpdateRoleDetailsDTO) -> entities.Role | None:
         loaded = self.roles.find_by_id(dto.id)
 
         if not loaded:

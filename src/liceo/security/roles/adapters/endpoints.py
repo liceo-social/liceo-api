@@ -51,17 +51,17 @@ def create(
     return responses.CreateRoleResponse.from_dto(service.create_role(request.to_dto()))
 
 
-# @router.put(
-#     path="/{id}/name",
-#     summary="Changes role name",
-#     dependencies=[has_permission(permissions.ROLES_MODIFY)],
-#     openapi_extra={**open_api_permissions([permissions.ROLES_MODIFY])}
-# )
-# def change_name(
-#     request: object,
-#     service: di.RolesServiceDependency
-# ):
-#     pass
+@router.put(
+    path="/{id}",
+    summary="Changes role details (name, description)",
+    dependencies=[has_permission(permissions.ROLES_UPDATE)],
+    openapi_extra={**open_api_permissions([permissions.ROLES_UPDATE])}
+)
+def change_name(
+    request: di.UpdateRoleDetailsRequestDependency,
+    service: di.RolesServiceDependency
+) -> responses.UpdateRoleDetailsResponse | None:
+    return responses.UpdateRoleDetailsResponse.from_role(service.update_role_details(request.to_dto()))
 
 
 # @router.put(

@@ -30,7 +30,11 @@ CREATE TABLE IF NOT EXISTS liceo_roles (
     id TEXT PRIMARY KEY,
     version INTEGER NOT NULL,
     name TEXT,
-    description TEXT
+    description TEXT,
+    created_at TIMESTAMP,
+    created_by TEXT,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT
 );
 
 CREATE TABLE IF NOT EXISTS liceo_roles_permissions (

@@ -2,7 +2,11 @@ SELECT
     lr.id,
     lr.name,
     lr.description,
+    lr.created_by,
+    lr.last_updated_by,
     MAX(lr.version) as version,
+    MAX(lr.last_updated_at) as last_updated_at,
+    MIN(lr.created_at) as created_at,
     COALESCE(
         array_agg(lp.name) FILTER (WHERE lp.name IS NOT NULL),
         '{}'::text[]
@@ -14,4 +18,6 @@ WHERE lr.id = :id
 GROUP BY
     lr.id,
     lr.name,
-    lr.description
+    lr.description,
+    lr.created_by,
+    lr.last_updated_by

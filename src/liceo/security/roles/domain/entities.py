@@ -26,10 +26,10 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         created_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
+            aggregate.mark_created_by(self.created_by)
             aggregate.name = self.name
             aggregate.description = self.description
             aggregate.permissions = self.permissions
-            aggregate.mark_created_by(self.created_by)
 
     @dataclass
     class ChangeRoleDetailsCommand(VersionAwareCommand):
@@ -46,9 +46,9 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         updated_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
+            aggregate.mark_updated_by(self.updated_by)
             aggregate.name = self.name
             aggregate.description = self.description
-            aggregate.mark_updated_by(self.updated_by)
 
     @dataclass
     class ModifyPermissionsCommand(VersionAwareCommand):
@@ -63,6 +63,7 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         changed_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
+            aggregate.mark_updated_by(self.changed_by)
             for permission in self.permissions:
                 aggregate.permissions.add(permission)
 
@@ -79,8 +80,8 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         deleted_by: vo.UserId
 
         def handle(self, aggregate: "Role"):
-            aggregate.permissions = set()
             aggregate.mark_deleted_by(self.deleted_by)
+            aggregate.permissions = set()
 
     name: str
     description: str

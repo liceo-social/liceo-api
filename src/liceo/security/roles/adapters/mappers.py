@@ -15,6 +15,8 @@ def map_from_row_to_role(row: dict | None) -> entities.Role | None:
     role.name = row["name"]
     role.description = row["description"]
     role.permissions = row["permissions"]
+    role.set_created(vo.UserId(id=row["created_by"]), row["created_at"])
+    role.set_updated(vo.UserId(id=row["last_updated_by"]), row["last_updated_at"])
     return role
 
 

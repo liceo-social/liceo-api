@@ -58,3 +58,23 @@ class CreateRoleResponse:
             name=dto.name,
             description=dto.description
         )
+
+
+@dataclass
+class UpdateRoleDetailsResponse:
+    id: str
+    version: int
+    name: str
+    description: str
+
+    @staticmethod
+    def from_role(role: entities.Role | None) -> "UpdateRoleDetailsResponse | None":
+        if not role:
+            return
+
+        return UpdateRoleDetailsResponse(
+            id=role.id.id,
+            version=role._version,
+            name=role.name,
+            description=role.description
+        )
