@@ -14,6 +14,7 @@ from liceo.security.users.adapters import endpoints as users_api
 from liceo.security.roles.adapters import endpoints as roles_api
 from liceo.security.authentication.adapters import endpoints as auth_api
 from liceo.storage.adapters import endpoints as storage_api
+from liceo.people.adapters import endpoints as people_api
 
 OPENAPI = {
     "title": "LICEO API",
@@ -26,7 +27,8 @@ UI to access the Liceo platform.
         auth_api.specs.metadata(),
         users_api.specs.metadata(),
         roles_api.specs.metadata(),
-        storage_api.specs.metadata()
+        storage_api.specs.metadata(),
+        people_api.specs.metadata()
     ],
 }
 
@@ -40,6 +42,7 @@ def init_v1_endpoints():
     v1.include_router(users_api.router)
     v1.include_router(roles_api.router)
     v1.include_router(storage_api.router)
+    v1.include_router(people_api.router)
     return v1
 
 

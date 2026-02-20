@@ -78,16 +78,8 @@ class Aggregate(Generic[ID]):
 
 
 @dataclass
-class AggregateRoot:
-    _version: int = field(default=0)
-    _events: List[AggregateEvent] = field(default_factory=list)
-
-    def append(self, event: AggregateEvent[Self]):
-        event.handle(self)
-        self._events.append(event)
-        return self
-
-    def append_child_aggregate_events(self, aggregate: "Aggregate | AggregateRoot"):
-        for ev in aggregate._events:
+class AggregateRoot(Aggregate[ID]):
+    def append_child_aggregate_events(self, aggregate: Aggregate):
+        for ev in self._events:
             self._events.append(ev)
         return self

@@ -56,18 +56,18 @@ class AuditableAggregate(Aggregate[T], Generic[T, U],):
         return self.audit.deleted_at
 
 
-class AuditableAggregateRoot(AggregateRoot, Generic[T]):
-    audit: AuditInfo[T]
+class AuditableAggregateRoot(AggregateRoot[T], Generic[T, U]):
+    audit: AuditInfo[U]
 
-    def mark_created_by(self, by: T):
+    def mark_created_by(self, by: U):
         self.audit = AuditInfo(by)
         self.audit.created_at = datetime.now()
 
-    def mark_updated_by(self, by: T):
+    def mark_updated_by(self, by: U):
         self.audit.last_updated_by = by
         self.audit.last_updated_at = datetime.now()
 
-    def mark_deleted_by(self, by: T):
+    def mark_deleted_by(self, by: U):
         self.audit.deleted_by = by
         self.audit.deleted_at = datetime.now()
 
