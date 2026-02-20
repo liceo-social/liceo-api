@@ -109,6 +109,7 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
             aggregate.is_emergency = self.is_emergency
 
     person: vo.PersonId
+    type: str
     value: dict
     is_emergency: bool
 
@@ -143,6 +144,7 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
         event_type: str = "IDENTIFICATION_CREATED"
         value: str
         type: str
+        person: vo.PersonId
         is_main_id: bool
         created_by: vo.UserId
 
@@ -150,7 +152,9 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
             aggregate.mark_created_by(self.created_by)
             aggregate.type = self.type
             aggregate.value = self.value
+            aggregate.person = self.person
 
+    person: vo.PersonId
     type: str
     value: str
 
@@ -160,6 +164,7 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
             PersonIdentification.IdentificationCreated(
                 type=cmd.type,
                 value=cmd.value,
+                person=vo.PersonId(id=cmd.person_id),
                 created_by=vo.UserId(id=cmd.created_by),
                 is_main_id=cmd.is_main_id
             )

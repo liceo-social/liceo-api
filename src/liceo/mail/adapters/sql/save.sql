@@ -1,4 +1,4 @@
-INSERT INTO liceo_outbound_emails
+INSERT INTO liceo_mails
 (
     id,
     version,

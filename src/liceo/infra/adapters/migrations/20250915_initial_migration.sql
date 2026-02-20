@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS liceo_roles (
     created_at TIMESTAMP,
     created_by TEXT,
     last_updated_at TIMESTAMP,
-    last_updated_by TEXT
+    last_updated_by TEXT,
+    CONSTRAINT fk_roles_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_roles_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
 );
 
 CREATE TABLE IF NOT EXISTS liceo_roles_permissions (
@@ -61,7 +63,8 @@ CREATE TABLE IF NOT EXISTS liceo_storage (
     type TEXT,
     path TEXT,
     created_at TIMESTAMP,
-    created_by TEXT
+    created_by TEXT,
+    CONSTRAINT fk_storage_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id)
 );
 
 CREATE TABLE IF NOT EXISTS liceo_users_images (
@@ -69,14 +72,17 @@ CREATE TABLE IF NOT EXISTS liceo_users_images (
     storage_id TEXT,
     dimension TEXT DEFAULT 'original', -- small, medium, large, original
     created_at TIMESTAMP,
-    created_by TEXT
+    created_by TEXT,
+    CONSTRAINT fk_users_images_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_users_images_users FOREIGN KEY (user_id) REFERENCES liceo_users(id),
+    CONSTRAINT fk_users_images_storage FOREIGN KEY (storage_id) REFERENCES liceo_storage(id)
 );
 
 -- ########################
 -- ###      MAILS       ###
 -- ########################
 
-CREATE TABLE liceo_outbound_emails (
+CREATE TABLE liceo_mails (
     id TEXT PRIMARY KEY,
     version INTEGER NOT NULL,
     recipient TEXT NOT NULL,
@@ -89,11 +95,12 @@ CREATE TABLE liceo_outbound_emails (
     last_error TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_by TEXT,
-    sent_at TIMESTAMP WITH TIME ZONE
+    sent_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT fk_outbound_emails_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id)
 );
 
-CREATE INDEX idx_liceo_outbound_emails_status_next_attempt
-ON liceo_outbound_emails (status, next_attempt_at);
+CREATE INDEX idx_liceo_mails_status_next_attempt
+ON liceo_mails (status, next_attempt_at);
 
 -- ########################
 -- ###     EVENTS       ###
@@ -108,4 +115,59 @@ CREATE TABLE IF NOT EXISTS liceo_events (
     created_at TIMESTAMP,
     data JSONB,
     UNIQUE("aggregate_id", "aggregate_type", "version")
+);
+
+-- ########################
+-- ###     PEOPLE       ###
+-- ########################
+
+CREATE TABLE IF NOT EXISTS liceo_people (
+    id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
+    name TEXT,
+    surname TEXT,
+    photo TEXT,
+    alias TEXT,
+    birthdate TIMESTAMP,
+    sex TEXT,
+    genre TEXT,
+    responsible_id TEXT,
+    created_at TIMESTAMP,
+    created_by TEXT,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    CONSTRAINT fk_people_responsible FOREIGN KEY (responsible_id) REFERENCES liceo_users(id),
+    CONSTRAINT fk_people_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_people_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
+);
+
+CREATE TABLE IF NOT EXISTS liceo_people_contacts (
+    id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
+    type TEXT,
+    value JSONB,
+    person_id TEXT,
+    is_emergency BOOLEAN,
+    created_at TIMESTAMP,
+    created_by TEXT,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    CONSTRAINT fk_contacts_person FOREIGN KEY (person_id) REFERENCES liceo_people(id),
+    CONSTRAINT fk_contacts_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_contacts_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
+);
+
+CREATE TABLE IF NOT EXISTS liceo_people_identifications (
+    id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
+    type TEXT,
+    value TEXT,
+    person_id TEXT,
+    created_at TIMESTAMP,
+    created_by TEXT,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    CONSTRAINT fk_identifications_person FOREIGN KEY (person_id) REFERENCES liceo_people(id),
+    CONSTRAINT fk_identifications_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_identifications_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
 );

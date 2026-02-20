@@ -14,7 +14,7 @@ from liceo.security.users.adapters import endpoints as users_api
 from liceo.security.roles.adapters import endpoints as roles_api
 from liceo.security.authentication.adapters import endpoints as auth_api
 from liceo.storage.adapters import endpoints as storage_api
-from liceo.people.adapters import endpoints as people_api
+from liceo.people.people.adapters import endpoints as people_api
 
 OPENAPI = {
     "title": "LICEO API",

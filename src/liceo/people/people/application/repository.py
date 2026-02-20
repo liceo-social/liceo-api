@@ -8,7 +8,7 @@ class PersonRepository(ABC):
         pass
 
     @abstractmethod
-    def save(self, person: entities.Person) -> entities.Person | None:
+    def save_person(self, person: entities.Person) -> entities.Person | None:
         pass
 
 
@@ -18,7 +18,7 @@ class PersonContactRepository(ABC):
         pass
 
     @abstractmethod
-    def save(self, contact: entities.PersonContact) -> entities.PersonContact | None:
+    def save_contact(self, contact: entities.PersonContact) -> entities.PersonContact | None:
         pass
 
 
@@ -28,5 +28,5 @@ class PersonIdentificationRepository(ABC):
         pass
 
     @abstractmethod
-    def save(self, identification: entities.PersonIdentification) -> entities.PersonIdentification | None:
+    def save_identification(self, identification: entities.PersonIdentification) -> entities.PersonIdentification | None:
         pass

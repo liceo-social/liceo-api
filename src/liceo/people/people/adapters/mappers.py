@@ -4,6 +4,29 @@ from ..application import dtos
 
 class Create:
     @staticmethod
+    def from_dto_to_create_person_command(
+        id: vo.PersonId,
+        dto: dtos.CreatePersonDTO,
+        is_responsible_from_projects: bool
+    ):
+        return entities.Person.CreatePersonCommand(
+            id=id,
+            name=dto.name,
+            surname=dto.surname,
+            photo=dto.photo,
+            alias=dto.alias,
+            birthdate=dto.birthdate,
+            sex=vo.Sex(dto.sex),
+            genre=vo.Genre(dto.genre),
+            main_id=Create.from_dto_to_identification(dto),
+            emergency_contact=Create.from_dto_to_emergency_contact(dto),
+            projects=[vo.ProjectId(p) for p in dto.projects],
+            responsible=vo.UserId(dto.responsible),
+            is_responsible_from_projects=is_responsible_from_projects,
+            created_by=vo.UserId(dto.created_by)
+        )
+
+    @staticmethod
     def from_dto_to_identification(dto: dtos.CreatePersonDTO):
         if not (dto.official_id_type and dto.official_id_value):
             return
