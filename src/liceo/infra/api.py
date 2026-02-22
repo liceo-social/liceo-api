@@ -12,6 +12,7 @@ from liceo.infra.domain.vo import ConfigurationSingleton
 from liceo.labs.decorators import solve_lifespan
 from liceo.security.users.adapters import endpoints as users_api
 from liceo.security.roles.adapters import endpoints as roles_api
+from liceo.security.permissions.adapters import endpoints as permissions_api
 from liceo.security.authentication.adapters import endpoints as auth_api
 from liceo.storage.adapters import endpoints as storage_api
 from liceo.people.people.adapters import endpoints as people_api
@@ -27,6 +28,7 @@ UI to access the Liceo platform.
         auth_api.specs.metadata(),
         users_api.specs.metadata(),
         roles_api.specs.metadata(),
+        permissions_api.specs.metadata(),
         storage_api.specs.metadata(),
         people_api.specs.metadata()
     ],
@@ -41,6 +43,7 @@ def init_v1_endpoints():
     v1.include_router(auth_api.router)
     v1.include_router(users_api.router)
     v1.include_router(roles_api.router)
+    v1.include_router(permissions_api.router)
     v1.include_router(storage_api.router)
     v1.include_router(people_api.router)
     return v1

@@ -1,22 +1,34 @@
+from typing import Any
 from liceo.infra.domain.vo import Paged, Pagination
-from liceo.security.permissions.application import ports
+from liceo.labs.db.sql import SQLRepository
 from liceo.security.permissions.domain.entities import Permission
+from ..application.repository import PermissionsRepository
+from ..domain.vo import PermissionId
 
 
-PERMISSIONS: dict[str, Permission] = {}
-
-
-class PermissionMemoryRepository(ports.SavePermissionPort, ports.ListPermissionsPort):
-    def save_permission(self, permission: Permission) -> Permission:
-        PERMISSIONS[permission.id.id] = permission
+class SQLPermissionsRepository(PermissionsRepository, SQLRepository):
+    def _map_to_row_to_permission(self, row: dict) -> Permission:
+        permission = Permission()
+        permission.id = PermissionId(id=row["id"])
+        permission.name = row["name"]
+        permission.description = row["description"]
         return permission
 
-    def list_permissions(self, pagination: Pagination) -> Paged[Permission]:
-        from_offset = pagination.page
-        to_offset = (pagination.page + pagination.max) - 1
-        permissions = list(PERMISSIONS.values())
+    def filter_permissions(self, name: str | None, pagination: Pagination) -> Paged[Permission]:
+        sql = self.resolve_sql(self.filter_permissions)
+        params: dict = {
+            "offset": pagination.get_offset(),
+            "max": pagination.max
+        }
 
-        return Paged(
-            total=pagination.max,
-            data=permissions[from_offset:to_offset]
+        if name is not None:
+            params.update({"name": f"%{name}%"})
+
+        result = self._get_connection().all(
+            self.sql_optimize_params(sql, params=params),
+            params
         )
+
+        data = list(map(self._map_to_row_to_permission, result))
+        total_count = result[0]["total_count"] if len(data) > 0 else 0
+        return Paged(total=total_count, data=data)
