@@ -4,11 +4,20 @@ from liceo.people.people.domain import entities, vo, errors
 
 
 def create_main_id():
-    return vo.Identification(type="national", value="000000000Z")
+    return vo.Identification(
+        type="national",
+        value="000000000Z",
+        expiration_date=datetime(2028, 1, 1)
+    )
 
 
 def create_emergency_contact():
-    return vo.EmergencyContact(type="mobile", value={})
+    return vo.EmergencyContact(
+        type=vo.ContactType.MOBILE,
+        value="0000000",
+        notes="Call from 17h ownwards",
+        relationship=vo.ContactRelationship.OWN
+    )
 
 
 def test_create_a_new_person_successfully():

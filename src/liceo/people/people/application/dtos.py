@@ -15,9 +15,12 @@ class CreatePersonDTO:
     # official id
     official_id_type: str | None
     official_id_value: str | None
+    official_id_expiration_date: datetime | None
     # emergency contact
     emergency_contact_type: str
-    emergency_contact_value: dict
+    emergency_contact_value: str
+    emergency_contact_relationship: str
+    emergency_contact_notes: str | None
     # projects
     projects: list[str]
     # responsible

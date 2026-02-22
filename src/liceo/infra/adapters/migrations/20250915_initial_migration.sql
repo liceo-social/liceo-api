@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS liceo_users (
     account_active BOOLEAN DEFAULT FALSE,
     account_blocked BOOLEAN DEFAULT FALSE,
     account_expired BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     last_updated_at TIMESTAMP,
     last_updated_by TEXT,
     UNIQUE("username")
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS liceo_roles (
     version INTEGER NOT NULL,
     name TEXT,
     description TEXT,
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     last_updated_at TIMESTAMP,
     last_updated_by TEXT,
     CONSTRAINT fk_roles_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
@@ -42,13 +42,17 @@ CREATE TABLE IF NOT EXISTS liceo_roles (
 CREATE TABLE IF NOT EXISTS liceo_roles_permissions (
     role_id TEXT,
     permission_id TEXT,
-    UNIQUE("role_id", "permission_id")
+    UNIQUE("role_id", "permission_id"),
+    CONSTRAINT fk_roles_permissions_roles FOREIGN KEY (role_id) REFERENCES liceo_roles(id),
+    CONSTRAINT fk_roles_permissions_permissions FOREIGN KEY (permission_id) REFERENCES liceo_permissions(id)
 );
 
 CREATE TABLE IF NOT EXISTS liceo_roles_users (
     role_id TEXT,
     user_id TEXT,
-    UNIQUE("role_id", "user_id")
+    UNIQUE("role_id", "user_id"),
+    CONSTRAINT fk_roles_users_roles FOREIGN KEY (role_id) REFERENCES liceo_roles(id),
+    CONSTRAINT fk_roles_users_users FOREIGN KEY (user_id) REFERENCES liceo_users(id)
 );
 
 
@@ -62,8 +66,8 @@ CREATE TABLE IF NOT EXISTS liceo_storage (
     filename TEXT,
     type TEXT,
     path TEXT,
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     CONSTRAINT fk_storage_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id)
 );
 
@@ -71,8 +75,8 @@ CREATE TABLE IF NOT EXISTS liceo_users_images (
     user_id TEXT,
     storage_id TEXT,
     dimension TEXT DEFAULT 'original', -- small, medium, large, original
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     CONSTRAINT fk_users_images_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
     CONSTRAINT fk_users_images_users FOREIGN KEY (user_id) REFERENCES liceo_users(id),
     CONSTRAINT fk_users_images_storage FOREIGN KEY (storage_id) REFERENCES liceo_storage(id)
@@ -132,8 +136,8 @@ CREATE TABLE IF NOT EXISTS liceo_people (
     sex TEXT,
     genre TEXT,
     responsible_id TEXT,
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     last_updated_at TIMESTAMP,
     last_updated_by TEXT,
     CONSTRAINT fk_people_responsible FOREIGN KEY (responsible_id) REFERENCES liceo_users(id),
@@ -144,12 +148,13 @@ CREATE TABLE IF NOT EXISTS liceo_people (
 CREATE TABLE IF NOT EXISTS liceo_people_contacts (
     id TEXT PRIMARY KEY,
     version INTEGER NOT NULL,
-    type TEXT,
-    value JSONB,
+    type TEXT NOT NULL,
+    value TEXT NOT NULL,
+    relationship TEXT NOT NULL,
     person_id TEXT,
     is_emergency BOOLEAN,
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     last_updated_at TIMESTAMP,
     last_updated_by TEXT,
     CONSTRAINT fk_contacts_person FOREIGN KEY (person_id) REFERENCES liceo_people(id),
@@ -162,9 +167,10 @@ CREATE TABLE IF NOT EXISTS liceo_people_identifications (
     version INTEGER NOT NULL,
     type TEXT,
     value TEXT,
+    expiration_date TIMESTAMP,
     person_id TEXT,
-    created_at TIMESTAMP,
-    created_by TEXT,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
     last_updated_at TIMESTAMP,
     last_updated_by TEXT,
     CONSTRAINT fk_identifications_person FOREIGN KEY (person_id) REFERENCES liceo_people(id),

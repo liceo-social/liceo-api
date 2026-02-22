@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass
 from liceo.infra.domain.entities import AuditableAggregate
 from liceo.labs.sherlock.domain.entities import AggregateEvent
@@ -90,7 +91,9 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
         id: vo.PersonContactId
         person_id: str
         type: str
-        value: dict
+        relationship: str
+        value: str
+        notes: str
         is_emergency: bool
         created_by: str
 
@@ -98,19 +101,26 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
     class ContactCreated(AggregateEvent):
         event_type: str = "CONTACT_CREATED"
         person: vo.PersonId
-        value: dict
+        type: str
+        relationship: str
+        value: str
+        notes: str
         is_emergency: bool
         created_by: vo.UserId
 
         def handle(self, aggregate: "PersonContact"):
             aggregate.mark_created_by(self.created_by)
             aggregate.person = self.person
+            aggregate.type = vo.ContactType(self.type)
+            aggregate.relationship = vo.ContactRelationship(self.relationship)
             aggregate.value = self.value
             aggregate.is_emergency = self.is_emergency
 
     person: vo.PersonId
-    type: str
-    value: dict
+    type: vo.ContactType
+    relationship: vo.ContactRelationship
+    value: str
+    notes: str
     is_emergency: bool
 
     @staticmethod
@@ -118,7 +128,10 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
         return PersonContact(cmd.id).append(
             PersonContact.ContactCreated(
                 person=vo.PersonId(id=cmd.person_id),
+                type=cmd.type,
+                relationship=cmd.relationship,
                 value=cmd.value,
+                notes=cmd.notes,
                 is_emergency=cmd.is_emergency,
                 created_by=vo.UserId(id=cmd.created_by)
             )
@@ -136,6 +149,7 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
         person_id: str
         type: str
         value: str
+        expiration_date: datetime | None
         created_by: str
         is_main_id: bool
 
@@ -145,6 +159,7 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
         value: str
         type: str
         person: vo.PersonId
+        expiration_date: datetime | None
         is_main_id: bool
         created_by: vo.UserId
 
@@ -164,6 +179,7 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
             PersonIdentification.IdentificationCreated(
                 type=cmd.type,
                 value=cmd.value,
+                expiration_date=cmd.expiration_date,
                 person=vo.PersonId(id=cmd.person_id),
                 created_by=vo.UserId(id=cmd.created_by),
                 is_main_id=cmd.is_main_id

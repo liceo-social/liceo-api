@@ -1,5 +1,6 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec, open_api_permissions
 from liceo.security.common.adapters.di import has_permission
+from . import di, permissions, responses
 
 specs = RestGroupSpec(
     name="PEOPLE",
@@ -11,27 +12,14 @@ specs = RestGroupSpec(
 router = specs.create_router()
 
 
-@router.get(
-    path="/",
-    summary="List people",
-    dependencies=[has_permission("!!!!!!!!!!!!!!!!!!")],
-    openapi_extra={**open_api_permissions(["!!!!!!!!!!!!!!!"])}
-)
-def list(
-    request: object,
-    service: object
-):
-    pass
-
-
 @router.post(
     path="/",
-    summary="Add a new person",
-    dependencies=[has_permission("!!!!!!!!!!!!!!!!!!")],
-    openapi_extra={**open_api_permissions(["!!!!!!!!!!!!!!!"])}
+    summary="Adds a new person",
+    dependencies=[has_permission(permissions.PEOPLE_CREATE)],
+    openapi_extra={**open_api_permissions([permissions.PEOPLE_CREATE])}
 )
 def create(
-    request: object,
-    service: object
-):
-    pass
+    request: di.CreatePersonRequestDependency,
+    service: di.PersonServiceDependency
+) -> responses.CreatePersonResponse | None:
+    responses.CreatePersonResponse.from_person(service.save_person(request.to_dto()))

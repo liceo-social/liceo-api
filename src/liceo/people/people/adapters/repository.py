@@ -45,6 +45,8 @@ class SQLContactRepository(repository.PersonContactRepository, SQLRepository):
                 "version": contact._version,
                 "type": contact.type,
                 "value": contact.value,
+                "relationship": contact.relationship,
+                "notes": contact.notes,
                 "person_id": contact.person.id,
                 "is_emergency": contact.is_emergency,
                 "created_at": contact.created_at,
