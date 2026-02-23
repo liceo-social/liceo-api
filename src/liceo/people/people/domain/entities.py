@@ -105,7 +105,7 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
         type: str
         relationship: str
         value: str
-        notes: str
+        notes: str | None
         is_emergency: bool
         created_by: vo.UserId
 
