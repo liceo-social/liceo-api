@@ -9,4 +9,4 @@ class FileMetadataId(AggregateId):
 
 @dataclass
 class UserId(AggregateId):
-    pass
+    id: str

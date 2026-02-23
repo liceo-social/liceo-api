@@ -40,7 +40,7 @@ class FileMetadata(Aggregate[FileMetadataId, UserId]):
         return FileMetadata(id=FileMetadataId(id=cmd.next_id))\
             .append(
                 FileMetadata.FileMetadataCreated(
-                    event_by=cmd.created_by,
+                    event_by=UserId(cmd.created_by),
                     created_by=cmd.created_by,
                     filename=cmd.filename,
                     path=cmd.path,

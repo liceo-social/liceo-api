@@ -27,13 +27,15 @@ class LocalStorageService(StorageService, AbstractService):
         file_name = dto.filename if dto.filename else f"{file_id}.{file_type.extension}"
         file_path = self.storage.write(key=file_name, data=dto.data)
 
-        file_metadata = FileMetadata.create(FileMetadata.CreateFileMetadataCommand(
-            next_id=file_id,
-            filename=file_name,
-            path=file_path,
-            type=file_type.mime,
-            created_by=dto.created_by
-        ))
+        file_metadata = FileMetadata.create(
+            FileMetadata.CreateFileMetadataCommand(
+                next_id=file_id,
+                filename=file_name,
+                path=file_path,
+                type=file_type.mime,
+                created_by=dto.created_by
+            )
+        )
 
         saved_metadata = self.repository.save_file_metadata(file_metadata)
         self.event_store.append(saved_metadata)

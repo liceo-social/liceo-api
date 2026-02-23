@@ -1,6 +1,7 @@
 INSERT INTO liceo_storage
 (
     id,
+    version,
     filename,
     type,
     path,
@@ -10,6 +11,7 @@ INSERT INTO liceo_storage
 VALUES
 (
     :id,
+    :version,
     :filename,
     :type,
     :path,

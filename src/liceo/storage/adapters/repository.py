@@ -22,6 +22,7 @@ class SQLFileMetadataRepository(FileMetadataRepository, SQLRepository):
             self.resolve_sql(self.save_file_metadata),
             params={
                 "id": file.id.id,
+                "version": file._version,
                 "filename": file.filename,
                 "type": file.type,
                 "path": file.path,

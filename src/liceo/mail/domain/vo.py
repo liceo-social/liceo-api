@@ -9,4 +9,4 @@ class MailId(AggregateId):
 
 @dataclass
 class UserId(AggregateId):
-    pass
+    id: str

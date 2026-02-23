@@ -78,7 +78,7 @@ class Mail(Aggregate[vo.MailId, vo.UserId]):
     def create(cmd: CreateMailCommand):
         return Mail(vo.MailId(cmd.id)).append(
             Mail.MailCreated(
-                event_by=cmd.created_by,
+                event_by=vo.UserId(cmd.created_by),
                 created_by=cmd.created_by,
                 recipient=cmd.recipient,
                 subject=cmd.subject,
