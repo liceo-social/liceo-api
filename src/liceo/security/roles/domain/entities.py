@@ -95,9 +95,10 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
 
         return Role(id=cmd.next_id()).append(
             Role.RoleCreated(
+                event_by=cmd.created_by,
+                created_by=cmd.created_by,
                 name=cmd.name,
                 description=cmd.description,
-                created_by=cmd.created_by,
                 permissions=cmd.permissions
             )
         )
@@ -111,9 +112,10 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
 
         return self.append(
             Role.RoleDetailsChanged(
+                event_by=cmd.updated_by,
+                updated_by=cmd.updated_by,
                 name=cmd.name,
-                description=cmd.description,
-                updated_by=cmd.updated_by
+                description=cmd.description
             )
         )
 
@@ -124,7 +126,13 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         if not cmd.is_admin:
             raise AttemptedByNoAdmin()
 
-        return self.append(Role.PermissionsModified(permissions=cmd.permissions, changed_by=cmd.changed_by))
+        return self.append(
+            Role.PermissionsModified(
+                changed_by=cmd.changed_by,
+                event_by=cmd.changed_by,
+                permissions=cmd.permissions,
+            )
+        )
 
     def delete(self, cmd: DeleteRoleCommand):
         if not self.check_version_matches(cmd.expected_version):
@@ -133,7 +141,12 @@ class Role(AuditableAggregate[vo.RoleId, vo.UserId]):
         if not cmd.is_admin:
             raise AttemptedByNoAdmin()
 
-        return self.append(Role.RoleDeleted(deleted_by=cmd.deleted_by))
+        return self.append(
+            Role.RoleDeleted(
+                event_by=cmd.deleted_by,
+                deleted_by=cmd.deleted_by
+            )
+        )
 
     @property
     def aggregate_type(self) -> str:

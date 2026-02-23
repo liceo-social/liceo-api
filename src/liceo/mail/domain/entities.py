@@ -4,7 +4,7 @@ from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
 from . import vo
 
 
-class Mail(Aggregate[vo.MailId]):
+class Mail(Aggregate[vo.MailId, vo.UserId]):
     @dataclass
     class CreateMailCommand:
         id: str
@@ -78,21 +78,35 @@ class Mail(Aggregate[vo.MailId]):
     def create(cmd: CreateMailCommand):
         return Mail(vo.MailId(cmd.id)).append(
             Mail.MailCreated(
+                event_by=cmd.created_by,
+                created_by=cmd.created_by,
                 recipient=cmd.recipient,
                 subject=cmd.subject,
-                body=cmd.body,
-                created_by=cmd.created_by
+                body=cmd.body
             )
         )
 
     def queue(self):
-        return self.append(Mail.MailQueued())
+        return self.append(
+            Mail.MailQueued(
+                event_by=None
+            )
+        )
 
     def mark_failed(self, cmd: MarkMailAsFailedCommand):
-        return self.append(Mail.MailFailed(error=cmd.error))
+        return self.append(
+            Mail.MailFailed(
+                event_by=None,
+                error=cmd.error
+            )
+        )
 
     def mark_sent(self):
-        return self.append(Mail.MailSent())
+        return self.append(
+            Mail.MailSent(
+                event_by=None
+            )
+        )
 
     @property
     def aggregate_type(self) -> str:

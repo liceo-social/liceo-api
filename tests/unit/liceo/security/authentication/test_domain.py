@@ -22,7 +22,8 @@ def test_should_authenticate_successfully_with_proper_credentials():
         username="username@domain.com",
         password="password",
         password_matches=True,
-        token_generator=TOKEN_GENERATOR
+        token_generator=TOKEN_GENERATOR,
+        user_id="user_id"
     )
 
     authenticated_user = create_user().authenticate(command)
@@ -32,6 +33,7 @@ def test_should_authenticate_successfully_with_proper_credentials():
 
 def test_should_fail_when_missing_credentials():
     command = User.AuthenticationCommand(
+        user_id="user_id",
         username="",
         password="",
         password_matches=True,
@@ -44,6 +46,7 @@ def test_should_fail_when_missing_credentials():
 
 def test_should_fail_when_credentials_are_empty():
     command = User.AuthenticationCommand(
+        user_id="user_id",
         username="",
         password="",
         password_matches=True,
@@ -56,6 +59,7 @@ def test_should_fail_when_credentials_are_empty():
 
 def test_should_fail_when_username_is_not_long_enough():
     command = User.AuthenticationCommand(
+        user_id="user_id",
         username="some",
         password="password",
         password_matches=True,
@@ -68,6 +72,7 @@ def test_should_fail_when_username_is_not_long_enough():
 
 def test_should_fail_when_password_is_not_long_enough():
     command = User.AuthenticationCommand(
+        user_id="user_id",
         username="some",
         password="pass",
         password_matches=True,

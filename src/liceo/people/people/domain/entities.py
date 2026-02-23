@@ -65,6 +65,8 @@ class Person(AuditableAggregate[vo.PersonId, vo.UserId]):
 
         return Person(cmd.id).append(
             Person.PersonCreated(
+                event_by=cmd.created_by,
+                created_by=cmd.created_by,
                 name=cmd.name,
                 surname=cmd.surname,
                 photo=cmd.photo,
@@ -75,8 +77,7 @@ class Person(AuditableAggregate[vo.PersonId, vo.UserId]):
                 main_id=cmd.main_id,
                 emergency_contact=cmd.emergency_contact,
                 responsible=cmd.responsible,
-                projects=cmd.projects,
-                created_by=cmd.created_by
+                projects=cmd.projects
             )
         )
 
@@ -93,7 +94,7 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
         type: str
         relationship: str
         value: str
-        notes: str
+        notes: str | None
         is_emergency: bool
         created_by: str
 
@@ -127,13 +128,14 @@ class PersonContact(AuditableAggregate[vo.PersonContactId, vo.UserId]):
     def create(cmd: CreateContactCommand):
         return PersonContact(cmd.id).append(
             PersonContact.ContactCreated(
+                event_by=vo.UserId(id=cmd.created_by),
+                created_by=vo.UserId(id=cmd.created_by),
                 person=vo.PersonId(id=cmd.person_id),
                 type=cmd.type,
                 relationship=cmd.relationship,
                 value=cmd.value,
                 notes=cmd.notes,
                 is_emergency=cmd.is_emergency,
-                created_by=vo.UserId(id=cmd.created_by)
             )
         )
 
@@ -177,11 +179,12 @@ class PersonIdentification(AuditableAggregate[vo.PersonIdentificationId, vo.User
     def create(cmd: CreateIdCommand):
         return PersonIdentification(cmd.id).append(
             PersonIdentification.IdentificationCreated(
+                event_by=vo.UserId(id=cmd.created_by),
+                created_by=vo.UserId(id=cmd.created_by),
                 type=cmd.type,
                 value=cmd.value,
                 expiration_date=cmd.expiration_date,
                 person=vo.PersonId(id=cmd.person_id),
-                created_by=vo.UserId(id=cmd.created_by),
                 is_main_id=cmd.is_main_id
             )
         )

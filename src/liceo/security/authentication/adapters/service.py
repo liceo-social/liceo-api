@@ -25,8 +25,9 @@ class AuthenticationService(AbstractAuthenticationService, AbstractService):
 
         authenticated = user.authenticate(
             User.AuthenticationCommand(
-                dto.username,
-                dto.password,
+                user_id=user.id.id,
+                username=dto.username,
+                password=dto.password,
                 password_matches=self.security.verify(dto.password, user.password),
                 token_generator=self.security.generate_token
             )

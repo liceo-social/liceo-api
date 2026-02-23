@@ -5,7 +5,8 @@ INSERT INTO liceo_events
     aggregate_type, 
     version, 
     event_type, 
-    created_at, 
+    event_at,
+    event_by,
     data
 ) 
 VALUES
@@ -15,7 +16,8 @@ VALUES
     :aggregate_type,
     :version,
     :event_type,
-    :created_at,
+    :event_at,
+    :event_by,
     :data
 )
 ON CONFLICT (aggregate_id, aggregate_type, version) DO NOTHING;

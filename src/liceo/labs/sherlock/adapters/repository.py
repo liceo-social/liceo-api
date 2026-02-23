@@ -14,7 +14,8 @@ class SQLEventStoreRepository(EventStoreRepository, SQLRepository):
                 "aggregate_id": event.aggregate_id,
                 "aggregate_type": event.aggregate_type,
                 "event_type": event.event_type,
-                "created_at": event.created_at,
+                "event_at": event.event_at,
+                "event_by": event.event_by.id,
                 "version": event.version,
                 "data": dumps(event.unsecure_dict())
             } for event in events

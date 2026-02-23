@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from liceo.labs.sherlock.domain.entities import Aggregate, AggregateEvent
-from .vo import FileMetadataId
+from .vo import FileMetadataId, UserId
 
 
 @dataclass(init=False)
-class FileMetadata(Aggregate[FileMetadataId]):
+class FileMetadata(Aggregate[FileMetadataId, UserId]):
     @dataclass
     class CreateFileMetadataCommand:
         next_id: str
@@ -40,8 +40,9 @@ class FileMetadata(Aggregate[FileMetadataId]):
         return FileMetadata(id=FileMetadataId(id=cmd.next_id))\
             .append(
                 FileMetadata.FileMetadataCreated(
-                    filename=cmd.filename,
+                    event_by=cmd.created_by,
                     created_by=cmd.created_by,
+                    filename=cmd.filename,
                     path=cmd.path,
                     type=cmd.type
                 )

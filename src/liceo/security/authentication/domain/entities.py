@@ -10,9 +10,10 @@ USERNAME_MIN_LENGTH = 6  # a@a.uk
 
 
 @dataclass(init=False)
-class User(Aggregate[UserId]):
+class User(Aggregate[UserId, UserId]):
     @dataclass
     class AuthenticationCommand:
+        user_id: str
         username: str
         password: str
         password_matches: bool
@@ -47,7 +48,13 @@ class User(Aggregate[UserId]):
 
         token = cmd.token_generator(self.id.id, self.roles)
 
-        return self.append(User.UserAuthenticated(username=cmd.username, token=token))
+        return self.append(
+            User.UserAuthenticated(
+                event_by=UserId(cmd.user_id),
+                username=cmd.username,
+                token=token
+            )
+        )
 
     @property
     def aggregate_type(self) -> str:

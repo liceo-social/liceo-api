@@ -90,6 +90,9 @@ INSERT INTO liceo_permissions (id, name, description) VALUES ('aNqYks4FyWdmNGSdv
 INSERT INTO liceo_permissions (id, name, description) VALUES ('8abQNKu4jXMrQPyrteBXcD', 'STORAGE_UPLOAD', 'allows to upload files');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('Fi9rbWdjGrcpLttbkLRHpL', 'STORAGE_DOWNLOAD', 'allows to download files');
 
+-- PEOPLE
+INSERT INTO liceo_permissions (id, name, description) VALUES ('33Eccx9gpXqbE9mCBi5596', 'PEOPLE_CREATE', 'allows to create people');
+
 -- #######################
 -- ###      ROLES      ###
 -- #######################
@@ -170,6 +173,10 @@ INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeG
 -- ADMIN/STORAGE_DOWNLOAD
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'Fi9rbWdjGrcpLttbkLRHpL');
 
+-- ADMIN/PEOPLE_CREATE
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', '33Eccx9gpXqbE9mCBi5596');
+
+
 -- #######################
 -- ###   ROLES_USERS   ###
 -- #######################
@@ -190,7 +197,8 @@ INSERT INTO liceo_events
     aggregate_id,
     aggregate_type,
     event_type,
-    created_at,
+    event_at,
+    event_by,
     data
 )
 VALUES
@@ -201,6 +209,7 @@ VALUES
     'USER',
     'USER_CREATED',
     '2026-02-16 23:01:21.329643',
+    'ZLP35KRt4jm8EkaebeWjJP',
     '{"name": "John", "role": "ROLE_ADMIN", "photo": "None", "surname": "Doe", "username": "john.doe@liceo.social", "created_at": "2026-02-16 23:01:21.329643", "created_by": "ZLP35KRt4jm8EkaebeWjJP"}'
 );
 
@@ -211,7 +220,8 @@ INSERT INTO liceo_events
     aggregate_id,
     aggregate_type,
     event_type,
-    created_at,
+    event_at,
+    event_by,
     data
 )
 VALUES
@@ -222,5 +232,6 @@ VALUES
     'USER',
     'USER_CREATED',
     '2026-02-16 23:01:21.329643',
+    'ZLP35KRt4jm8EkaebeWjJP',
     '{"name": "Pedro", "role": "ROLE_USER", "photo": "None", "surname": "Gutierrez", "username": "pedro.gutierrez@liceo.social", "created_at": "2026-02-16 23:01:21.329643", "created_by": "ZLP35KRt4jm8EkaebeWjJP"}'
 );

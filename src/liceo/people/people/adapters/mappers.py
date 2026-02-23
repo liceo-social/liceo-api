@@ -33,14 +33,17 @@ class Create:
 
         return vo.Identification(
             type=dto.official_id_type,
-            value=dto.official_id_value
+            value=dto.official_id_value,
+            expiration_date=dto.official_id_expiration_date
         )
 
     @staticmethod
     def from_dto_to_emergency_contact(dto: dtos.CreatePersonDTO):
         return vo.EmergencyContact(
-            type=dto.emergency_contact_type,
-            value=dto.emergency_contact_value
+            type=vo.ContactType(dto.emergency_contact_type),
+            value=dto.emergency_contact_value,
+            relationship=vo.ContactRelationship(dto.emergency_contact_relationship),
+            notes=dto.emergency_contact_notes
         )
 
     @staticmethod
@@ -52,7 +55,8 @@ class Create:
                 type=person.main_id.type,
                 value=person.main_id.value,
                 created_by=person.created_by.id,
-                is_main_id=True
+                is_main_id=True,
+                expiration_date=person.main_id.expiration_date
             )
 
     @staticmethod
@@ -60,8 +64,10 @@ class Create:
         return entities.PersonContact.CreateContactCommand(
             id=id,
             person_id=person.id.id,
-            type=person.emergency_contact.type,
+            type=person.emergency_contact.type.value,
             value=person.emergency_contact.value,
             created_by=person.created_by.id,
-            is_emergency=True
+            is_emergency=True,
+            relationship=person.emergency_contact.relationship.value,
+            notes=person.emergency_contact.notes
         )

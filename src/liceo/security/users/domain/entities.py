@@ -30,11 +30,11 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
         changed_by: vo.UserId
 
         def handle(self, aggregate: "User"):
+            aggregate.mark_updated_by(self.changed_by)
             aggregate.name = self.name
             aggregate.surname = self.surname
             aggregate.username = self.username
             aggregate.roles = [self.role]
-            aggregate.mark_updated_by(self.changed_by)
 
     @dataclass
     class ChangePasswordCommand(VersionAwareCommand):
@@ -133,6 +133,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
 
         return User(id=vo.UserId(id=cmd.next_id()))\
             .append(User.UserCreated(
+                event_by=cmd.created_by,
                 created_by=cmd.created_by,
                 name=cmd.name,
                 photo=cmd.photo,
@@ -153,12 +154,13 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
 
         return self.append(
             User.DetailsChanged(
+                event_by=cmd.changed_by,
+                changed_by=cmd.changed_by,
                 name=cmd.name,
                 surname=cmd.surname,
                 username=cmd.username,
                 photo=cmd.photo,
-                role=cmd.role,
-                changed_by=cmd.changed_by
+                role=cmd.role
             )
         )
 
@@ -177,6 +179,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
 
         return self.append(
             User.PasswordChanged(
+                event_by=cmd.changed_by,
                 changed_by=cmd.changed_by,
                 new_password=Sensitive(
                     cmd.new_password_hashing_handler(cmd.new_password)
@@ -193,6 +196,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
 
         return self.append(
             User.SecurityUpdated(
+                event_by=cmd.updated_by,
                 updated_by=cmd.updated_by,
                 account_active=cmd.account_active,
                 account_blocked=cmd.account_blocked,

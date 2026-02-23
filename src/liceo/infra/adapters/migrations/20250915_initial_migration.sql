@@ -116,9 +116,11 @@ CREATE TABLE IF NOT EXISTS liceo_events (
     aggregate_id TEXT,
     aggregate_type TEXT,
     event_type TEXT,
-    created_at TIMESTAMP,
+    event_at TIMESTAMP,
+    event_by TEXT,
     data JSONB,
-    UNIQUE("aggregate_id", "aggregate_type", "version")
+    UNIQUE("aggregate_id", "aggregate_type", "version"),
+    CONSTRAINT fk_liceo_events_event_by FOREIGN KEY (event_by) REFERENCES liceo_users(id)
 );
 
 -- ########################

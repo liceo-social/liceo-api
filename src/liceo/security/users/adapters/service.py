@@ -151,7 +151,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
                 account_active=input.account_active,
                 account_blocked=input.account_blocked,
                 account_expired=input.account_expired,
-                updated_by=vo.UserId(id=input.id),
+                updated_by=vo.UserId(id=input.updated_by.id),
                 updated_by_admin=input.updated_by.is_admin
             )
         )

@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Generic, List, Self, TypeVar
 
 T = TypeVar("T")
+U = TypeVar("U")
 
 
 @dataclass
@@ -12,12 +13,13 @@ class Sensitive(Generic[T]):
 
 
 @dataclass(kw_only=True)
-class AggregateEvent(Generic[T], ABC):
+class AggregateEvent(Generic[T, U], ABC):
     id: str = ""
     aggregate_id: str = ""
     aggregate_type: str = ""
     event_type: str
-    created_at: datetime = datetime.now()
+    event_at: datetime = datetime.now()
+    event_by: U
     version: int = 0
 
     @abstractmethod
@@ -51,12 +53,12 @@ ID = TypeVar("ID", bound=AggregateId)
 
 
 @dataclass
-class Aggregate(Generic[ID]):
+class Aggregate(Generic[ID, U]):
     id: ID
     _version: int = field(default=0)
-    _events: List[AggregateEvent[Self]] = field(default_factory=list)
+    _events: List[AggregateEvent[Self, U]] = field(default_factory=list)
 
-    def append(self, event: AggregateEvent[Self]):
+    def append(self, event: AggregateEvent[Self, U]):
         if not self.id:
             raise Exception("Can't add without aggregate id")
 
@@ -78,7 +80,7 @@ class Aggregate(Generic[ID]):
 
 
 @dataclass
-class AggregateRoot(Aggregate[ID]):
+class AggregateRoot(Aggregate[ID, U]):
     def append_child_aggregate_events(self, aggregate: Aggregate):
         for ev in self._events:
             self._events.append(ev)
