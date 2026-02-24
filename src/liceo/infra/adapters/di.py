@@ -1,5 +1,4 @@
 from typing import Annotated
-
 from fastapi import Depends
 
 from liceo.infra.adapters.persistence import SQLAlchemyConnectionFactory
@@ -21,7 +20,7 @@ ConfigurationDependency = Annotated[LiceoConfiguration,
 
 
 def load_connection_factory(cfg: ConfigurationDependency) -> ConnectionFactory:
-    return SQLAlchemyConnectionFactory(url=cfg.db.get_url())
+    return SQLAlchemyConnectionFactory(database_config=cfg.db)
 
 
 ConnectionFactoryDependency = Annotated[ConnectionFactory, Depends(

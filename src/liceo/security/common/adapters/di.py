@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from liceo.infra.adapters.di import ConfigurationDependency, ConnectionFactoryDependency
+from liceo.infra.adapters.di import ConfigurationDependency, ConnectionFactoryDependency, ConnectionManagerDependency
 from liceo.security.common.application.service import SecurityService
 from .requests import UserContextModel
 from .repositories import PoirotPermissionsRepository
@@ -19,9 +19,14 @@ PermissionsRepositoryDependency = Annotated[PermissionsRepository, Depends(
 
 def security_service(
     config: ConfigurationDependency,
-    repository: PermissionsRepositoryDependency
+    repository: PermissionsRepositoryDependency,
+    connection_manager_factory: ConnectionManagerDependency,
 ):
-    return SecurityService(config=config, repository=repository)
+    return SecurityService(
+        config=config,
+        repository=repository,
+        connection_manager_factory=connection_manager_factory
+    )
 
 
 SecurityServiceDependency = Annotated[SecurityService, Depends(security_service)]

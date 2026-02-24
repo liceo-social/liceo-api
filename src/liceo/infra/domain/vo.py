@@ -47,6 +47,11 @@ class DatabaseConfig(BaseModel):
     driver: str = Field(default="pg8000")
     host: str = Field(default="postgres-svc")
     port: int = Field(default=5432)
+    pool_size: int = Field(default=5)
+    max_overflow: int = Field(default=0)
+    pool_timeout: int = Field(default=30)
+    pool_recycle: int = Field(default=1800)
+    pool_pre_ping: bool = Field(default=True)
 
     def get_url(self):
         return "{}+{}://{}:{}@{}:{}/{}".format(

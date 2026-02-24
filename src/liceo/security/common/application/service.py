@@ -2,14 +2,17 @@ import jwt
 import bcrypt
 from dataclasses import dataclass
 from liceo.infra.domain.vo import LiceoConfiguration
+from liceo.labs.db.core import ConnectionManagerFactory, managed_service
 from .cases import HashPassword, CheckPermissions, GenerateToken
 from .repositories import PermissionsRepository
 
 
 @dataclass
+@managed_service
 class SecurityService(HashPassword, CheckPermissions, GenerateToken):
     config: LiceoConfiguration
     repository: PermissionsRepository
+    connection_manager_factory: ConnectionManagerFactory
 
     def hash_passw(self, pwd) -> str:
         return bcrypt.hashpw(pwd.encode(), self.config.crypto.salt.encode()).decode()

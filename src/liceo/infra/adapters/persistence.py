@@ -1,5 +1,8 @@
+from dataclasses import dataclass
 from sqlalchemy import create_engine
 from typing import Any, List, Mapping
+from liceo.labs.utils import singleton
+from liceo.infra.domain.vo import DatabaseConfig
 from sqlalchemy import Connection as SAConnection, create_engine, text
 from liceo.labs.db.core import Connection as LiceoConnection, ConnectionFactory as LiceoConnectionFactory
 from liceo.labs.db.core import ExecutionParams
@@ -48,9 +51,17 @@ class SQLAlchemyConnection(LiceoConnection):
             self._conn._nested_transaction.commit()
 
 
+@singleton
 class SQLAlchemyConnectionFactory(LiceoConnectionFactory):
-    def __init__(self, url: str):
-        self._engine = create_engine(url)
+    def __init__(self, database_config: DatabaseConfig):
+        self._engine = create_engine(
+            database_config.get_url(),
+            pool_size=database_config.pool_size,
+            pool_timeout=database_config.pool_timeout,
+            max_overflow=database_config.max_overflow,
+            pool_recycle=database_config.pool_recycle,
+            pool_pre_ping=database_config.pool_pre_ping
+        )
 
     def create(self) -> LiceoConnection:
         return SQLAlchemyConnection(self._engine.connect())

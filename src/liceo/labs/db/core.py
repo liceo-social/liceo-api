@@ -169,11 +169,9 @@ class Repository:
 
     def _get_connection(self) -> Connection:
         conn = _current_connection.get()
-        if conn is not None:
-            return conn
-
-        # fallback: autonomous connection
-        return self._factory.create()
+        if conn is None:
+            raise RuntimeError("No ambient connection scope")
+        return conn
 
     @contextmanager
     def _connection_scope(self):
@@ -240,6 +238,8 @@ def managed_service(cls):
         if attr_name.startswith("_") or not callable(attr):
             continue
         if getattr(attr, "_skip_default_connection", False):
+            continue
+        if getattr(attr, "transactional", False):
             continue
         setattr(cls, attr_name, _wrap_with_connection(attr))
     return cls
