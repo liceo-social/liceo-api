@@ -1,5 +1,7 @@
-import functools
+import os
+import sys
 import inspect
+from functools import wraps, lru_cache
 from logging import getLogger
 from typing import Any, Callable, Mapping, Sequence, TypeVar, Union
 from pathlib import Path
@@ -13,21 +15,58 @@ SingleParams = Mapping[str, Any]
 MultiParams = Sequence[Mapping[str, Any]]
 ExecutionParams = Union[SingleParams, MultiParams]
 
+# to cache sql resolution in production
+CACHE_SQL: bool = os.getenv("SHERLOCK_CACHE_SQL") is not None
+
+
+class SQLResolver:
+    @staticmethod
+    def _resolve_sql_file_cacheable(module_name: str, func_name: str) -> str:
+        logger.debug(
+            "resolving sql file ['%s', '%s']",
+            module_name,
+            func_name
+        )
+        module = sys.modules.get(module_name)
+        if module is None or not module.__file__:
+            # module not loaded or invalid
+            raise Exception(f"module {module_name} not loaded or invalid")
+
+        module_path = Path(module.__file__).parent
+        sql_path = module_path / "sql" / f"{func_name}.sql"
+
+        if not sql_path.is_file():
+            # SQL file does not exist
+            raise Exception(f"SQL file {sql_path} does not exist")
+
+        try:
+            with open(sql_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except (OSError, IOError):
+            # Could not read file for some reason
+            raise Exception(f"Could not read file {sql_path} for some reason")
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def _resolve_sql_cached(module_name: str, func_name: str) -> str:
+        return SQLResolver._resolve_sql_file_cacheable(module_name, func_name)
+
+    @staticmethod
+    def _resolve_sql_uncached(module_name: str, func_name: str) -> str:
+        return SQLResolver._resolve_sql_file_cacheable(module_name, func_name)
+
+    @staticmethod
+    def resolve_sql(func: Callable[..., Any]) -> str:
+        module_name = func.__module__
+        func_name = func.__name__
+        if CACHE_SQL:
+            return SQLResolver._resolve_sql_cached(module_name, func_name)
+        return SQLResolver._resolve_sql_uncached(module_name, func_name)
+
 
 class SQLRepository(Repository):
-    def resolve_sql_file(self, func: Callable[..., Any]) -> Path:
-        sql_dir = Path(inspect.getfile(func)).parent / "sql"
-
-        module = inspect.getmodule(func)
-        if module:
-            sql_dir = Path(inspect.getfile(module)).parent / "sql"
-
-        sql_filename = "{}.sql".format(func.__name__)
-        return sql_dir / sql_filename
-
     def resolve_sql(self, func: Callable[..., Any]) -> str:
-        with open(self.resolve_sql_file(func), "r") as file:
-            return file.read()
+        return SQLResolver.resolve_sql(func)
 
     def sql_optimize(self, sql, params: ExecutionParams | None, orders: Mapping[str, bool] | None) -> str:
         return self.sql_optimize_order_by(self.sql_optimize_params(sql, params), orders)
@@ -79,19 +118,9 @@ class SQLRepository(Repository):
 
 def sql(mapper: Callable[..., A] = lambda row: row):
     def decorator(func: Callable[..., Any]) -> Callable[..., A]:
-        @functools.wraps(func)
+        @wraps(func)
         def wrapper(self: SQLRepository, *args: Any, **kwargs: Any) -> A:
-            sql_file = self.resolve_sql_file(func)
-            sql_content = ""
-
-            if not sql_file.exists():
-                raise Exception("SQL file not found!")
-
-            with sql_file.open() as file_content:
-                sql_content = "\n".join(file_content.readlines())
-
-            if not sql_content:
-                raise Exception("No SQL content found in file!")
+            sql_content = self.resolve_sql(func)
 
             if kwargs and len(args) > 0:
                 raise Exception("Can't decide whether we should use args or kwargs!")
