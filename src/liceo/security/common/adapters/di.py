@@ -6,6 +6,7 @@ from liceo.security.common.application.service import SecurityService
 from .requests import UserContextModel
 from .repositories import PoirotPermissionsRepository
 from .roles import ROLE_ADMIN
+from .service import DatabaseAwareSecurityService
 from ..application.repositories import PermissionsRepository
 
 
@@ -22,7 +23,7 @@ def security_service(
     repository: PermissionsRepositoryDependency,
     connection_manager_factory: ConnectionManagerDependency,
 ):
-    return SecurityService(
+    return DatabaseAwareSecurityService(
         config=config,
         repository=repository,
         connection_manager_factory=connection_manager_factory
