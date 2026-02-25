@@ -56,11 +56,11 @@ def create_user(
     dependencies=[has_permission(permissions.USERS_UPDATE_DETAILS)],
     openapi_extra={**open_api_permissions([permissions.USERS_UPDATE_DETAILS])}
 )
-def update_user(
+def update_user_details(
     request: di.UpdateUserRequestDependency,
     service: di.UsersServiceDependency
-) -> responses.UpdateUserResponse | None:
-    return responses.UpdateUserResponse.from_user(service.update_user(request.to_input()))
+) -> responses.UpdateUserDetailsResponse | None:
+    return responses.UpdateUserDetailsResponse.from_user(service.update_user(request.to_input()))
 
 
 @router.put(

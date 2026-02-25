@@ -33,7 +33,7 @@ class CreateUserRequest(BaseModel):
 
 
 class UpdateUserDetails(UserDetails):
-    expected_version: int
+    version: int
 
 
 class UpdateUserRequest(BaseModel):
@@ -44,7 +44,7 @@ class UpdateUserRequest(BaseModel):
     def to_input(self) -> UpdateUserDetailsDTO:
         return UpdateUserDetailsDTO(
             id=self.id,
-            expected_version=self.fields.expected_version,
+            version=self.fields.version,
             name=self.fields.name,
             surname=self.fields.surname,
             username=self.fields.username,
@@ -78,7 +78,7 @@ class FilteringUsersRequest(BaseModel):
 
 
 class UpdatePasswordFields(BaseModel):
-    expected_version: int
+    version: int
     old_password: str
     new_password: str
     new_password_repeated: str
@@ -92,7 +92,7 @@ class UpdatePasswordRequest(BaseModel):
     def to_input(self) -> UpdatePasswordDTO:
         return UpdatePasswordDTO(
             id=self.id,
-            expected_version=self.fields.expected_version,
+            version=self.fields.version,
             old_password=self.fields.old_password,
             new_password=self.fields.new_password,
             new_password_repeated=self.fields.new_password_repeated,
@@ -105,7 +105,7 @@ class UpdatePasswordRequest(BaseModel):
 
 
 class UpdateSecurityFields(BaseModel):
-    expected_version: int
+    version: int
     password_expired: bool
     account_active: bool
     account_blocked: bool
@@ -120,7 +120,7 @@ class UpdateSecurityRequest(BaseModel):
     def to_input(self) -> UpdateSecurityDTO:
         return UpdateSecurityDTO(
             id=self.id,
-            expected_version=self.fields.expected_version,
+            version=self.fields.version,
             account_active=self.fields.account_active,
             account_blocked=self.fields.account_blocked,
             account_expired=self.fields.account_expired,

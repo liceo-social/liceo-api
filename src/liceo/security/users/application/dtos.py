@@ -52,7 +52,7 @@ class SaveUserImageDTO:
 @dataclass
 class UpdateUserDetailsDTO:
     id: str
-    expected_version: int
+    version: int
     name: str
     surname: str
     username: str
@@ -64,7 +64,7 @@ class UpdateUserDetailsDTO:
 @dataclass
 class UpdatePasswordDTO:
     id: str
-    expected_version: int
+    version: int
     old_password: str
     new_password: str
     new_password_repeated: str
@@ -74,7 +74,7 @@ class UpdatePasswordDTO:
 @dataclass
 class UpdateSecurityDTO:
     id: str
-    expected_version: int
+    version: int
     password_expired: bool
     account_active: bool
     account_blocked: bool
@@ -84,6 +84,7 @@ class UpdateSecurityDTO:
 
 @dataclass
 class UpdatedSecurityDTO:
+    id: str
     version: int
     password_expired: bool
     account_active: bool

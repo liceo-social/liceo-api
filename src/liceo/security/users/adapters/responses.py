@@ -14,14 +14,27 @@ class CreateUserResponse(BaseModel):
         return CreateUserResponse(id=user.id.id)
 
 
-class UpdateUserResponse(BaseModel):
+class UpdateUserDetailsResponse(BaseModel):
     id: str
     version: int
+    name: str
+    surname: str
+    photo: str | None = None
+    username: str
+    role: str
 
     @staticmethod
     def from_user(user: User | None):
         if (user):
-            return UpdateUserResponse(id=user.id.id, version=user._version)
+            return UpdateUserDetailsResponse(
+                id=user.id.id,
+                version=user._version,
+                name=user.name,
+                surname=user.surname,
+                photo=user.photo,
+                username=user.username,
+                role=user.roles[0]
+            )
 
 
 class UpdatePasswordResponse(BaseModel):
@@ -44,6 +57,7 @@ class ListUsersResponse(BaseModel):
 
 
 class UpdatedSecurityResponse(BaseModel):
+    id: str
     version: int
     password_expired: bool
     account_active: bool
@@ -55,6 +69,7 @@ class UpdatedSecurityResponse(BaseModel):
         if not dto:
             return None
         return UpdatedSecurityResponse(
+            id=dto.id,
             version=dto.version,
             password_expired=dto.password_expired,
             account_active=dto.account_active,

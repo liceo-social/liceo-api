@@ -88,7 +88,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
             return None
 
         updated = loaded.update_details(entities.User.UpdateDetailsCommand(
-            expected_version=input.expected_version,
+            expected_version=input.version,
             name=input.name,
             surname=input.surname,
             username=input.username,
@@ -120,7 +120,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
 
         # updating password
         updated = loaded.change_password(entities.User.ChangePasswordCommand(
-            expected_version=input.expected_version,
+            expected_version=input.version,
             old_password=input.old_password,
             old_password_check_handler=lambda old_plain: self._check_old_passwd(
                 old_plain, loaded.password),
@@ -146,7 +146,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
         # updating user
         updated = loaded.update_security(
             entities.User.UpdateSecurityCommand(
-                expected_version=input.expected_version,
+                expected_version=input.version,
                 password_expired=input.password_expired,
                 account_active=input.account_active,
                 account_blocked=input.account_blocked,
@@ -161,6 +161,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
         self.event_store.append(saved_user)
         # return saved_user
         return dtos.UpdatedSecurityDTO(
+            id=saved_user.id.id,
             version=saved_user._version,
             password_expired=saved_user.password_expired,
             account_active=saved_user.account_active,
