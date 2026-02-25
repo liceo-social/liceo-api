@@ -71,6 +71,10 @@ class ShowUserResponse(BaseModel):
     username: str
     photo: str | None
     role: str
+    password_expired: bool
+    account_active: bool
+    account_blocked: bool
+    account_expired: bool
     created_by: str
 
     @staticmethod
@@ -85,5 +89,9 @@ class ShowUserResponse(BaseModel):
             username=dto.username,
             photo=dto.photo,
             role=dto.roles[0],
-            created_by="",
+            account_active=dto.account_active,
+            password_expired=dto.password_expired,
+            account_blocked=dto.account_blocked,
+            account_expired=dto.account_expired,
+            created_by=dto.created_by,
         )

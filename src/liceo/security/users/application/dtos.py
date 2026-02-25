@@ -33,6 +33,7 @@ class UserDTO:
     username: str
     photo: str | None
     roles: list[str]
+    created_by: str
     password_expired: bool
     account_active: bool
     account_blocked: bool
