@@ -1,12 +1,12 @@
 from typing import Annotated
-from fastapi import Depends, Body
+from fastapi import Depends, Body, Query
 from liceo.infra.adapters.di import ConnectionFactoryDependency, ConnectionManagerDependency, TransactionManagerDependency, EventStoreDependency
 from liceo.security.common.adapters.di import UserInfo
 from ..application.repository import ProjectRepository
 from ..application.service import ProjectService
 from .repository import SQLProjectRepository
 from .service import DatabaseAwareProjectService
-from .requests import CreateProjectRequest, CreateProjectDetails
+from .requests import CreateProjectRequest, CreateProjectDetails, ListProjectsRequest
 
 # ------ REPOSITORIES
 
@@ -50,3 +50,6 @@ def create_project_request(
 
 CreateProjectRequestDependency = Annotated[CreateProjectRequest, Depends(
     create_project_request)]
+
+
+ListProjectsRequestDependency = Annotated[ListProjectsRequest, Query()]

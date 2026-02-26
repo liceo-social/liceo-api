@@ -12,6 +12,19 @@ specs = RestGroupSpec(
 router = specs.create_router()
 
 
+@router.get(
+    path="/",
+    summary="Lists projects and could filter by name",
+    dependencies=[has_permission(permissions.PROJECTS_LIST)],
+    openapi_extra={**open_api_permissions([permissions.PROJECTS_LIST])}
+)
+def list(
+    request: di.ListProjectsRequestDependency,
+    service: di.ProjectServiceDependency
+) -> responses.ListProjectsResponse:
+    return responses.ListProjectsResponse.from_paged(service.filter_projects(request.to_dto()))
+
+
 @router.post(
     path="/",
     summary="Adds a new project",
