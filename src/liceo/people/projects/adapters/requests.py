@@ -32,3 +32,20 @@ class ListProjectsRequest(BaseModel):
             name=self.name,
             pagination=Pagination(max=self.max, page=self.page)
         )
+
+
+class AddMemberToProjectPath(BaseModel):
+    id: str
+    person_id: str
+
+
+class AddMemberToProjectRequest(BaseModel):
+    created_by: UserContextModel
+    details: AddMemberToProjectPath
+
+    def to_dto(self) -> dtos.AddMemberToProjectDTO:
+        return dtos.AddMemberToProjectDTO(
+            project_id=self.details.id,
+            person_id=self.details.person_id,
+            created_by=self.created_by.id
+        )

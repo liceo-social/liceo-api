@@ -13,3 +13,10 @@ class CreateProjectDTO:
 class FilterProjectsDTO:
     name: str | None
     pagination: Pagination
+
+
+@dataclass
+class AddMemberToProjectDTO:
+    project_id: str
+    person_id: str
+    created_by: str

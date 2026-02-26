@@ -1,9 +1,19 @@
 from pydantic import BaseModel
 from liceo.infra.domain.vo import Paged
-from ..domain.entities import Project
+from ..domain.entities import Project, ProjectMembership
 
 
-class SimpleProjectResponse(BaseModel):
+class MinimalProjectResponse(BaseModel):
+    id: str
+    version: int
+
+    @staticmethod
+    def from_project(project: Project | None):
+        if project:
+            return MinimalProjectResponse(id=project.id.id, version=project._version)
+
+
+class ProjectResponse(BaseModel):
     id: str
     version: int
     name: str
@@ -11,7 +21,7 @@ class SimpleProjectResponse(BaseModel):
 
     @staticmethod
     def from_project(project: Project):
-        return SimpleProjectResponse(
+        return ProjectResponse(
             id=project.id.id,
             version=project._version,
             name=project.name,
@@ -20,12 +30,29 @@ class SimpleProjectResponse(BaseModel):
 
 
 class ListProjectsResponse(BaseModel):
-    data: list[SimpleProjectResponse]
+    data: list[ProjectResponse]
     total: int
 
     @staticmethod
     def from_paged(paged: Paged[Project]) -> "ListProjectsResponse":
         return ListProjectsResponse(
-            data=paged.map(SimpleProjectResponse.from_project).data,
+            data=paged.map(ProjectResponse.from_project).data,
             total=paged.total
         )
+
+
+class ProjectMembershipResponse(BaseModel):
+    id: str
+    version: int
+    person_id: str
+    project_id: str
+
+    @staticmethod
+    def from_project_membership(membership: ProjectMembership | None):
+        if membership:
+            return ProjectMembershipResponse(
+                id=membership.id.id,
+                version=membership._version,
+                person_id=membership.person.id,
+                project_id=membership.project.id
+            )

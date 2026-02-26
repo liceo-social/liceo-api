@@ -12,3 +12,7 @@ class ProjectService(ABC):
     @abstractmethod
     def create_project(self, dto: dtos.CreateProjectDTO) -> entities.Project:
         pass
+
+    @abstractmethod
+    def add_new_member(self, dto: dtos.AddMemberToProjectDTO) -> entities.ProjectMembership | None:
+        pass

@@ -34,5 +34,18 @@ def list(
 def create(
     request: di.CreateProjectRequestDependency,
     service: di.ProjectServiceDependency
-) -> responses.SimpleProjectResponse:
-    return responses.SimpleProjectResponse.from_project(service.create_project(request.to_dto()))
+) -> responses.ProjectResponse:
+    return responses.ProjectResponse.from_project(service.create_project(request.to_dto()))
+
+
+@router.post(
+    path="/{id}/membership/{person_id}",
+    summary="Adds a person membership to the project",
+    dependencies=[has_permission(permissions.PROJECTS_ADD_MEMBERSHIP)],
+    openapi_extra={**open_api_permissions([permissions.PROJECTS_ADD_MEMBERSHIP])}
+)
+def add_member(
+    request: di.AddMemberToProjectRequestDependency,
+    service: di.ProjectServiceDependency
+) -> responses.ProjectMembershipResponse | None:
+    return responses.ProjectMembershipResponse.from_project_membership(service.add_new_member(request.to_dto()))

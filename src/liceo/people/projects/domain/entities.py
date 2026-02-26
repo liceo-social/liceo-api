@@ -47,12 +47,42 @@ class Project(AuditableAggregate[vo.ProjectId, vo.UserId]):
         return "PROJECT"
 
 
+class ProjectMembership(AuditableAggregate[vo.ProjectMembershipId, vo.UserId]):
+    @dataclass
+    class CreateMembershipCommand:
+        id: vo.ProjectMembershipId
+        person_id: str
+        project_id: str
+        created_by: str
+
+    @dataclass(kw_only=True)
+    class MembershipCreated(AggregateEvent):
+        event_type: str = "MEMBERSHIP_CREATED"
+        person_id: str
+        project_id: str
+        created_by: str
+
+        def handle(self, aggregate: "ProjectMembership"):
+            aggregate.mark_created_by(vo.UserId(self.created_by))
+            aggregate.person = vo.PersonId(self.person_id)
+            aggregate.project = vo.ProjectId(self.project_id)
+
+    person: vo.PersonId
+    project: vo.ProjectId
+
+    @staticmethod
+    def create(cmd: CreateMembershipCommand):
+        return ProjectMembership(cmd.id).append(
+            ProjectMembership.MembershipCreated(
+                person_id=cmd.person_id,
+                project_id=cmd.project_id,
+                created_by=cmd.created_by,
+                event_by=vo.UserId(cmd.created_by)
+            )
+        )
+
+
 class ProjectCoordinator(AuditableAggregate[vo.ProjectCoordinatorId, vo.UserId]):
     user: vo.UserId
     project: vo.ProjectId
     is_owner: bool
-
-
-class ProjectMembership(AuditableAggregate[vo.ProjectMembershipId, vo.UserId]):
-    person: vo.PersonId
-    project: vo.ProjectId

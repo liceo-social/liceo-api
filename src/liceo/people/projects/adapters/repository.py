@@ -1,10 +1,10 @@
 from shortuuid import uuid
 from typing import override
 from liceo.infra.domain.vo import Paged, Pagination
-from liceo.people.projects.domain.entities import Project
-from liceo.labs.db.sql import SQLRepository
-from liceo.people.projects.domain.vo import ProjectId
-from ..application.repository import ProjectRepository
+from liceo.people.projects.domain.entities import Project, ProjectMembership
+from liceo.labs.db.sql import SQLRepository, sql
+from liceo.people.projects.domain.vo import ProjectId, ProjectMembershipId
+from ..application.repository import ProjectRepository, ProjectMemberRepository
 from .mappers import from_row_to_project
 
 
@@ -12,6 +12,10 @@ class SQLProjectRepository(ProjectRepository, SQLRepository):
     @override
     def generate_id(self) -> ProjectId:
         return ProjectId(uuid())
+
+    @sql(from_row_to_project)
+    def find_project_by_id(self, id: str) -> Project | None:
+        return None
 
     @override
     def save_project(self, project: Project) -> Project:
@@ -47,3 +51,22 @@ class SQLProjectRepository(ProjectRepository, SQLRepository):
             total=result[0]["total_count"] if result else 0,
             data=list(map(from_row_to_project, result))
         )
+
+
+class SQLProjectMemberRepository(ProjectMemberRepository, SQLRepository):
+    def generate_id(self) -> ProjectMembershipId:
+        return ProjectMembershipId(uuid())
+
+    def save_membership(self, membership: ProjectMembership) -> ProjectMembership:
+        self._get_connection().execute(
+            sql=self.resolve_sql(self.save_membership),
+            params={
+                "id": membership.id,
+                "version": membership._version,
+                "project_id": membership.project.id,
+                "person_id": membership.person.id,
+                "created_by": membership.created_by,
+                "created_at": membership.created_at
+            }
+        )
+        return membership
