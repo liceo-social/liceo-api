@@ -1,5 +1,7 @@
 from ..domain import entities, vo
 from ..application import dtos
+from liceo.people.identifications.application.dtos import CreatePersonIdentificationDTO
+from liceo.people.contacts.application.dtos import CreatePersonContactDTO
 
 
 class Create:
@@ -47,11 +49,10 @@ class Create:
         )
 
     @staticmethod
-    def from_person_to_create_identification_command(id: vo.PersonIdentificationId, person: entities.Person):
+    def from_person_to_create_identification_dto(person: entities.Person) -> CreatePersonIdentificationDTO | None:
         if person.main_id:
-            return entities.PersonIdentification.CreateIdCommand(
+            return CreatePersonIdentificationDTO(
                 person_id=person.id.id,
-                id=id,
                 type=person.main_id.type,
                 value=person.main_id.value,
                 created_by=person.created_by.id,
@@ -60,9 +61,8 @@ class Create:
             )
 
     @staticmethod
-    def from_person_to_create_emergency_command(id: vo.PersonContactId, person: entities.Person):
-        return entities.PersonContact.CreateContactCommand(
-            id=id,
+    def from_person_to_create_emergency_dto(person: entities.Person) -> CreatePersonContactDTO:
+        return CreatePersonContactDTO(
             person_id=person.id.id,
             type=person.emergency_contact.type.value,
             value=person.emergency_contact.value,
