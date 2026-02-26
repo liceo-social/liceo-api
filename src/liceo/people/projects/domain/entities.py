@@ -47,6 +47,12 @@ class Project(AuditableAggregate[vo.ProjectId, vo.UserId]):
         return "PROJECT"
 
 
+class ProjectCoordinator(AuditableAggregate[vo.ProjectCoordinatorId, vo.UserId]):
+    user: vo.UserId
+    project: vo.ProjectId
+    is_owner: bool
+
+
 class ProjectMembership(AuditableAggregate[vo.ProjectMembershipId, vo.UserId]):
     person: vo.PersonId
     project: vo.ProjectId

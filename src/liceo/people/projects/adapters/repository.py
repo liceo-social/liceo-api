@@ -39,11 +39,11 @@ class SQLProjectRepository(ProjectRepository, SQLRepository):
         if name:
             params.update({"name": f"%{name}%"})
 
-        result = self._get_connection().execute(
+        result = self._get_connection().all(
             self.sql_optimize_params(sql, params),
             params
         )
         return Paged(
-            total=result[0]["total_count"] if result and result.rowcount > 0 else 0,
+            total=result[0]["total_count"] if result else 0,
             data=list(map(from_row_to_project, result))
         )

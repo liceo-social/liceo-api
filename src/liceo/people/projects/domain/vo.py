@@ -18,5 +18,10 @@ class ProjectMembershipId(AggregateId):
 
 
 @dataclass
+class ProjectCoordinatorId(AggregateId):
+    id: str
+
+
+@dataclass
 class PersonId(AggregateId):
     id: str

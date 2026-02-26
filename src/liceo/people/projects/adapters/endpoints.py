@@ -34,6 +34,5 @@ def list(
 def create(
     request: di.CreateProjectRequestDependency,
     service: di.ProjectServiceDependency
-) -> responses.CreateProjectResponse | None:
-    responses.CreateProjectResponse.from_project(
-        service.create_project(request.to_dto()))
+) -> responses.SimpleProjectResponse:
+    return responses.SimpleProjectResponse.from_project(service.create_project(request.to_dto()))

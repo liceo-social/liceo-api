@@ -19,10 +19,6 @@ class SimpleProjectResponse(BaseModel):
         )
 
 
-class CreateProjectResponse(SimpleProjectResponse):
-    pass
-
-
 class ListProjectsResponse(BaseModel):
     data: list[SimpleProjectResponse]
     total: int
