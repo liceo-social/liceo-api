@@ -93,6 +93,9 @@ INSERT INTO liceo_permissions (id, name, description) VALUES ('Fi9rbWdjGrcpLttbk
 -- PEOPLE
 INSERT INTO liceo_permissions (id, name, description) VALUES ('33Eccx9gpXqbE9mCBi5596', 'PEOPLE_CREATE', 'allows to create people');
 
+-- PROJECTS
+INSERT INTO liceo_permissions (id, name, description) VALUES ('mgewHChKbk5rAbbc5fAnQU', 'PROJECTS_CREATE', 'allows to create projects');
+
 -- #######################
 -- ###      ROLES      ###
 -- #######################
@@ -175,6 +178,9 @@ INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeG
 
 -- ADMIN/PEOPLE_CREATE
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', '33Eccx9gpXqbE9mCBi5596');
+
+-- ADMIN/PROJECTS_CREATE
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'mgewHChKbk5rAbbc5fAnQU');
 
 
 -- #######################

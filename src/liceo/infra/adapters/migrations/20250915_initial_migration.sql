@@ -179,3 +179,21 @@ CREATE TABLE IF NOT EXISTS liceo_people_identifications (
     CONSTRAINT fk_identifications_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
     CONSTRAINT fk_identifications_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
 );
+
+
+-- ########################
+-- ###     PROJECTS     ###
+-- ########################
+
+CREATE TABLE IF NOT EXISTS liceo_projects (
+    id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    CONSTRAINT fk_projects_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_projects_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
+)
