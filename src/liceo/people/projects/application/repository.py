@@ -27,5 +27,19 @@ class ProjectMemberRepository(ABC):
         pass
 
     @abstractmethod
-    def save_membership(self, membership: entities.ProjectMembership) -> entities.ProjectMembership:
+    def save_project_membership(self, membership: entities.ProjectMembership) -> entities.ProjectMembership:
+        pass
+
+
+class ProjectCoordinatorRepository(ABC):
+    @abstractmethod
+    def generate_id(self) -> vo.ProjectCoordinatorId:
+        pass
+
+    @abstractmethod
+    def find_all_coordinators_by_project_ids(self, project_ids: list[str]) -> Paged[entities.ProjectCoordinator]:
+        pass
+
+    @abstractmethod
+    def save_project_coordinator(self, project_coordinator: entities.ProjectCoordinator) -> entities.ProjectCoordinator | None:
         pass

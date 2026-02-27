@@ -144,7 +144,7 @@ def sql(mapper: Callable[..., A] = lambda row: row):
                 return mapper(all)
 
             if func.__name__.startswith("find_") or func.__name__.startswith("insert_"):
-                logger.debug("executing find___ query")
+                logger.debug(f"executing find___ query: {func.__name__}")
                 one = self._get_connection().one(sql=sql_content, params=kwargs)
                 return mapper(one)
 

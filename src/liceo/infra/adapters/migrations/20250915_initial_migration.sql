@@ -196,4 +196,39 @@ CREATE TABLE IF NOT EXISTS liceo_projects (
     last_updated_by TEXT,
     CONSTRAINT fk_projects_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
     CONSTRAINT fk_projects_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
-)
+);
+
+CREATE TABLE IF NOT EXISTS liceo_projects_members (
+    id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
+    project_id TEXT NOT NULL,
+    person_id TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    UNIQUE("project_id", "person_id"),
+    CONSTRAINT fk_projects_members_project_id FOREIGN KEY (project_id) REFERENCES liceo_projects(id),
+    CONSTRAINT fk_projects_members_person_id FOREIGN KEY (person_id) REFERENCES liceo_people(id),
+    CONSTRAINT fk_projects_members_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_projects_members_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
+);
+
+CREATE TABLE IF NOT EXISTS liceo_projects_coordinators (
+    id TEXT PRIMARY KEY,
+    version INTEGER NOT NULL,
+    project_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    is_owner BOOLEAN,
+    created_at TIMESTAMP NOT NULL,
+    created_by TEXT NOT NULL,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    UNIQUE("project_id", "user_id"),
+    CONSTRAINT fk_projects_coordinators_project_id FOREIGN KEY (project_id) REFERENCES liceo_projects(id),
+    CONSTRAINT fk_projects_coordinators_user_id FOREIGN KEY (user_id) REFERENCES liceo_users(id),
+    CONSTRAINT fk_projects_coordinators_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_projects_coordinators_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id)
+);
+
+CREATE UNIQUE INDEX liceo_projects_coordinators_only_one_owner ON liceo_projects_coordinators (is_owner, project_id) WHERE is_owner = TRUE;

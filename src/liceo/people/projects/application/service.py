@@ -16,3 +16,11 @@ class ProjectService(ABC):
     @abstractmethod
     def add_new_member(self, dto: dtos.AddMemberToProjectDTO) -> entities.ProjectMembership | None:
         pass
+
+    @abstractmethod
+    def add_coordinator(self, dto: dtos.AddCoordinatorToProjectDTO) -> entities.ProjectCoordinator | None:
+        pass
+
+    @abstractmethod
+    def find_all_coordinators_by_project_ids(self, dto: dtos.FindAllCoordinatorsByProjectIdsDTO) -> Paged[entities.ProjectCoordinator]:
+        pass

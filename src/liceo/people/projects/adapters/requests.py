@@ -49,3 +49,29 @@ class AddMemberToProjectRequest(BaseModel):
             person_id=self.details.person_id,
             created_by=self.created_by.id
         )
+
+
+class AddCoordinatorPayload(BaseModel):
+    id: str
+    user_id: str
+
+
+class AddCoordinatorRequest(BaseModel):
+    added_by: UserContextModel
+    is_owner: bool = Field(default=False)
+    details: AddCoordinatorPayload
+
+    def to_dto(self) -> dtos.AddCoordinatorToProjectDTO:
+        return dtos.AddCoordinatorToProjectDTO(
+            user_id=self.details.user_id,
+            project_id=self.details.id,
+            added_by=self.added_by.id,
+            is_owner=self.is_owner
+        )
+
+
+class FindAllCoordinatorsByProjectsRequest(BaseModel):
+    projects: list[str]
+
+    def to_dto(self) -> dtos.FindAllCoordinatorsByProjectIdsDTO:
+        return dtos.FindAllCoordinatorsByProjectIdsDTO(projects=self.projects)

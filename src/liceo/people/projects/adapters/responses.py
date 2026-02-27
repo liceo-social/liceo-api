@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from liceo.infra.domain.vo import Paged
-from ..domain.entities import Project, ProjectMembership
+from ..domain.entities import Project, ProjectMembership, ProjectCoordinator
 
 
 class MinimalProjectResponse(BaseModel):
@@ -56,3 +56,35 @@ class ProjectMembershipResponse(BaseModel):
                 person_id=membership.person.id,
                 project_id=membership.project.id
             )
+
+
+class ProjectCoordinatorResponse(BaseModel):
+    id: str
+    version: int
+    user: str
+    project: str
+    is_owner: bool
+
+    @staticmethod
+    def from_coordinator(coordinator: ProjectCoordinator | None):
+        if coordinator:
+            return ProjectCoordinatorResponse(
+                id=coordinator.id.id,
+                version=coordinator._version,
+                user=coordinator.user.id,
+                project=coordinator.project.id,
+                is_owner=coordinator.is_owner
+            )
+
+
+class ListProjectsCoordinatorsResponse(BaseModel):
+    data: list[ProjectCoordinatorResponse]
+    total: int
+
+    @staticmethod
+    def from_paged(paged: Paged[ProjectCoordinator]):
+        coordinators = map(ProjectCoordinatorResponse.from_coordinator, paged.data)
+        return ListProjectsCoordinatorsResponse(
+            data=[c for c in coordinators if c],
+            total=paged.total
+        )

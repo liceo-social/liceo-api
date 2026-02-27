@@ -20,3 +20,16 @@ class AddMemberToProjectDTO:
     project_id: str
     person_id: str
     created_by: str
+
+
+@dataclass
+class AddCoordinatorToProjectDTO:
+    user_id: str
+    project_id: str
+    is_owner: bool
+    added_by: str
+
+
+@dataclass
+class FindAllCoordinatorsByProjectIdsDTO:
+    projects: list[str]

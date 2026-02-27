@@ -97,6 +97,8 @@ INSERT INTO liceo_permissions (id, name, description) VALUES ('33Eccx9gpXqbE9mCB
 INSERT INTO liceo_permissions (id, name, description) VALUES ('mgewHChKbk5rAbbc5fAnQU', 'PROJECTS_CREATE', 'allows to create projects');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('LGoiyMGdNGPFXhzVP7MXnf', 'PROJECTS_LIST', 'allows to list or filter projects');
 INSERT INTO liceo_permissions (id, name, description) VALUES ('KrMBkC2Qg5aBFo2GoTMe7z', 'PROJECTS_ADD_MEMBERSHIP', 'allows to add a person to the project');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('8fvxbEm9GZ96gAmF67EExy', 'PROJECTS_ADD_COORDINATOR', 'allows to add a coordinator to the project');
+INSERT INTO liceo_permissions (id, name, description) VALUES ('JEaWqpg6guams3awBJ2QTb', 'PROJECTS_QUERY_COORDINATORS_BY_PROJECTS', 'allows to find coordinators in the projects passed');
 
 
 -- #######################
@@ -188,6 +190,10 @@ INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeG
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'LGoiyMGdNGPFXhzVP7MXnf');
 -- ADMIN/PROJECTS_ADD_MEMBERSHIP
 INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'KrMBkC2Qg5aBFo2GoTMe7z');
+-- ADMIN/PROJECTS_ADD_COORDINATOR
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', '8fvxbEm9GZ96gAmF67EExy');
+-- ADMIN/PROJECTS_QUERY_COORDINATORS_BY_PROJECTS
+INSERT INTO liceo_roles_permissions (role_id, permission_id) VALUES ('rDCJKyPVeGLfmboVS7PkXC', 'JEaWqpg6guams3awBJ2QTb');
 
 
 -- #######################

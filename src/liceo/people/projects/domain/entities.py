@@ -57,7 +57,7 @@ class ProjectMembership(AuditableAggregate[vo.ProjectMembershipId, vo.UserId]):
 
     @dataclass(kw_only=True)
     class MembershipCreated(AggregateEvent):
-        event_type: str = "MEMBERSHIP_CREATED"
+        event_type: str = "MEMBERSHIP_ADDED"
         person_id: str
         project_id: str
         created_by: str
@@ -69,6 +69,11 @@ class ProjectMembership(AuditableAggregate[vo.ProjectMembershipId, vo.UserId]):
 
     person: vo.PersonId
     project: vo.ProjectId
+
+    @property
+    @override
+    def aggregate_type(self) -> str:
+        return "PROJECT_MEMBERSHIP"
 
     @staticmethod
     def create(cmd: CreateMembershipCommand):
@@ -83,6 +88,45 @@ class ProjectMembership(AuditableAggregate[vo.ProjectMembershipId, vo.UserId]):
 
 
 class ProjectCoordinator(AuditableAggregate[vo.ProjectCoordinatorId, vo.UserId]):
+    @dataclass
+    class CreateProjectCoordinatorCommand:
+        id: vo.ProjectCoordinatorId
+        user_id: str
+        project_id: str
+        is_owner: bool
+        added_by: str
+
+    @dataclass(kw_only=True)
+    class ProjectCoordinatorCreated(AggregateEvent):
+        event_type: str = "COORDINATOR_ADDED"
+        user_id: str
+        project_id: str
+        is_owner: bool
+        added_by: str
+
+        def handle(self, aggregate: "ProjectCoordinator"):
+            aggregate.mark_created_by(vo.UserId(self.added_by))
+            aggregate.project = vo.ProjectId(self.project_id)
+            aggregate.user = vo.UserId(self.user_id)
+            aggregate.is_owner = self.is_owner
+
     user: vo.UserId
     project: vo.ProjectId
     is_owner: bool
+
+    @property
+    @override
+    def aggregate_type(self) -> str:
+        return "PROJECT_COORDINATOR"
+
+    @staticmethod
+    def create(cmd: CreateProjectCoordinatorCommand):
+        return ProjectCoordinator(cmd.id).append(
+            ProjectCoordinator.ProjectCoordinatorCreated(
+                user_id=cmd.user_id,
+                project_id=cmd.project_id,
+                is_owner=cmd.is_owner,
+                added_by=cmd.added_by,
+                event_by=vo.UserId(cmd.added_by)
+            )
+        )
