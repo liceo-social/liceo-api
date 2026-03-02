@@ -31,6 +31,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
 
         def handle(self, aggregate: "User"):
             aggregate.mark_updated_by(self.changed_by)
+            aggregate.photo = self.photo
             aggregate.name = self.name
             aggregate.surname = self.surname
             aggregate.username = self.username

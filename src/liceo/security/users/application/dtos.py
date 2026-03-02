@@ -41,12 +41,14 @@ class UserDTO:
 
 
 @dataclass
-class SaveUserImageDTO:
+class UpsertUserImageDTO:
     user_id: str
     photo_id: str
     dimension: str
-    created_by: str
-    created_at: datetime
+    created_by: str | None = field(default=None)
+    created_at: datetime | None = field(default=datetime.now())
+    last_updated_by: str | None = field(default=None)
+    last_updated_at: datetime | None = field(default=datetime.now())
 
 
 @dataclass

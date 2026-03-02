@@ -2,7 +2,7 @@ from abc import abstractmethod
 from liceo.infra.application.output import AbstractRepository
 from liceo.infra.domain.vo import Paged
 from ..domain.entities import User
-from .dtos import FilterUsersDTO, UserDTO, SaveUserImageDTO
+from .dtos import FilterUsersDTO, UserDTO, UpsertUserImageDTO
 
 
 class UsersRepository(AbstractRepository):
@@ -33,5 +33,5 @@ class UsersRepository(AbstractRepository):
 
 class UsersImagesRepository(AbstractRepository):
     @abstractmethod
-    def save_user_image(self, dto: SaveUserImageDTO) -> None:
+    def save_user_image(self, dto: UpsertUserImageDTO) -> None:
         pass

@@ -77,7 +77,11 @@ CREATE TABLE IF NOT EXISTS liceo_users_images (
     dimension TEXT DEFAULT 'original', -- small, medium, large, original
     created_at TIMESTAMP NOT NULL,
     created_by TEXT NOT NULL,
+    last_updated_at TIMESTAMP,
+    last_updated_by TEXT,
+    UNIQUE("user_id", "dimension"),
     CONSTRAINT fk_users_images_created_by FOREIGN KEY (created_by) REFERENCES liceo_users(id),
+    CONSTRAINT fk_users_images_last_updated_by FOREIGN KEY (last_updated_by) REFERENCES liceo_users(id),
     CONSTRAINT fk_users_images_users FOREIGN KEY (user_id) REFERENCES liceo_users(id),
     CONSTRAINT fk_users_images_storage FOREIGN KEY (storage_id) REFERENCES liceo_storage(id)
 );

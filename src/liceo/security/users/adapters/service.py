@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass
 from liceo.infra.domain.vo import Paged
 from liceo.labs.sherlock.application.service import EventStoreService
@@ -53,12 +54,27 @@ class UsersService(service.AbstractUsersService, AbstractService):
     def _save_user_photo(self, user: entities.User) -> None:
         if user.photo:
             self.images.save_user_image(
-                dtos.SaveUserImageDTO(
+                dtos.UpsertUserImageDTO(
                     user_id=user.id.id,
                     photo_id=user.photo,
                     dimension="original",
                     created_by=user.created_by.id,
                     created_at=user.created_at
+                )
+            )
+
+    def _update_user_photo(self, user: entities.User, updated_by: dtos.CurrentUserDTO) -> None:
+        if user.photo:
+            photo_created_at = datetime.now()
+            self.images.save_user_image(
+                dtos.UpsertUserImageDTO(
+                    user_id=user.id.id,
+                    photo_id=user.photo,
+                    dimension="original",
+                    created_at=photo_created_at,
+                    created_by=updated_by.id,
+                    last_updated_at=photo_created_at,
+                    last_updated_by=updated_by.id
                 )
             )
 
@@ -99,8 +115,8 @@ class UsersService(service.AbstractUsersService, AbstractService):
         ))
         # saving user
         saved_user = self.users.update_user(updated)
-        # saving user photo
-        self._save_user_photo(saved_user)
+        # update user photo
+        self._update_user_photo(saved_user, input.updated_by)
         # saving event trail
         self.event_store.append(saved_user)
         # return saved_user

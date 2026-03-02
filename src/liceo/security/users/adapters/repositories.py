@@ -1,5 +1,5 @@
 from liceo.infra.domain.vo import Paged, AuditInfo
-from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, SaveUserImageDTO
+from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, UpsertUserImageDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
 from ..application.repository import UsersRepository, UsersImagesRepository
@@ -137,12 +137,16 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
 
 
 class SQLUsersImagesRepository(UsersImagesRepository, SQLRepository):
-    def save_user_image(self, dto: SaveUserImageDTO) -> None:
+    def save_user_image(self, dto: UpsertUserImageDTO) -> None:
         sql = self.resolve_sql(self.save_user_image)
-        self._get_connection().execute(sql, params={
+        params = params = {
             "user_id": dto.user_id,
             "storage_id": dto.photo_id,
             "dimension": dto.dimension,
             "created_at": dto.created_at,
-            "created_by": dto.created_by
-        })
+            "created_by": dto.created_by,
+            "last_updated_by": dto.last_updated_by,
+            "last_updated_at": dto.last_updated_at
+        }
+        print(params)
+        self._get_connection().execute(sql, params)
