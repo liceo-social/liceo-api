@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from dataclasses import dataclass
 from liceo.infra.domain.vo import Paged
 from liceo.labs.sherlock.application.service import EventStoreService
@@ -14,7 +14,7 @@ from ..application import dtos, repository, service
 
 @dataclass
 @managed_service
-class SendActivationMailService(service.UserNotificationService, AbstractService):
+class DatabaseBackedUserNotificationsService(service.UserNotificationService, AbstractService):
     mails: MailScheduler
     templates: TemplateRenderer
 
@@ -35,11 +35,29 @@ class SendActivationMailService(service.UserNotificationService, AbstractService
         )
         return user
 
+    @skip_default_connection
+    @transactional()
+    def send_reset_password_message(self, dto: dtos.SendResetPasswordMessageByMailDTO):
+        email_body = self.templates.render("users_reset_password.html", {
+            "name": dto.name,
+            "username": dto.username,
+            "token": dto.token,
+        })
+        self.mails.queue_mail(
+            QueueMailDTO(
+                recipient=dto.username,
+                subject="Reset Email",
+                body=email_body,
+                created_by=dto.created_by
+            )
+        )
+
 
 @dataclass
 @managed_service
 class UsersService(service.AbstractUsersService, AbstractService):
     users: repository.UsersRepository
+    tokens: repository.UsersOneTimeTokensRepository
     images: repository.UsersImagesRepository
     security: SecurityService
     event_store: EventStoreService
@@ -184,3 +202,51 @@ class UsersService(service.AbstractUsersService, AbstractService):
             account_blocked=saved_user.account_blocked,
             account_expired=saved_user.account_expired
         )
+
+    @transactional()
+    def send_reset_password_email(self, input: dtos.SendResetPasswordEmailDTO):
+        # only proceed if user exists
+        user = self.users.find_user_by_username(input.username)
+
+        if not user:
+            return
+
+        token, token_hash = self.security.generate_reset_token()
+        # register event in user
+        updated = user.reset_password_request(
+            entities.User.ResetPasswordRequestCommand(
+                hashed_token=token_hash,
+                created_at=datetime.now(),
+                expires_at=datetime.now() + timedelta(minutes=20),
+                created_by=user.id.id
+            )
+        )
+        # remove all previous tokens
+        self.tokens.delete_all_tokens_by_user_id(updated.id.id)
+        # hashed token is persisted
+        self.tokens.save_reset_hashed_token(updated)
+        # add aggregate events
+        self.event_store.append(updated)
+        # send email notification to user with link to reset password
+        self.notifications.send_reset_password_message(dtos.SendResetPasswordMessageByMailDTO(
+            name=user.name,
+            username=user.username,
+            token=token,
+            created_by=user.id.id
+        ))
+
+    @transactional()
+    def confirm_reset_password(self, input: dtos.ConfirmResetPasswordDTO):
+        user = self.users.find_user_by_token(input.token)
+
+        if not user:
+            return
+
+        updated = user.reset_password(entities.User.ResetPasswordCommand(
+            hashed_token=input.token,
+            password=input.password,
+            password_repeated=input.password_repeated
+        ))
+
+        self.users.update_password(user)
+        self.tokens.mark_token_as_used(updated.reset_password_token)

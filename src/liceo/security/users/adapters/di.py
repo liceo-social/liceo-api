@@ -6,7 +6,7 @@ from liceo.security.common.adapters.di import SecurityServiceDependency, UserInf
 from liceo.mail.adapters.di import MailSchedulerServiceDependency, TemplateRenderDependency
 from .repositories import SQLUsersRepository, SQLUsersImagesRepository
 from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields, ShowUserRequest
-from .service import UsersService, SendActivationMailService
+from .service import UsersService, DatabaseBackedUserNotificationsService
 from ..application.repository import UsersRepository, UsersImagesRepository
 from ..application.service import UserNotificationService
 
@@ -19,7 +19,7 @@ def create_user_notifications(
         connection_manager: ConnectionManagerDependency,
         transaction_manager: TransactionManagerDependency
 ):
-    return SendActivationMailService(
+    return DatabaseBackedUserNotificationsService(
         mails=mails,
         templates=templates,
         connection_manager_factory=connection_manager,

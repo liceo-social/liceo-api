@@ -39,3 +39,11 @@ class EditedByOtherUser(I18Error):
             "security.users.error.concurrent_modification",
             "user edited at the same time by another user",
         )
+
+
+class MissingResetPasswordValues(I18Error):
+    def __init__(self):
+        super().__init__(
+            "security.users.error.reset",
+            "missing password or repeated password",
+        )

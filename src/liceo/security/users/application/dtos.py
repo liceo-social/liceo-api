@@ -97,3 +97,23 @@ class UpdatedSecurityDTO:
 @dataclass
 class GetUserDTO:
     id: str
+
+
+@dataclass
+class SendResetPasswordEmailDTO:
+    username: str
+
+
+@dataclass
+class ConfirmResetPasswordDTO:
+    token: str
+    password: str
+    password_repeated: str
+
+
+@dataclass
+class SendResetPasswordMessageByMailDTO:
+    name: str
+    username: str
+    token: str
+    created_by: str

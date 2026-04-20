@@ -29,8 +29,20 @@ class AbstractUsersService(ABC):
     def update_security(self, input: dtos.UpdateSecurityDTO) -> dtos.UpdatedSecurityDTO | None:
         pass
 
+    @abstractmethod
+    def send_reset_password_email(self, input: dtos.SendResetPasswordEmailDTO):
+        pass
+
+    @abstractmethod
+    def confirm_reset_password(self, input: dtos.ConfirmResetPasswordDTO):
+        pass
+
 
 class UserNotificationService(ABC):
     @abstractmethod
     def send_activation_message(self, user: User) -> User:
+        pass
+
+    @abstractmethod
+    def send_reset_password_message(self, dto: dtos.SendResetPasswordMessageByMailDTO):
         pass

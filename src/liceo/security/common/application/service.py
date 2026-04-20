@@ -19,5 +19,9 @@ class SecurityService(ABC):
         pass
 
     @abstractmethod
+    def generate_reset_token(self) -> tuple[str, str]:
+        pass
+
+    @abstractmethod
     def decode_token(self, token: str) -> dict:
         pass

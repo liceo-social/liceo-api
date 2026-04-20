@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -113,6 +114,44 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
             aggregate.username = self.username
             aggregate.roles = [self.role]
 
+    @dataclass
+    class ResetPasswordRequestCommand:
+        hashed_token: str
+        created_at: datetime
+        expires_at: datetime
+        created_by: str
+
+    @dataclass(kw_only=True)
+    class ResetPasswordRequestCreated(AggregateEvent):
+        event_type: str = "RESET_PASSWORD_REQUEST_CREATED"
+        hashed_token: str
+        created_at: datetime
+        expires_at: datetime
+
+        def handle(self, aggregate: "User"):
+            aggregate.reset_password_token = vo.ResetPassworToken(
+                hashed_token=self.hashed_token,
+                created_at=self.created_at,
+                expires_at=self.expires_at,
+                used_at=None
+            )
+
+    @dataclass
+    class ResetPasswordCommand:
+        hashed_token: str
+        password: str
+        password_repeated: str
+
+    @dataclass(kw_only=True)
+    class PasswordReset(AggregateEvent):
+        event_type: str = "PASSWORD_RESET"
+        password: str
+
+        def handle(self, aggregate: "User"):
+            if aggregate.reset_password_token:
+                aggregate.reset_password_token.used_at = datetime.now()
+                aggregate.password = self.password
+
     # details
     name: str = field()
     surname: str = field()
@@ -126,6 +165,8 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
     account_active: bool = field(default=False)
     account_blocked: bool = field(default=False)
     account_expired: bool = field(default=False)
+    # reset password token
+    reset_password_token: vo.ResetPassworToken | None
 
     @staticmethod
     def create(cmd: CreateUserCommand):
@@ -205,6 +246,26 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
                 password_expired=cmd.password_expired
             )
         )
+
+    def reset_password_request(self, cmd: ResetPasswordRequestCommand):
+        return self.append(User.ResetPasswordRequestCreated(
+            hashed_token=cmd.hashed_token,
+            created_at=cmd.created_at,
+            expires_at=cmd.expires_at,
+            event_by=vo.UserId(cmd.created_by)
+        ))
+
+    def reset_password(self, cmd: ResetPasswordCommand):
+        if not (cmd.password and cmd.password_repeated):
+            raise errors.MissingResetPasswordValues()
+
+        if cmd.password != cmd.password_repeated:
+            raise errors.RepeatedPasswordNotCorrect()
+
+        return self.append(User.PasswordReset(
+            password=cmd.password,
+            event_by=self.id.id
+        ))
 
     @property
     def full_name(self):

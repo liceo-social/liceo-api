@@ -87,3 +87,19 @@ def update_password(
     service: di.UsersServiceDependency
 ) -> responses.UpdatePasswordResponse | None:
     return responses.UpdatePasswordResponse.from_user(service.update_password(request.to_input()))
+
+
+@router.post(
+    path="/password-reset/request",
+    summary="Requests a password reset email"
+)
+def request_reset_password_email():
+    pass
+
+
+@router.post(
+    path="/password-reset/confirm",
+    summary="Submits a new password via password reset mechanism"
+)
+def confirm_reset_password():
+    pass

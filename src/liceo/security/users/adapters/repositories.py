@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
 from liceo.infra.domain.vo import Paged, AuditInfo
 from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, UpsertUserImageDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
-from ..application.repository import UsersRepository, UsersImagesRepository
+from ..application.repository import UsersRepository, UsersImagesRepository, UsersOneTimeTokensRepository
 from ..domain.vo import UserId
 from . import mappers
 
@@ -29,6 +30,10 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
 
     @sql(_map_to_user)
     def find_user_by_id(self, id: str) -> User | None:
+        return None
+
+    @sql(_map_to_user)
+    def find_user_by_username(self, username: str) -> User | None:
         return None
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
@@ -150,3 +155,23 @@ class SQLUsersImagesRepository(UsersImagesRepository, SQLRepository):
         }
         print(params)
         self._get_connection().execute(sql, params)
+
+
+class SQLUsersOneTimeTokensRepository(UsersOneTimeTokensRepository, SQLRepository):
+    @sql()
+    def delete_all_tokens_by_user_id(self, user_id: str) -> None:
+        return None
+
+    def save_reset_hashed_token(self, user: User) -> None:
+        sql = self.resolve_sql(self.save_reset_hashed_token)
+        last_reset_token = user.last_reset_token
+        self._get_connection().execute(
+            sql,
+            params={
+                "id": self.generate_id(),
+                "user_id": user.id.id,
+                "token_hash": last_reset_token.hashed_token,
+                "created_at": last_reset_token.created_at,
+                "expires_at": last_reset_token.expires.at
+            }
+        )
