@@ -15,7 +15,7 @@ class UsersRepository(AbstractRepository):
         pass
 
     @abstractmethod
-    def find_user_by_token(self, token: str) -> User | None:
+    def find_user_by_token_and_username(self, token: str,  username: str) -> User | None:
         pass
 
     @abstractmethod

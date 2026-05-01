@@ -4,10 +4,10 @@ from fastapi import Depends, Query, Body, Path
 from liceo.infra.adapters.di import ConnectionFactoryDependency, EventStoreDependency, ConnectionManagerDependency, TransactionManagerDependency
 from liceo.security.common.adapters.di import SecurityServiceDependency, UserInfo
 from liceo.mail.adapters.di import MailSchedulerServiceDependency, TemplateRenderDependency
-from .repositories import SQLUsersRepository, SQLUsersImagesRepository
-from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields, ShowUserRequest
+from .repositories import SQLUsersRepository, SQLUsersImagesRepository, SQLUsersOneTimeTokensRepository
+from .requests import CreateUserRequest, FilteringUsersRequest, UserDetails, UpdateUserDetails, UpdateUserRequest, UpdatePasswordRequest, UpdatePasswordFields, UpdateSecurityRequest, UpdateSecurityFields, ShowUserRequest, ResetPasswordRequest, ResetPasswordConfirmationRequest
 from .service import UsersService, DatabaseBackedUserNotificationsService
-from ..application.repository import UsersRepository, UsersImagesRepository
+from ..application.repository import UsersRepository, UsersImagesRepository, UsersOneTimeTokensRepository
 from ..application.service import UserNotificationService
 
 # ----- NOTIFICATIONS
@@ -47,6 +47,14 @@ ImagesRepositoryDependency = Annotated[UsersImagesRepository, Depends(
     images_repository)]
 
 
+def tokens_repository(connection_factory: ConnectionFactoryDependency) -> UsersOneTimeTokensRepository:
+    return SQLUsersOneTimeTokensRepository(factory=connection_factory)
+
+
+TokensRepositoryDependency = Annotated[UsersOneTimeTokensRepository, Depends(
+    tokens_repository)]
+
+
 # ---- SERVICES
 def users_service(
     repository: RepositoryDependency,
@@ -55,6 +63,7 @@ def users_service(
     security: SecurityServiceDependency,
     transaction_manager: TransactionManagerDependency,
     connection_manager: ConnectionManagerDependency,
+    tokens_repository: TokensRepositoryDependency,
     notifications: NotificationsDependency,
 ) -> UsersService:
     return UsersService(
@@ -64,6 +73,7 @@ def users_service(
         event_store=event_store,
         connection_manager_factory=connection_manager,
         transaction_manager_factory=transaction_manager,
+        tokens=tokens_repository,
         notifications=notifications
     )
 
@@ -129,3 +139,11 @@ def get_show_user_request(
 
 
 ShowUserRequestDependency = Annotated[ShowUserRequest, Depends(get_show_user_request)]
+
+
+ResetPasswordRequestDependency = Annotated[ResetPasswordRequest, Depends(
+    ResetPasswordRequest)]
+
+
+ResetPasswordConfirmationRequestDependency = Annotated[ResetPasswordConfirmationRequest, Body(
+)]

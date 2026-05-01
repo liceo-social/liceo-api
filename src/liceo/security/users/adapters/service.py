@@ -237,7 +237,7 @@ class UsersService(service.AbstractUsersService, AbstractService):
 
     @transactional()
     def confirm_reset_password(self, input: dtos.ConfirmResetPasswordDTO):
-        user = self.users.find_user_by_token(input.token)
+        user = self.users.find_user_by_token_and_username(input.token, input.username)
 
         if not user:
             return
@@ -248,5 +248,6 @@ class UsersService(service.AbstractUsersService, AbstractService):
             password_repeated=input.password_repeated
         ))
 
-        self.users.update_password(user)
-        self.tokens.mark_token_as_used(updated.reset_password_token)
+        self.users.update_password(updated)
+        self.tokens.delete_all_tokens_by_user_id(updated.id.id)
+        self.event_store.append(updated)

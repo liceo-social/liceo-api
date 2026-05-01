@@ -107,6 +107,7 @@ class SendResetPasswordEmailDTO:
 @dataclass
 class ConfirmResetPasswordDTO:
     token: str
+    username: str
     password: str
     password_repeated: str
 

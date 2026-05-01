@@ -33,6 +33,10 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         return None
 
     @sql(_map_to_user)
+    def find_user_by_token_and_username(self, token: str, username: str) -> User | None:
+        return None
+
+    @sql(_map_to_user)
     def find_user_by_username(self, username: str) -> User | None:
         return None
 
@@ -164,7 +168,11 @@ class SQLUsersOneTimeTokensRepository(UsersOneTimeTokensRepository, SQLRepositor
 
     def save_reset_hashed_token(self, user: User) -> None:
         sql = self.resolve_sql(self.save_reset_hashed_token)
-        last_reset_token = user.last_reset_token
+        last_reset_token = user.reset_password_token
+
+        if not last_reset_token:
+            return
+
         self._get_connection().execute(
             sql,
             params={
@@ -172,6 +180,6 @@ class SQLUsersOneTimeTokensRepository(UsersOneTimeTokensRepository, SQLRepositor
                 "user_id": user.id.id,
                 "token_hash": last_reset_token.hashed_token,
                 "created_at": last_reset_token.created_at,
-                "expires_at": last_reset_token.expires.at
+                "expires_at": last_reset_token.expires_at
             }
         )
