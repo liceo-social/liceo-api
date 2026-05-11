@@ -1,4 +1,4 @@
-from pytest_archon import archrule, core_modules
+from pytest_archon import archrule
 
 
 def test_can_only_import_from_adapters():

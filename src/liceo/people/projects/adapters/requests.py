@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pydantic import BaseModel, Field
 from ..application import dtos
 from liceo.infra.domain.vo import Pagination

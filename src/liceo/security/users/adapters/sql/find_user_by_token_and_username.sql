@@ -1,5 +1,9 @@
 SELECT
-  x.*
+  x.*,
+  ott.token_hash as reset_token_hashed_token,
+  ott.created_at as reset_token_created_at,
+  ott.expires_at as reset_token_expires_at,
+  ott.used_at as reset_token_used_at
 FROM
 (SELECT
     lu.id,
@@ -26,7 +30,6 @@ LEFT JOIN liceo_roles lr
     ON lr.id = lru.role_id
 LEFT JOIN liceo_users_images lui
     ON lui.user_id = lu.id
-WHERE lu.id = :id
 GROUP BY
     lu.id,
     lu.name,
@@ -40,5 +43,5 @@ GROUP BY
     lui.storage_id) AS x
 JOIN liceo_users_ott AS ott 
 ON x.id = ott.user_id
-WHERE ott.token = :token
+WHERE ott.token_hash = :token
 AND x.username = :username;

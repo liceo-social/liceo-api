@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from liceo.infra.domain.vo import Pagination, Paged
+from liceo.infra.domain.vo import Paged
 from ..domain.entities import Role
 from ..domain.vo import RoleId, Permission
 

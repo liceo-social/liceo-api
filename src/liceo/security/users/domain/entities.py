@@ -141,6 +141,7 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
         hashed_token: str
         password: str
         password_repeated: str
+        hashed_password: str
 
     @dataclass(kw_only=True)
     class PasswordReset(AggregateEvent):
@@ -263,8 +264,8 @@ class User(AuditableAggregate[vo.UserId, vo.UserId]):
             raise errors.RepeatedPasswordNotCorrect()
 
         return self.append(User.PasswordReset(
-            password=cmd.password,
-            event_by=self.id.id
+            password=cmd.hashed_password,
+            event_by=self.id
         ))
 
     @property

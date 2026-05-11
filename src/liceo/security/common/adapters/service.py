@@ -49,6 +49,9 @@ class DatabaseAwareSecurityService(SecurityService):
 
         return token, token_hash
 
+    def get_hashed_reset_token_from_plain(self, plain_token: str) -> str:
+        return hashlib.sha256(plain_token.encode()).hexdigest()
+
     def decode_token(self, token: str) -> dict:
         payload = jwt.decode(
             token,

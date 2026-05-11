@@ -1,16 +1,18 @@
-from datetime import datetime, timedelta
 from liceo.infra.domain.vo import Paged, AuditInfo
 from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, UpsertUserImageDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
 from ..application.repository import UsersRepository, UsersImagesRepository, UsersOneTimeTokensRepository
-from ..domain.vo import UserId
+from ..domain.vo import UserId, ResetPassworToken
 from . import mappers
 
 
 class SQLUsersRepository(UsersRepository, SQLRepository):
     @staticmethod
-    def _map_to_user(row: dict) -> User:
+    def _map_to_user(row: dict) -> User | None:
+        if not row:
+            return
+
         user = User(
             id=UserId(id=row["id"])
         )
@@ -26,6 +28,15 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         user.account_active = row["account_active"]
         user.account_blocked = row["account_blocked"]
         user.account_expired = row["account_expired"]
+
+        if row.get("reset_token_hashed_token"):
+            user.reset_password_token = ResetPassworToken(
+                hashed_token=row["reset_token_hashed_token"],
+                created_at=row["reset_token_created_at"],
+                expires_at=row["reset_token_expires_at"],
+                used_at=row.get("reset_token_used_at", None)
+            )
+
         return user
 
     @sql(_map_to_user)

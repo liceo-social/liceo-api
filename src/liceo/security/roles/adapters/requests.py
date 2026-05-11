@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pydantic import Field, BaseModel
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.adapters.requests import UserContextModel

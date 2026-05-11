@@ -1,5 +1,4 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
-from liceo.infra.domain.vo import Paged
 from liceo.security.common.adapters.di import has_permission
 
 

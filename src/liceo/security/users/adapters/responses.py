@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from liceo.infra.domain.vo import Paged
-from typing import Self
 from ..domain.entities import User
 from ..application.dtos import UpdatedSecurityDTO
 from ..application.dtos import UserDTO

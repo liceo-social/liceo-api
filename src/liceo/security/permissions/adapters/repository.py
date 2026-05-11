@@ -1,4 +1,3 @@
-from typing import Any
 from liceo.infra.domain.vo import Paged, Pagination
 from liceo.labs.db.sql import SQLRepository
 from liceo.security.permissions.domain.entities import Permission

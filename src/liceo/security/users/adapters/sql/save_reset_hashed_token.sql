@@ -10,6 +10,7 @@ VALUES
 (
     :id,
     :user_id,
+    :token_hash,
     :created_at,
     :expires_at
 );

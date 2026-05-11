@@ -23,5 +23,9 @@ class SecurityService(ABC):
         pass
 
     @abstractmethod
+    def get_hashed_reset_token_from_plain(self, plain_token: str) -> str:
+        pass
+
+    @abstractmethod
     def decode_token(self, token: str) -> dict:
         pass

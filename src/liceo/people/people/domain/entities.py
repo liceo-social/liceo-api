@@ -1,4 +1,3 @@
-from datetime import datetime
 from dataclasses import dataclass
 from liceo.infra.domain.entities import AuditableAggregate
 from liceo.labs.sherlock.domain.entities import AggregateEvent

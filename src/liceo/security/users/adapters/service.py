@@ -237,7 +237,8 @@ class UsersService(service.AbstractUsersService, AbstractService):
 
     @transactional()
     def confirm_reset_password(self, input: dtos.ConfirmResetPasswordDTO):
-        user = self.users.find_user_by_token_and_username(input.token, input.username)
+        token_hash = self.security.get_hashed_reset_token_from_plain(input.token)
+        user = self.users.find_user_by_token_and_username(token_hash, input.username)
 
         if not user:
             return
@@ -245,7 +246,8 @@ class UsersService(service.AbstractUsersService, AbstractService):
         updated = user.reset_password(entities.User.ResetPasswordCommand(
             hashed_token=input.token,
             password=input.password,
-            password_repeated=input.password_repeated
+            password_repeated=input.password_repeated,
+            hashed_password=self.security.hash_passw(input.password)
         ))
 
         self.users.update_password(updated)
