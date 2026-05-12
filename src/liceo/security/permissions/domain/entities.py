@@ -1,6 +1,3 @@
-from typing import Callable
-from dataclasses import dataclass
-
 from liceo.security.permissions.domain import vo
 
 

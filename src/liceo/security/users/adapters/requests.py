@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from liceo.infra.domain.vo import Pagination
 from liceo.security.common.adapters.di import UserInfo
 from liceo.security.common.application.dto import CurrentUserDTO
-from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO, UpdateSecurityDTO, GetUserDTO
+from ..application.dtos import CreateUserDTO, FilterUsersDTO, UpdateUserDetailsDTO, UpdatePasswordDTO, UpdateSecurityDTO, GetUserDTO, SendResetPasswordEmailDTO, ConfirmResetPasswordDTO
 
 
 class UserDetails(BaseModel):
@@ -138,3 +138,20 @@ class ShowUserRequest(BaseModel):
 
     def to_dto(self) -> GetUserDTO:
         return GetUserDTO(self.id)
+
+
+class ResetPasswordRequest(BaseModel):
+    username: str
+
+    def to_dto(self) -> SendResetPasswordEmailDTO:
+        return SendResetPasswordEmailDTO(self.username)
+
+
+class ResetPasswordConfirmationRequest(BaseModel):
+    token: str
+    username: str
+    password: str
+    password_repeated: str
+
+    def to_dto(self) -> ConfirmResetPasswordDTO:
+        return ConfirmResetPasswordDTO(token=self.token, password=self.password, password_repeated=self.password_repeated, username=self.username)

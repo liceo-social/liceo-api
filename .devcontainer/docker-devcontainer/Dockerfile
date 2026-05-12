@@ -8,6 +8,17 @@ RUN if [ "${POETRY_VERSION}" != "none" ]; then su vscode -c "umask 0002 && pip3 
 ARG UV_VERSION="0.9.2"
 RUN if [ "${UV_VERSION}" != "none" ]; then su vscode -c "umask 0002 && pip3 install uv==${UV_VERSION}"; fi
 
+# OPENCODE
+ARG OPENCODE_VERSION="1.4.0"
+RUN rm -f /etc/apt/sources.list.d/yarn.list; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends npm; \
+    npm install -g opencode-ai@${OPENCODE_VERSION}; \
+    npm cache clean --force; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
+
+
 USER vscode
 # Protobuf 32.1
 ENV PB_REL="https://github.com/protocolbuffers/protobuf/releases"

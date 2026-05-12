@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ..domain import entities, vo
+from ..domain import entities
 from . import dtos
 
 

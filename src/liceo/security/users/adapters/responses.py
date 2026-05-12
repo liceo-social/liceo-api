@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from liceo.infra.domain.vo import Paged
-from typing import Self
 from ..domain.entities import User
 from ..application.dtos import UpdatedSecurityDTO
 from ..application.dtos import UserDTO
@@ -110,3 +109,15 @@ class ShowUserResponse(BaseModel):
             account_expired=dto.account_expired,
             created_by=dto.created_by,
         )
+
+
+class ResetPasswordRequestResponse(BaseModel):
+    result: str = "ok"
+
+
+class ResetPasswordConfirmationResponse(BaseModel):
+    pass
+
+    @staticmethod
+    def from_confirmation(confirmation: None) -> "ResetPasswordConfirmationResponse":
+        return ResetPasswordConfirmationResponse()

@@ -11,6 +11,14 @@ class UsersRepository(AbstractRepository):
         pass
 
     @abstractmethod
+    def find_user_by_username(self, username: str) -> User | None:
+        pass
+
+    @abstractmethod
+    def find_user_by_token_and_username(self, token: str,  username: str) -> User | None:
+        pass
+
+    @abstractmethod
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
         pass
 
@@ -34,4 +42,14 @@ class UsersRepository(AbstractRepository):
 class UsersImagesRepository(AbstractRepository):
     @abstractmethod
     def save_user_image(self, dto: UpsertUserImageDTO) -> None:
+        pass
+
+
+class UsersOneTimeTokensRepository(AbstractRepository):
+    @abstractmethod
+    def delete_all_tokens_by_user_id(self, user_id: str) -> None:
+        pass
+
+    @abstractmethod
+    def save_reset_hashed_token(self, user: User) -> None:
         pass

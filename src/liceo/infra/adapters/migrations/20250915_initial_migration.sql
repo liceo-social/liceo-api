@@ -20,6 +20,23 @@ CREATE TABLE IF NOT EXISTS liceo_users (
     UNIQUE("username")
 );
 
+-- ONE TIME TOKENS:
+-- - token should be stored as a hash (token_hash)
+-- - only one ott can exist at any given point in time for a given user (UNIQUE(user_id))
+-- - it can't be used more than once (used_at)
+-- - it can be used until expired unless already used (expires_at)
+-- - it should point to a valid user (FK)
+CREATE TABLE IF NOT EXISTS liceo_users_ott (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token_hash TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used_at TIMESTAMP,
+    UNIQUE("user_id"),
+    CONSTRAINT fk_liceo_users_ott_user_id FOREIGN KEY (user_id) REFERENCES liceo_users(id)
+);
+
 CREATE TABLE IF NOT EXISTS liceo_permissions (
     id TEXT PRIMARY KEY,
     name TEXT,

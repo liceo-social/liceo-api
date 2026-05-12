@@ -2,9 +2,8 @@ from functools import wraps
 from dataclasses import dataclass
 from contextlib import AbstractContextManager, contextmanager
 from contextvars import ContextVar
-from typing import Optional, Any
 from abc import ABC, abstractmethod
-from typing import Any, List, Mapping, Sequence, Union
+from typing import Optional, Any, List, Mapping, Sequence, Union
 from liceo.labs.logs import logged
 
 SingleParams = Mapping[str, Any]

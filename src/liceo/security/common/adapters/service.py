@@ -1,5 +1,8 @@
 import jwt
 import bcrypt
+import secrets
+import hashlib
+import base64
 from dataclasses import dataclass
 from liceo.infra.domain.vo import LiceoConfiguration
 from liceo.labs.db.core import ConnectionManagerFactory, managed_service
@@ -15,6 +18,7 @@ class DatabaseAwareSecurityService(SecurityService):
     connection_manager_factory: ConnectionManagerFactory
 
     def hash_passw(self, pwd) -> str:
+        # TODO: review salt usage. Should not be reused
         return bcrypt.hashpw(pwd.encode(), self.config.crypto.salt.encode()).decode()
 
     def verify(self, password: str, hashed: str) -> bool:
@@ -37,6 +41,16 @@ class DatabaseAwareSecurityService(SecurityService):
             self.config.crypto.secret_key,
             algorithm=self.config.crypto.algorithm
         )
+
+    def generate_reset_token(self) -> tuple[str, str]:
+        raw = secrets.token_bytes(32)
+        token = base64.urlsafe_b64encode(raw).decode().rstrip("=")
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+        return token, token_hash
+
+    def get_hashed_reset_token_from_plain(self, plain_token: str) -> str:
+        return hashlib.sha256(plain_token.encode()).hexdigest()
 
     def decode_token(self, token: str) -> dict:
         payload = jwt.decode(

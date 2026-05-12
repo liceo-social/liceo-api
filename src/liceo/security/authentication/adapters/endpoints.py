@@ -1,6 +1,6 @@
 from liceo.infra.adapters.rest.endpoints import RestGroupSpec
 from typing import Annotated
-from fastapi import Depends, Form
+from fastapi import Form
 from .di import AuthenticationServiceDependency
 from .responses import TokenResponse
 from .requests import OAuth2PasswordJSON

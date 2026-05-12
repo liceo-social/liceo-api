@@ -1,5 +1,5 @@
 from liceo.security.users.domain.entities import User
-from liceo.security.users.domain.vo import UserId, Role
+from liceo.security.users.domain.vo import UserId
 from liceo.security.users.domain import errors
 
 WRONG_VERSION = 999
@@ -125,7 +125,7 @@ def test_try_to_change_password_with_wrong_repeated_password():
         assert True
 
     assert len(user._events) == 1
-    assert user.password == None
+    assert user.password is None
 
 
 def test_try_to_change_password_by_another_user():
@@ -148,7 +148,7 @@ def test_try_to_change_password_by_another_user():
         assert True
 
     assert len(user._events) == 1
-    assert user.password == None
+    assert user.password is None
 
 
 def test_try_to_change_password_by_wrong_old_password():
@@ -171,7 +171,7 @@ def test_try_to_change_password_by_wrong_old_password():
         assert True
 
     assert len(user._events) == 1
-    assert user.password == None
+    assert user.password is None
 
 
 def test_try_to_change_password_concurrently():
@@ -194,4 +194,4 @@ def test_try_to_change_password_concurrently():
         assert True
 
     assert len(user._events) == 1
-    assert user.password == None
+    assert user.password is None

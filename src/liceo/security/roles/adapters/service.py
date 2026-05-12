@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 from liceo.infra.domain.vo import Paged, Pagination
 from liceo.labs.sherlock.application.service import EventStoreService
 from liceo.labs.db.core import AbstractService, managed_service, transactional

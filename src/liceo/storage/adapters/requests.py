@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from fastapi import UploadFile, Path, Depends
 from pydantic import BaseModel
 from typing import Annotated

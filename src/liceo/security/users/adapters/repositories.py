@@ -2,14 +2,17 @@ from liceo.infra.domain.vo import Paged, AuditInfo
 from liceo.security.users.application.dtos import FilterUsersDTO, UserDTO, UpsertUserImageDTO
 from liceo.security.users.domain.entities import User
 from liceo.labs.db.sql import SQLRepository, sql
-from ..application.repository import UsersRepository, UsersImagesRepository
-from ..domain.vo import UserId
+from ..application.repository import UsersRepository, UsersImagesRepository, UsersOneTimeTokensRepository
+from ..domain.vo import UserId, ResetPassworToken
 from . import mappers
 
 
 class SQLUsersRepository(UsersRepository, SQLRepository):
     @staticmethod
-    def _map_to_user(row: dict) -> User:
+    def _map_to_user(row: dict) -> User | None:
+        if not row:
+            return
+
         user = User(
             id=UserId(id=row["id"])
         )
@@ -25,10 +28,27 @@ class SQLUsersRepository(UsersRepository, SQLRepository):
         user.account_active = row["account_active"]
         user.account_blocked = row["account_blocked"]
         user.account_expired = row["account_expired"]
+
+        if row.get("reset_token_hashed_token"):
+            user.reset_password_token = ResetPassworToken(
+                hashed_token=row["reset_token_hashed_token"],
+                created_at=row["reset_token_created_at"],
+                expires_at=row["reset_token_expires_at"],
+                used_at=row.get("reset_token_used_at", None)
+            )
+
         return user
 
     @sql(_map_to_user)
     def find_user_by_id(self, id: str) -> User | None:
+        return None
+
+    @sql(_map_to_user)
+    def find_user_by_token_and_username(self, token: str, username: str) -> User | None:
+        return None
+
+    @sql(_map_to_user)
+    def find_user_by_username(self, username: str) -> User | None:
         return None
 
     def filter_users(self, filter: FilterUsersDTO) -> Paged[UserDTO]:
@@ -150,3 +170,27 @@ class SQLUsersImagesRepository(UsersImagesRepository, SQLRepository):
         }
         print(params)
         self._get_connection().execute(sql, params)
+
+
+class SQLUsersOneTimeTokensRepository(UsersOneTimeTokensRepository, SQLRepository):
+    @sql()
+    def delete_all_tokens_by_user_id(self, user_id: str) -> None:
+        return None
+
+    def save_reset_hashed_token(self, user: User) -> None:
+        sql = self.resolve_sql(self.save_reset_hashed_token)
+        last_reset_token = user.reset_password_token
+
+        if not last_reset_token:
+            return
+
+        self._get_connection().execute(
+            sql,
+            params={
+                "id": self.generate_id(),
+                "user_id": user.id.id,
+                "token_hash": last_reset_token.hashed_token,
+                "created_at": last_reset_token.created_at,
+                "expires_at": last_reset_token.expires_at
+            }
+        )
