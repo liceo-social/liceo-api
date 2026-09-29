@@ -29,13 +29,15 @@ jobs:
       credentials:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
-    env:
-      DOCKER_HOST: tcp://127.0.0.1:2376
-      DOCKER_TLS_VERIFY: "1"
-      DOCKER_CERT_PATH: /certs/client
+    # env:
+    #   DOCKER_HOST: tcp://127.0.0.1:2376
+    #   DOCKER_TLS_VERIFY: "1"
+    #   DOCKER_CERT_PATH: /certs/client
     # depends:
     #   - check
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Build
-        run: docker images
+        run: docker build -t git.lab.bit2lab.com/liceo/liceo-api .
 
