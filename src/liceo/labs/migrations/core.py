@@ -62,15 +62,15 @@ class DBM(Repository, logged("liceo.labs.migrations")):
         return self.h256.hexdigest()
 
     def _read_sql_files_from_path(self, path: Path) -> List[Path]:
-        return [f.absolute() for f in path.iterdir() if f.is_file()]
+        return sorted(
+            [f.absolute() for f in path.iterdir() if f.is_file()],
+            key=lambda path: path.name.lower(),
+        )
 
     def _extract_file_content(self, file: BufferedReader) -> FileContent:
         file_bytes = file.read()
         file_hash = self._hash_file(file_bytes)
         return DBM.FileContent(sql=file_bytes.decode("utf-8"), hash=file_hash)
-
-    def _sort_migration_files(path: Path) -> str:
-        return path.name
 
     def apply_migrations(self):
         ADD_MIGRATION_ENTRY = """
@@ -79,9 +79,7 @@ class DBM(Repository, logged("liceo.labs.migrations")):
         ON CONFLICT DO NOTHING
         RETURNING NAME;
         """
-        for filename in self._read_sql_files_from_path(self.path).sort(
-            self._sort_migration_files
-        ):
+        for filename in self._read_sql_files_from_path(self.path):
             with open(filename, "rb") as file:
                 with self._connection_scope() as conn:
                     file_content = self._extract_file_content(file)
