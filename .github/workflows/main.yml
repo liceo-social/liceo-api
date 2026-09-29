@@ -26,6 +26,9 @@ jobs:
     runs-on: docker
     container:
       image: git.lab.bit2lab.com/valhalla/forgejo-actions:latest
+      credentials:
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
     env:
       DOCKER_HOST: tcp://127.0.0.1:2376
       DOCKER_TLS_VERIFY: "1"
