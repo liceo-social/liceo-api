@@ -8,7 +8,10 @@ T = TypeVar("T", bound=AggregateId)
 U = TypeVar("U", bound=AggregateId)
 
 
-class AuditableAggregate(Aggregate[T, U], Generic[T, U],):
+class AuditableAggregate(
+    Aggregate[T, U],
+    Generic[T, U],
+):
     audit: AuditInfo[U]
 
     def set_created(self, by: U, when: datetime):
