@@ -88,7 +88,7 @@ class FileConfig(BaseModel):
 
 @singleton
 class LiceoConfiguration(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="LICEO_API", env_nested_delimiter="_")
+    model_config = SettingsConfigDict(env_prefix="LICEO_API", env_nested_delimiter="__")
 
     crypto: CryptoConfig = CryptoConfig()
     db: DatabaseConfig = DatabaseConfig()
