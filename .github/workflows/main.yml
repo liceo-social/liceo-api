@@ -6,21 +6,21 @@ on:
       - main
 
 jobs:
-  # check:
-  #   runs-on: docker
-  #   steps:
-  #     - name: Pre (checkout code)
-  #       uses: actions/checkout@v4
-  #     - name: Pre (install uv)
-  #       uses: astral-sh/setup-uv@v6
-  #       with:
-  #         enable-cache: true
-  #     - name: Pre (sync-dependencies)
-  #       run: uv sync
-  #     - name: Tests (architecture)
-  #       run: ./ci.sh arch-tests
-  #     - name: Tests (unit)
-  #       run: ./ci.sh unit-tests
+  check:
+    runs-on: docker
+    steps:
+      - name: Pre (checkout code)
+        uses: actions/checkout@v4
+      - name: Pre (install uv)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Pre (sync-dependencies)
+        run: uv sync
+      - name: Tests (architecture)
+        run: ./ci.sh arch-tests
+      - name: Tests (unit)
+        run: ./ci.sh unit-tests
 
   docker:
     runs-on: docker
@@ -29,15 +29,15 @@ jobs:
       credentials:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
-    # env:
-    #   DOCKER_HOST: tcp://127.0.0.1:2376
-    #   DOCKER_TLS_VERIFY: "1"
-    #   DOCKER_CERT_PATH: /certs/client
-    # depends:
-    #   - check
+    depends:
+      - check
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build
-        run: docker buildx build -t git.lab.bit2lab.com/liceo/liceo-api .
+      - name: Docker Login
+        run: docker login --username ${{ secrets.REGISTRY_USERNAME }} --password ${{ secrets.REGISTRY_PASSWORD }} $FORGEJO_SERVER_URL
+      - name: Docker Build
+        run: docker buildx build -t git.lab.bit2lab.com/liceo/liceo-api:latest .
+      - name: Docker Push
+        run: docker push git.lab.bit2lab.com/liceo/liceo-api:latest
 
