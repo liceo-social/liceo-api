@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Pre (checkout code)
         uses: actions/checkout@v4
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v5
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Build and push
