@@ -26,10 +26,10 @@ jobs:
     runs-on: docker
     # container:
     #   image: docker:29.8.1-cli
-    # env:
-    #   DOCKER_HOST: tcp://127.0.0.1:2376
-    #   DOCKER_TLS_VERIFY: "1"
-    #   DOCKER_CERT_PATH: /certs/client
+    env:
+      DOCKER_HOST: tcp://127.0.0.1:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
     # depends:
     #   - check
     steps:
