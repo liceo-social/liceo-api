@@ -23,7 +23,7 @@ jobs:
   #       run: ./ci.sh unit-tests
 
   # docker:
-  #   runs-on: docker
+    runs-on: docker
   #   depends:
   #     - check
     steps:
