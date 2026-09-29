@@ -69,6 +69,9 @@ class DBM(Repository, logged("liceo.labs.migrations")):
         file_hash = self._hash_file(file_bytes)
         return DBM.FileContent(sql=file_bytes.decode("utf-8"), hash=file_hash)
 
+    def _sort_migration_files(path: Path) -> str:
+        return path.name
+
     def apply_migrations(self):
         ADD_MIGRATION_ENTRY = """
         INSERT INTO migrations (name, applied_at, hash)
@@ -76,7 +79,9 @@ class DBM(Repository, logged("liceo.labs.migrations")):
         ON CONFLICT DO NOTHING
         RETURNING NAME;
         """
-        for filename in self._read_sql_files_from_path(self.path):
+        for filename in self._read_sql_files_from_path(self.path).sort(
+            self._sort_migration_files
+        ):
             with open(filename, "rb") as file:
                 with self._connection_scope() as conn:
                     file_content = self._extract_file_content(file)
@@ -85,7 +90,7 @@ class DBM(Repository, logged("liceo.labs.migrations")):
                         ADD_MIGRATION_ENTRY,
                         {"filename": filename.name, "hash": file_content.hash},
                     )
-                    if (succeeded_row.rowcount > 0):
+                    if succeeded_row.rowcount > 0:
                         conn.execute(file_content.sql, {})
                         self._logger.info("migration %s applied", filename.name)
                     else:

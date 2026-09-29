@@ -5,7 +5,7 @@ from pythonjsonlogger.json import JsonFormatter
 
 ROOT_LOGGER = logging.getLogger()
 
-logHandler = SysLogHandler(address='/dev/log')
+logHandler = SysLogHandler()
 
 formatter = JsonFormatter(
     fmt="%(asctime)s %(levelname)s %(message)s %(exc_info)s",
