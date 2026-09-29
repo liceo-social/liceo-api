@@ -1,12 +1,17 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from logging.handlers import SysLogHandler
 
 from pythonjsonlogger.json import JsonFormatter
 
 ROOT_LOGGER = logging.getLogger()
-logHandler = RotatingFileHandler(
-    filename="logs/liceo.log", maxBytes=1024, backupCount=3
-)
+
+logHandler = SysLogHandler(address='/dev/log')
+
+# logHandler = RotatingFileHandler(
+#     filename="logs/liceo.log", maxBytes=1024, backupCount=3
+# )
+
 formatter = JsonFormatter(
     fmt="%(asctime)s %(levelname)s %(message)s %(exc_info)s",
     datefmt="%Y-%m-%dT%H:%M:%S",
