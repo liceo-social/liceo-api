@@ -24,8 +24,8 @@ jobs:
 
   docker:
     runs-on: docker
-    # container:
-    #   image: docker:29.8.1-cli
+    container:
+      image: git.lab.bit2lab.com/valhalla/forgejo-actions:latest
     env:
       DOCKER_HOST: tcp://127.0.0.1:2376
       DOCKER_TLS_VERIFY: "1"
@@ -33,8 +33,6 @@ jobs:
     # depends:
     #   - check
     steps:
-      - name: Set up Docker
-        uses: https://github.com/docker/setup-docker-action@v5
       - name: Build
         run: docker images
 
