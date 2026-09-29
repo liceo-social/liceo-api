@@ -29,10 +29,10 @@ jobs:
       credentials:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
-    # env:
-    #   DOCKER_HOST: tcp://127.0.0.1:2376
-    #   DOCKER_TLS_VERIFY: "1"
-    #   DOCKER_CERT_PATH: /certs/client
+    env:
+      DOCKER_HOST: tcp://127.0.0.1:2376
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_CERT_PATH: /certs/client
     # depends:
     #   - check
     steps:
@@ -40,8 +40,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-        with:
-          endpoint: tcp://127.0.0.1:2376
+        # with:
+        #   endpoint: tcp://127.0.0.1:2376
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
