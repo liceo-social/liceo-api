@@ -38,15 +38,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v4
-        # with:
-        #   endpoint: tcp://127.0.0.1:2376
-      # - name: Build and push
-      #   uses: docker/build-push-action@v7
-      #   with:
-      #     push: false
-      #     tags: git.lab.bit2lab.com/liceo/liceo-api
       - name: Build
         # run: docker buildx build -t git.lab.bit2lab.com/liceo/liceo-api .
         run: docker --help
