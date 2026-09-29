@@ -7,30 +7,28 @@ on:
 
 jobs:
   check:
-  #   runs-on: docker
-  #   steps:
-  #     - name: Pre (checkout code)
-  #       uses: actions/checkout@v4
-  #     - name: Pre (install uv)
-  #       uses: astral-sh/setup-uv@v6
-  #       with:
-  #         enable-cache: true
-  #     - name: Pre (sync-dependencies)
-  #       run: uv sync
-  #     - name: Tests (architecture)
-  #       run: ./ci.sh arch-tests
-  #     - name: Tests (unit)
-  #       run: ./ci.sh unit-tests
-
-  # docker:
     runs-on: docker
-    container:
-      image: docker:29.8.1-cli
-    # depends:
-    #   - check
     steps:
       - name: Pre (checkout code)
         uses: actions/checkout@v4
+      - name: Pre (install uv)
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Pre (sync-dependencies)
+        run: uv sync
+      - name: Tests (architecture)
+        run: ./ci.sh arch-tests
+      - name: Tests (unit)
+        run: ./ci.sh unit-tests
+
+  docker:
+    runs-on: docker
+    container:
+      image: docker:29.8.1-cli
+    depends:
+      - check
+    steps:
       - name: Build
         run: docker build -t liceo/liceo-api:latest .
       # - name: Set up Docker Buildx
