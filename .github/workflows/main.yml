@@ -39,6 +39,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Build
-        # run: docker buildx build -t git.lab.bit2lab.com/liceo/liceo-api .
-        run: docker --help
+        run: docker buildx build -t git.lab.bit2lab.com/liceo/liceo-api .
 
