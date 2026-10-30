@@ -7,22 +7,22 @@ from ..domain import vo
 
 class EmergencyContactRequest(BaseModel):
     type: vo.ContactType
-    value: str = Field(le=20)
+    value: str = Field(max_length=20)
     relationship: vo.ContactRelationship
-    notes: str | None = Field(le=200)
+    notes: str | None = Field(max_length=200)
 
 
 class OfficialIdentificationRequest(BaseModel):
     type: vo.IdentificationType
-    value: str = Field(le=50)
+    value: str = Field(max_length=50)
     expiration_date: datetime | None
 
 
 class CreatePersonDetails(BaseModel):
-    name: str = Field(le=100)
-    surname: str = Field(le=200)
+    name: str = Field(max_length=100)
+    surname: str = Field(max_length=200)
     photo: str | None
-    alias: str = Field(le=100)
+    alias: str = Field(max_length=100)
     birthdate: datetime
     sex: vo.Sex
     genre: vo.Genre
